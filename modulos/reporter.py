@@ -16,6 +16,7 @@ import psycopg2 as sql
 from openpyxl import Workbook
 from smtplib import SMTPAuthenticationError
 from socket import gaierror
+import threading as th
 
 ############ FIN DE IMPORTACIONES ############
 
@@ -68,7 +69,7 @@ def report_caja_diaria(s_final):
         categ = categ
         conn = caja.sql.connect(caja.database)
         cursor = conn.cursor()
-        instruccion = f"SELECT * FROM caja WHERE categoria='{categ}' AND dia='{dia}' AND mes='{mes}' AND año='{año}' AND cerrada = '0'"
+        instruccion = f"SELECT * FROM caja WHERE categoria='{categ}' AND cerrada = '0'"
         cursor.execute(instruccion)
         datos = cursor.fetchall()
         conn.close()
@@ -948,9 +949,8 @@ def report_caja_mensual_por_cob(mes, año):
     ################################################### RECIBOS #####################################################    
     #################################################################################################################
 
-def recibos(facturacion, id_cobrador):
+def recibos(facturacion, id_cobrador, recibos):
     ############ INICIO DE VARIABLES INDEPENDIENTES ############
-    recibos = rend.buscar_operaciones(facturacion, id_cobrador)
     periodo_actual = rend.obtener_periodo()
     dia = datetime.now().strftime('%d')
     mes = datetime.now().strftime('%m')
@@ -1019,7 +1019,7 @@ def recibos(facturacion, id_cobrador):
                     añovar = datetime.now().strftime('%Y')
                 c_f = c_f - 1
                 rend.ingresar_cobro_auto(periodo_actual, id_o, añovar, fecha, c_f)
-            elif ultimo_pago != f'{periodo_actual}{año}' and c_f == 0 and u_r != f"{mes}-{año2c}":
+            elif ultimo_pago != f'{periodo_actual}{año}' and c_f <= 0 and u_r != f"{mes}-{año2c}":
                 # Ingresando recibo en la base de datos
                 añovar = 0
                 if periodo_actual == "Enero - Febrero":
@@ -1246,24 +1246,18 @@ def recibos(facturacion, id_cobrador):
                     pdf.set_font('Arial', '', 9)
                     pdf.cell(17, 5, f'$ {val_mant:.2f}', 'RTB', 1, 'L')
                     pdf.ln(2)
-                # Línea 8                                                                  --
-                # if ult == periodo_anterior and u_a == año:                                 |
-                #     pdf.cell(190, 17, ' ', 0, 1, 'L')                                      |
-                # elif ult == "Diciembre - Enero" and u_a == f'{int(año)-1}':                |--> Borrar si funciona bien el if de abajo
-                #     pdf.cell(190, 17, ' ', 0, 1, 'L')                                      |
-                # elif ult == "Noviembre - Diciembre" and u_a == f'{int(año)-1}':            |
-                #     pdf.cell(190, 17, ' ', 0, 1, 'L')                                    --
+                # Línea 8
                 q_rec_impagos = len(rend.obtener_recibos_impagos_op(id_o))
-                if q_rec_impagos == 1:
-                    pdf.cell(190, 17, ' ', 0, 1, 'L')
-                else:
-                    q_rec_impagos -= 1
-                    pdf.cell(93, 4, f'----------- ATENCIÓN: El asociado adeuda {q_rec_impagos} cuotas. ----------', 1, 1, 'C')
+                debe = 0
+                if c_f < 0:
+                    debe += abs(c_f)
+                debe += q_rec_impagos - 1
+                if debe:
+                    pdf.cell(93, 4, f'----------- ATENCIÓN: El asociado adeuda {abs(c_f)} cuotas. ----------', 1, 1, 'C')
                     # Margen
                     pdf.cell(190, 13, ' ', 0, 1, 'L')
-                # Progreso
-                print(".", end = "")
-    print("\n")
+                else:
+                    pdf.cell(190, 17, ' ', 0, 1, 'L')
     try:
         if not os.path.isdir(f'../reports/recibos/{nco}'):
             os.mkdir(f'../reports/recibos/{nco}')
@@ -1271,13 +1265,14 @@ def recibos(facturacion, id_cobrador):
 
         ############ ABRIR REPORT ############
 
-        print("Abriendo reporte. Cierre el archivo para continuar...")
+        print("Abriendo recibos...")
         ruta = f'../reports/recibos/{nco}/'
         arch = f'recibos_{año}-{mes}-{dia}.pdf'
         os.chdir(ruta)
         os.system(arch)
         ruta = '../../../modulos/'
         os.chdir(ruta)
+        return recibos
     except UnboundLocalError:
         print("")
         print("No se encontraron recibos impagos.")
@@ -1299,12 +1294,11 @@ def recibos(facturacion, id_cobrador):
     ############################################## LISTADO DE RECIBOS ###############################################
     #################################################################################################################
 
-def listado_recibos(facturacion, id_cobrador):
+def listado_recibos(facturacion, id_cobrador, recibos):
     ############ INICIO DE VARIABLES INDEPENDIENTES ############
 
     fecha = caja.obtener_fecha()
     hora = datetime.now().strftime('%H:%M')
-    recibos = rend.buscar_operaciones(facturacion, id_cobrador)
     periodo_actual = rend.obtener_periodo()
     periodo_anterior = rend.obtener_periodo_anterior(periodo_actual)
     dia = datetime.now().strftime('%d')
@@ -1399,33 +1393,20 @@ def listado_recibos(facturacion, id_cobrador):
         elif fac == 'nob':
             val_mant = val_mant_nob
         if act == 1:
-            # if not ult == periodo_actual and u_a == año and c_f == 0 and u_r != f"{mes}-{año2c}":
-            if ultimo_pago != f'{periodo_actual}{año}' and c_f == 0 and u_r != f"{mes}-{año2c}":
+            if ultimo_pago != f'{periodo_actual}{año}' and c_f <= 0 and u_r != f"{mes}-{año2c}":
                 counter = counter + 1
-                if ult == periodo_anterior and u_a == año:
+                q_rec_impagos = len(rend.obtener_recibos_impagos_op(id_o))
+                debe = 0
+                if c_f < 0:
+                    debe += abs(c_f)
+                debe += q_rec_impagos
+                if q_rec_impagos:
+                    if rend.obtener_recibos_impagos_op(id_o)[-1][2] == periodo_actual:
+                        debe -= 1
+                if debe > 0:
                     pdf.set_font('Arial', '', 10)
                     pdf.cell(14, 5, f'{nro}'.rjust(6, '0'), 0, 0, 'L ')
-                    pdf.cell(65,5, f'{nom}', 0, 0, 'L')
-                    pdf.cell(1, 5, '', 0, 0, 'L')
-                    pdf.cell(79, 5, f'{dom}', 0, 0, 'L')
-                    pdf.cell(1, 5, '', 0, 0, 'L')
-                    pdf.cell(10, 5, f'{rut}'.rjust(3, '0'), 0, 0, 'L')
-                    pdf.cell(20, 5, f'{val_mant:.2f}', 0, 1, 'R')
-                    imp_acu = imp_acu + float(val_mant)
-                elif ult == "Diciembre - Enero" and u_a == f'{int(año)-1}':
-                    pdf.set_font('Arial', '', 10)
-                    pdf.cell(14, 5, f'{nro}'.rjust(6, '0'), 0, 0, 'L ')
-                    pdf.cell(65,5, f'{nom}', 0, 0, 'L')
-                    pdf.cell(1, 5, '', 0, 0, 'L')
-                    pdf.cell(79, 5, f'{dom}', 0, 0, 'L')
-                    pdf.cell(1, 5, '', 0, 0, 'L')
-                    pdf.cell(10, 5, f'{rut}'.rjust(3, '0'), 0, 0, 'L')
-                    pdf.cell(20, 5, f'{val_mant:.2f}', 0, 1, 'R')
-                    imp_acu = imp_acu + float(val_mant)
-                elif ult == "Noviembre - Diciembre" and u_a == f'{int(año)-1}':
-                    pdf.set_font('Arial', '', 10)
-                    pdf.cell(14, 5, f'{nro}'.rjust(6, '0'), 0, 0, 'L ')
-                    pdf.cell(65,5, f'{nom}', 0, 0, 'L')
+                    pdf.cell(65,5, f'{nom}*', 0, 0, 'L')
                     pdf.cell(1, 5, '', 0, 0, 'L')
                     pdf.cell(79, 5, f'{dom}', 0, 0, 'L')
                     pdf.cell(1, 5, '', 0, 0, 'L')
@@ -1435,47 +1416,51 @@ def listado_recibos(facturacion, id_cobrador):
                 else:
                     pdf.set_font('Arial', '', 10)
                     pdf.cell(14, 5, f'{nro}'.rjust(6, '0'), 0, 0, 'L ')
-                    pdf.cell(65,5, f'{nom}*', 0, 0, 'L')
+                    pdf.cell(65,5, f'{nom}', 0, 0, 'L')
                     pdf.cell(1, 5, '', 0, 0, 'L')
                     pdf.cell(79, 5, f'{dom}', 0, 0, 'L')
                     pdf.cell(1, 5, '', 0, 0, 'L')
                     pdf.cell(10, 5, f'{rut}'.rjust(3, '0'), 0, 0, 'L')
                     pdf.cell(20, 5, f'{val_mant:.2f}', 0, 1, 'R')
-                    imp_acu = imp_acu + float(val_mant)  
+                    imp_acu = imp_acu + float(val_mant)
                 # Evitar duplicado de recibos
                 rend.evitar_duplicado(mes, año2c, id_o)
                 # Envío de recordatorio vía mail     <---------------------------------- Buscar alternativa, demora mucho.
-                # if mail != None and cob != 6 and mor == 0:
-                #     try:
-                #         email.recordatorio_cobrador(nro, periodo_actual, cod, pan, nco)
-                    # except SMTPAuthenticationError:
-                #         pass
-                #      except gaierror:
-                #          pass
-                #     except:
-                #        mant.log_error()
-                #        print("")
-                #        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
-                #        print()
-                #        return
+                if False:
+                    if mail != None and cob != 6 and mor == 0:
+                        try:
+                            email.recordatorio_cobrador(nro, periodo_actual, cod, pan, nco)
+                        except SMTPAuthenticationError:
+                            pass
+                        except gaierror:
+                             pass
+                        except:
+                           mant.log_error()
+                           print("")
+                           input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                           print()
+                           return
                 # Revisión estado de mora
-                if cuenta > 0 and mor == 0:
+                if cuenta > 0:
                     rend.set_moroso(id_o)
-                    # Generar reporte de estado de cuenta
-                    report_estado_cta_mail(nro, nom, dni, dom, te_1, te_2, mail, c_p, loc, act)
-                    # Envío de aviso de mora vía mail
-                    try:
-                        email.aviso_de_mora(nro)
-                    except SMTPAuthenticationError:
-                        pass
-                    except gaierror:
-                        pass
-                    except:
-                        mant.log_error()
-                        print("")
-                        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
-                        print()
-                        return
+                    if False:                      # <---------------------------------- Buscar alternativa, demora mucho.
+                        # Generar reporte de estado de cuenta
+                        report_estado_cta_mail(nro, nom, dni, fac, dom, te_1, te_2, mail, c_p, loc, act)
+                        # Envío de aviso de mora vía mail
+                        try:
+                            email.aviso_de_mora(id_o)
+                        except SMTPAuthenticationError:
+                            mant.log_error()
+                            pass
+                        except gaierror:
+                            mant.log_error()
+                            pass
+                        except:
+                            mant.log_error()
+                            print("")
+                            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                            print()
+                            return
     pdf.ln(2)
     pdf.cell(91, 5, '', 0, 0, 'L')
     pdf.cell(33, 5, 'Cantidad de recibos:', 'LTB', 0, 'L')
@@ -1484,11 +1469,13 @@ def listado_recibos(facturacion, id_cobrador):
     pdf.cell(33, 5, 'Importe acumulado:', 'LTB', 0, 'L')
     pdf.cell(23, 5, f'$ {imp_acu:.2f}', 'RTB', 0, 'R')
     try:
+        if not os.path.isdir(f'../reports/recibos/{nco}'):
+            os.mkdir(f'../reports/recibos/{nco}')
         pdf.output(f'../reports/recibos/{nco}/listado_recibos_{año}-{mes}-{dia}.pdf', 'F')
 
     ############ ABRIR REPORT ############
 
-        print("Abriendo reporte. Cierre el archivo para continuar...")
+        print("Abriendo Listado...")
         ruta = f'../reports/recibos/{nco}/'
         arch = f'listado_recibos_{año}-{mes}-{dia}.pdf'
         os.chdir(ruta)
@@ -1516,13 +1503,9 @@ def listado_recibos(facturacion, id_cobrador):
     ############################################## RECIBOS DEB. AUT. ################################################    
     #################################################################################################################
 
-def recibos_deb_aut(facturacion):
+def recibos_deb_aut(facturacion, recibos):
     ############ INICIO DE VARIABLES INDEPENDIENTES ############
-    id_cobrador = 6
-    recibos = rend.buscar_operaciones(facturacion, id_cobrador)
     periodo_actual = rend.obtener_periodo()
-    periodo_anterior = rend.obtener_periodo_anterior(periodo_actual)
-    dia = datetime.now().strftime('%d')
     mes = datetime.now().strftime('%m')
     año = datetime.now().strftime('%Y')
     año2c = datetime.now().strftime('%y')
@@ -1692,8 +1675,6 @@ def recibos_deb_aut(facturacion):
                     pdf.set_font('Arial', '', 9)
                     pdf.cell(17, 5, f'$ {val_mant:.2f}', 'RTB', 1, 'C')
                     pdf.ln(2)
-                # Progreso
-                print(".", end = "")
         try:
             num_soc = f'{nro}'.rjust(6, '0')
             num_rec = f'{ndr}'.rjust(7, '0')
@@ -1724,12 +1705,11 @@ def recibos_deb_aut(facturacion):
     ######################################## LISTADO DE RECIBOS DEB. AUT. ###########################################    
     #################################################################################################################
 
-def listado_recibos_deb_aut(facturacion):
+def listado_recibos_deb_aut(facturacion, recibos):
     ############ INICIO DE VARIABLES INDEPENDIENTES ############
     id_cobrador = 6
     fecha = caja.obtener_fecha()
     hora = datetime.now().strftime('%H:%M')
-    recibos = rend.buscar_operaciones(facturacion, id_cobrador)
     periodo_actual = rend.obtener_periodo()
     periodo_anterior = rend.obtener_periodo_anterior(periodo_actual)
     dia = datetime.now().strftime('%d')
@@ -2310,9 +2290,6 @@ def recibos_documentos():
                         pdf.ln(2)
                     # Margen
                     pdf.cell(190, 17, ' ', 0, 1, 'L')
-                    # Progreso
-                    print(".", end = "")
-    print("\n")
 
     ############ GUARDAR REPORT ############
     try:
@@ -2929,7 +2906,7 @@ def recibo_adelanto(ndr, cobrador, periodo_h, año_h, valor_total):
     ############################################### ESTADO DE CUENTA ################################################
     #################################################################################################################
 
-def report_estado_cta(nro_socio, nombre, dni, fec_alta, domicilio, te_1, te_2, mail, c_p, localidad, act):
+def report_estado_cta(nro_socio, nombre, dni, facturacion, domicilio, te_1, te_2, mail, c_p, localidad, act):
     ############ INICIO DE VARIABLES INDEPENDIENTES ############
     fecha = caja.obtener_fecha()
     hora = datetime.now().strftime('%H:%M')
@@ -2962,7 +2939,10 @@ def report_estado_cta(nro_socio, nombre, dni, fec_alta, domicilio, te_1, te_2, m
         # Page header
         def header(self):
             # Logo
-            self.image('../docs/logo_bicon.jpg', 14.5, 12, 15)
+            if facturacion == 'bicon':
+                self.image('../docs/logo_bicon.jpg', 14.5, 12, 15)
+            elif facturacion == 'nob':
+                self.image('../docs/logo_nob.jpg', 14.5, 12, 13)
             # Arial bold 15
             self.set_font('Arial', 'B', 15)
             # Title
@@ -3062,9 +3042,23 @@ def report_estado_cta(nro_socio, nombre, dni, fec_alta, domicilio, te_1, te_2, m
         pdf.cell(1, 5, '', 0, 0, 'L')
         pdf.cell(11, 5, 'Cód. nicho', 0, 0, 'L')
         pdf.cell(12, 5, '', 0, 0, 'L')
-        pdf.cell(43, 5, 'Período', 0, 0, 'L')
+        pdf.cell(47, 5, 'Período', 0, 0, 'L')
         pdf.cell(1, 5, '', 0, 0, 'L')
-        pdf.cell(23, 5, 'Deuda', 0, 1, 'L')
+        pdf.cell(19, 5, 'Deuda', 0, 1, 'L')
+        if c_f < 0:
+            pdf.set_font('Arial', '', 10)
+            pdf.cell(10, 5, '', 0, 0, 'L')
+            pdf.cell(17, 5, f'N/D', 0, 0, 'L ')
+            pdf.cell(1, 5, '', 0, 0, 'L')
+            pdf.cell(11, 5, f'{ctas.buscar_nicho_por_op(id_op)}'.rjust(10, '0'), 0, 0, 'L')
+            pdf.cell(12, 5, '', 0, 0, 'L')
+            if fac == 'bicon':
+                pdf.cell(49, 5, f'Hasta Agosto-Septiembre 2022', 0, 0, 'L')
+            if fac == 'nob':
+                pdf.cell(49, 5, f'Hasta Julio-Agosto 2022', 0, 0, 'L')
+            pdf.cell(1, 5, '', 0, 0, 'L')
+            pdf.cell(2, 5, '$', 0, 0, 'R')
+            pdf.cell(23, 5, f'{float(ctas.deuda_vieja_por_op(id_op)):.2f}', 0, 1, 'R')
         recibos = ctas.buscar_recibos_por_op(id_op)
         for r in recibos:
             nro, ope, per, año, pag = r
@@ -3083,10 +3077,10 @@ def report_estado_cta(nro_socio, nombre, dni, fec_alta, domicilio, te_1, te_2, m
             pdf.cell(1, 5, '', 0, 0, 'L')
             pdf.cell(11, 5, f'{ctas.buscar_nicho_por_op(ope)}'.rjust(10, '0'), 0, 0, 'L')
             pdf.cell(12, 5, '', 0, 0, 'L')
-            pdf.cell(45, 5, f'{per} - {año}', 0, 0, 'L')
+            pdf.cell(49, 5, f'{per} - {año}', 0, 0, 'L')
             pdf.cell(1, 5, '', 0, 0, 'L')
             pdf.cell(2, 5, '$', 0, 0, 'R')
-            pdf.cell(21, 5, f'{float(val):.2f}', 0, 1, 'R')
+            pdf.cell(23, 5, f'{float(val):.2f}', 0, 1, 'R')
         pdf.ln(3)
         pdf.set_font('Arial', 'B', 10)
         pdf.cell(40, 5, 'Deuda de operación: ', 0, 0, 'L')
@@ -3096,7 +3090,10 @@ def report_estado_cta(nro_socio, nombre, dni, fec_alta, domicilio, te_1, te_2, m
         pdf.set_font('Arial', 'B', 10)
         pdf.cell(27, 5, 'Cuotas a favor: ', 0, 0, 'L')
         pdf.set_font('Arial', '', 10)
-        pdf.cell(0, 5, f'{c_f}', 0, 1, 'L')
+        if c_f < 0:
+            pdf.cell(0, 5, f'0', 0, 1, 'L')
+        else:
+            pdf.cell(0, 5, f'{c_f}', 0, 1, 'L')
         pdf.ln(2)
         pdf.cell(0, 2, '________________________________________', 0, 1, 'L')
         pdf.ln(2)
@@ -3133,7 +3130,7 @@ def report_estado_cta(nro_socio, nombre, dni, fec_alta, domicilio, te_1, te_2, m
     ####################################### ESTADO DE CUENTA P/EMAIL ################################################
     #################################################################################################################
 
-def report_estado_cta_mail(nro_socio, nombre, dni, domicilio, te_1, te_2, mail, c_p, localidad, act):
+def report_estado_cta_mail(nro_socio, nombre, dni, facturacion, domicilio, te_1, te_2, mail, c_p, localidad, act):
     ############ INICIO DE VARIABLES INDEPENDIENTES ############
     fecha = caja.obtener_fecha()
     hora = datetime.now().strftime('%H:%M')
@@ -3160,7 +3157,10 @@ def report_estado_cta_mail(nro_socio, nombre, dni, domicilio, te_1, te_2, mail, 
         # Page header
         def header(self):
             # Logo
-            self.image('../docs/logo_bicon.jpg', 14.5, 12, 15)
+            if facturacion == 'bicon':
+                self.image('../docs/logo_bicon.jpg', 14.5, 12, 15)
+            elif facturacion == 'nob':
+                self.image('../docs/logo_nob.jpg', 14.5, 12, 13)
             # Arial bold 15
             self.set_font('Arial', 'B', 15)
             # Title
@@ -3266,6 +3266,20 @@ def report_estado_cta_mail(nro_socio, nombre, dni, domicilio, te_1, te_2, mail, 
         pdf.cell(43, 5, 'Período', 0, 0, 'L')
         pdf.cell(1, 5, '', 0, 0, 'L')
         pdf.cell(23, 5, 'Deuda', 0, 1, 'L')
+        if c_f < 0:
+            pdf.set_font('Arial', '', 10)
+            pdf.cell(10, 5, '', 0, 0, 'L')
+            pdf.cell(17, 5, f'N/D', 0, 0, 'L ')
+            pdf.cell(1, 5, '', 0, 0, 'L')
+            pdf.cell(11, 5, f'{ctas.buscar_nicho_por_op(id_op)}'.rjust(10, '0'), 0, 0, 'L')
+            pdf.cell(12, 5, '', 0, 0, 'L')
+            if fac == 'bicon':
+                pdf.cell(49, 5, f'Hasta Agosto-Septiembre 2022', 0, 0, 'L')
+            if fac == 'nob':
+                pdf.cell(49, 5, f'Hasta Julio-Agosto 2022', 0, 0, 'L')
+            pdf.cell(1, 5, '', 0, 0, 'L')
+            pdf.cell(2, 5, '$', 0, 0, 'R')
+            pdf.cell(23, 5, f'{float(ctas.deuda_vieja_por_op(id_op)):.2f}', 0, 1, 'R')
         recibos = ctas.buscar_recibos_por_op(id_op)
         for r in recibos:
             nro, ope, per, año, pag = r
@@ -3284,20 +3298,23 @@ def report_estado_cta_mail(nro_socio, nombre, dni, domicilio, te_1, te_2, mail, 
             pdf.cell(1, 5, '', 0, 0, 'L')
             pdf.cell(11, 5, f'{ctas.buscar_nicho_por_op(ope)}'.rjust(10, '0'), 0, 0, 'L')
             pdf.cell(12, 5, '', 0, 0, 'L')
-            pdf.cell(45, 5, f'{per} - {año}', 0, 0, 'L')
+            pdf.cell(49, 5, f'{per} - {año}', 0, 0, 'L')
             pdf.cell(1, 5, '', 0, 0, 'L')
             pdf.cell(2, 5, '$', 0, 0, 'R')
-            pdf.cell(21, 5, f'{float(val):.2f}', 0, 1, 'R')
+            pdf.cell(23, 5, f'{float(val):.2f}', 0, 1, 'R')
         pdf.ln(3)
         pdf.set_font('Arial', 'B', 10)
         pdf.cell(40, 5, 'Deuda de operación: ', 0, 0, 'L')
         pdf.set_font('Arial', '', 10)
         pdf.cell(1, 5, '$', 0, 0, 'R')
-        pdf.cell(0, 5, f'{ctas.deuda_por_op(ope):.2f}', 0, 1, 'L')
+        pdf.cell(0, 5, f'{ctas.deuda_por_op(id_op):.2f}', 0, 1, 'L')
         pdf.set_font('Arial', 'B', 10)
         pdf.cell(27, 5, 'Cuotas a favor: ', 0, 0, 'L')
         pdf.set_font('Arial', '', 10)
-        pdf.cell(0, 5, f'{c_f}', 0, 1, 'L')
+        if c_f < 0:
+            pdf.cell(0, 5, f'0', 0, 1, 'L')
+        else:
+            pdf.cell(0, 5, f'{c_f}', 0, 1, 'L')
         pdf.ln(2)
         pdf.cell(0, 2, '________________________________________', 0, 1, 'L')
         pdf.ln(2)

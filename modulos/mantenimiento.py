@@ -93,7 +93,7 @@ try:
                 else:
                     cerrar = 1
                 if cerrar == 1:
-                    pass
+                    os._exit(1)
 
 
     if idu == 0:

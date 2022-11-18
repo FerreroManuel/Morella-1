@@ -1,4 +1,4 @@
-VERSION = '1.2.2.2209'
+VERSION = '1.3.1.2209'
 SHORT_VERSION = VERSION[:3]
 
 import funciones_rendiciones as rend
@@ -15,9 +15,11 @@ os.system('mode con: cols=160 lines=9999')
 
 
 def obtener_database():
-    arch = open("../databases/database.ini", "r")
-    db = arch.readline()
-    arch.close()
+    if not os.path.isfile("../databases/database.ini"):
+        arch = open("../databases/database.ini", "w")
+        arch.close()
+    with open("../databases/database.ini", "r") as arch:
+        db = arch.readline()
     return db
 database = obtener_database()
 arch_log_error = "../error.log"
@@ -2730,16 +2732,22 @@ def mant_restaurar_admin():
 def mant_database():
     loop = -1
     while loop == -1:
-        loop = host = input("Host: ").lower()
+        loop = host = input("Host [192.168.100.100]: ").lower()
         print()
+        if host == "":
+            host = '192.168.100.100'
         host = revisar_host(host)
         if host == 'error':
             print("         ERROR. Ingrese una dirección de host válida.")
             print()
             loop = -1
-    dbname = input("Database: ")
+    dbname = input("Database [bicon]: ")
+    if dbname == "":
+        dbname = 'bicon'
     print()
-    user = input("User: ")
+    user = input("User [postgres]: ")
+    if user == "":
+        user = 'postgres'
     print()
     password = ""
     while password == "":
@@ -2754,21 +2762,24 @@ def mant_database():
     loop = -1
     while loop == -1:
         try:
-            loop = port = int(input("Port: "))
+            loop = port = input("Port [5432]: ")
+            if port == "":
+                port = 5432
+            else:
+                port = int(port)
             print()
         except ValueError:
             print("         ERROR. El dato solicitado debe ser de tipo numérico.")
             print()
             loop= -1
     conexion = f"host={host} dbname={dbname} user={user} password={password} port={port}"
-    archivo = open(arch_ini, 'w')
-    archivo.write(conexion)
-    archivo.close()
+    with open(arch_ini, 'w') as archivo:
+        archivo.write(conexion)
     print("Ruta a base de datos actualizada exitosamente.")
     print()
     getpass("Presione enter para salir...")
     print()
-
+    
 
 def revisar_host(host):
     counter = 0

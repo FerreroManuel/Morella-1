@@ -13,9 +13,11 @@ os.system('mode con: cols=160 lines=9999')
 
 
 def obtener_database():
-    arch = open("../databases/database.ini", "r")
-    db = arch.readline()
-    arch.close()
+    if not os.path.isfile("../databases/database.ini"):
+        arch = open("../databases/database.ini", "w")
+        arch.close()
+    with open("../databases/database.ini", "r") as arch:
+        db = arch.readline()
     return db
 database = obtener_database()
 dia = datetime.now().strftime('%d')
@@ -545,6 +547,8 @@ def crear_socio(idu, ret):
             try:
                 loop = documento = int(input("Ingrese nro. de documento (sin puntos) o 0 para volver: "))
                 print()
+                if documento == 0:
+                    return 0, 0
                 while documento < 1000000 or documento > 99999999:
                     print("         ERROR. Ingrese un nro de documento válido")
                     print()
@@ -631,6 +635,7 @@ def crear_socio(idu, ret):
                 return
         try:
             localidad = obtener_localidad(cod_postal)
+            print(f"Localidad: {localidad}")
             print()
         except TypeError:
             localidad = input("Ingrese localidad: ").title()
@@ -672,7 +677,7 @@ def opcion_menu_editar_socio():                                                 
     print("   6. Editar localidad")
     print("   7. Editar fecha de nacimiento")
     print("   8. Cambiar estado de socio")
-    print("   0. Salir")
+    print("   0. Volver")
     print("")
     try:
         opcion = int(input("Ingrese una opción: "))
@@ -1281,7 +1286,7 @@ def opcion_menu_buscar_op():                                                    
     print("   5. Buscar por nombre alternativo")
     print("   6. Buscar por domicilio alternativo")
     print("   7. Buscar por nro. de operación de Cobol")
-    print("   0. Salir")
+    print("   0. Volver")
     print("")
     try:
         opcion = int(input("Ingrese una opción: "))
@@ -1615,6 +1620,8 @@ def menu_editar_op(idu):                                                        
             cod_nic = "Ninguno asociado"
         print(f"Operación: {str(id_op).rjust(7, '0')}. Nicho: {cod_nic}")
         print(f"Socio: {str(id_soc).rjust(6, '0')} - {nom}.")
+        if op_cob != None:
+            print(f"N° de operación de COBOL: {op_cob}")
         if nom_alt != None:
             print(f"Nombre alternativo: {nom_alt}")
         if dom_alt != None:
@@ -1643,7 +1650,6 @@ def menu_editar_op(idu):                                                        
 
 
 def transferir_op(idu, id_op):
-    # n_so_n, nom_n, dni_n, te_1_n, te_2_n, mail_n, dom_n, loc_n, c_p_n, f_n_n, f_a_n, act_n = ""
     i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_id(idu)
     if pri < 2:
         print()
@@ -1681,7 +1687,11 @@ def transferir_op(idu, id_op):
             return
         if opcion == 1:
             id_socio, opcion = crear_socio(idu, 1)
-            n_so_n, nom_n, dni_n, te_1_n, te_2_n, mail_n, dom_n, loc_n, c_p_n, f_n_n, f_a_n, act_n = ctas.obtener_datos_socio(id_socio)
+            if id_socio == 0:
+                print()
+                return
+            else:
+                n_so_n, nom_n, dni_n, te_1_n, te_2_n, mail_n, dom_n, loc_n, c_p_n, f_n_n, f_a_n, act_n = ctas.obtener_datos_socio(id_socio)
         if opcion == 2:
             loop = -1
             while loop == -1:
@@ -1745,9 +1755,11 @@ def transferir_op(idu, id_op):
             print()
             if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
                 msj = "S"
-                mant.edit_registro('operaciones', 'socio', id_socio, id_op)
+                mant.edit_registro('operaciones', 'socio', id_socio, id_op)                
                 print("Operación transferida exitosamente.")
                 print()
+                editar_nom_alt(idu, id_op)
+                editar_dom_alt(idu, id_op)
                 pass
             elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
                 msj = "N"

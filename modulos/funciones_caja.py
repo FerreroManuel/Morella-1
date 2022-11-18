@@ -11,9 +11,11 @@ os.system('color 0E')   # Colores del módulo (Amarillo sobre negro)
 os.system('mode con: cols=160 lines=9999')
 
 def obtener_database():
-    arch = open("../databases/database.ini", "r")
-    db = arch.readline()
-    arch.close()
+    if not os.path.isfile("../databases/database.ini"):
+        arch = open("../databases/database.ini", "w")
+        arch.close()
+    with open("../databases/database.ini", "r") as arch:
+        db = arch.readline()
     return db
 database = obtener_database()
 
@@ -968,13 +970,15 @@ def opcion_menu_rendiciones():                                                  
     print("")
     print("********** Acciones disponibles **********")
     print("")
-    print("   1. Registrar un monto a rendir")
-    print("   2. Registrar pago de rendición adeudada")
+    print("   1. Registrar un monto a rendir (-)")
+    print("   2. Registrar pago de rendición adeudada (+)")
+    print("   3. Registrar entrega de dinero sin listado (+)")
+    print("   4. Registrar entrega de listado adeudado (-)")
     print("   0. Volver")
     print("")
     try:
         opcion = int(input("Ingrese una opción: "))
-        while opcion < 0 or opcion > 2:
+        while opcion < 0 or opcion > 4:
             print("")
             print("Opción incorrecta.")
             print("")
@@ -998,6 +1002,10 @@ def menu_rendiciones(idu):                                                      
             a_rendir(idu)
         elif opcion == 2:
             rend_adeudada(idu)
+        elif opcion == 3:
+            sin_listado(idu)
+        elif opcion == 4:
+            listado_adeudado(idu)
 
 
 def a_rendir(idu):
@@ -1160,6 +1168,162 @@ def rend_adeudada(idu):
     return
 
 
+def sin_listado(idu):
+    print("********** Registrar entrega de dinero sin listado **********")
+    print("")
+    transaccion = "S/L"
+    categoria = "Sin listado (+)"
+    descripcion = ""
+    ingreso = 0
+    observacion = ""
+    dia = obtener_dia()
+    mes = obtener_mes()
+    año = obtener_año()
+    print("Indique el ID de cobrador: ")
+    datos = obtener_cobradores()
+    counter = 0
+    for i in datos:
+        counter += 1
+        id_cob, n_cob = i
+        print(f"    * {id_cob}. {n_cob}")
+    print()
+    loop = -1
+    while loop == -1:
+        try:
+            loop = cobrador = int(input("Cobrador: "))
+            print()
+            while cobrador < 1 or cobrador > counter:
+                print("         ERROR. Debe indicar un ID de cobrador válido.")
+                print()
+                cobrador = int(input("Cobrador: "))
+        except ValueError:
+            print("         ERROR. Debe ingresar un dato de tipo numérico.")
+            print()
+            loop = -1
+        except:
+            mant.log_error()
+            print("")
+            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            print()
+            return
+        print("")
+    try:
+        while ingreso == 0:
+            ingreso = float(input("Monto: $ "))
+            print("")
+    except ValueError:
+        print("")
+        print("         ERROR. El monto debe ser numérico. No se registró ningún movimiento.")
+        print("")
+        return
+    except:
+        mant.log_error()
+        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        print()
+        return
+    observacion = input("Observaciones: ")
+    print("")
+    descripcion = obtener_nom_cobrador(cobrador)
+    if "'" in descripcion:
+        descripcion = descripcion.replace("'", "´")
+    if "'" in transaccion:
+        transaccion = transaccion.replace("'", "´")
+    if "'" in observacion:
+        observacion = observacion.replace("'", "´")
+    parameters = str((categoria, descripcion, transaccion, ingreso, observacion, dia, mes, año, idu))
+    query = f"INSERT INTO caja (categoria, descripcion, transaccion, ingreso, observacion, dia, mes, año, id_user) VALUES {parameters}"
+    try:
+        run_query(query)
+    except:
+        mant.log_error()
+        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        print()
+        return
+    ult_reg_list = ult_reg()
+    print("Se registró: ", ult_reg_list[1], " - ", ult_reg_list[2], " - ","$", ult_reg_list[4], " - ", ult_reg_list[6], " - " "NÚMERO DE REGISTRO: ", f"{ult_reg_list[0]}".rjust(8, '0'))
+    return
+
+
+def listado_adeudado(idu):
+    print("********** Registrar entrega de listado adeudado **********")
+    print("")
+    transaccion = ""
+    categoria = "Sin listado (-)"
+    descripcion = ""
+    egreso = 0
+    observacion = ""
+    dia = obtener_dia()
+    mes = obtener_mes()
+    año = obtener_año()
+    while transaccion == "":
+        print("")
+        transaccion = input("Número de rendición: ")
+        print("")
+        print("Indique el ID de cobrador: ")
+        datos = obtener_cobradores()
+        counter = 0
+        for i in datos:
+            counter += 1
+            id_cob, n_cob = i
+            print(f"    * {id_cob}. {n_cob}")
+        print()
+        loop = -1
+        while loop == -1:
+            try:
+                loop = cobrador = int(input("Cobrador: "))
+                print()
+                while cobrador < 1 or cobrador > counter:
+                    print("         ERROR. Debe indicar un ID de cobrador válido.")
+                    print()
+                    cobrador = int(input("Cobrador: "))
+            except ValueError:
+                print("         ERROR. Debe ingresar un dato de tipo numérico.")
+                print()
+                loop = -1
+            except:
+                mant.log_error()
+                print("")
+                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                print()
+                return
+        print("")
+    try:
+        while egreso == 0:
+            egreso = float(input("Monto del listado: $ "))
+            print("")
+    except ValueError:
+        print("")
+        print("         ERROR. El monto debe ser numérico. No se registró ningún movimiento.")
+        print("")
+        return
+    except:
+        mant.log_error()
+        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        print()
+        return
+    observacion = input("Observaciones: ")
+    print("")
+    descripcion = obtener_nom_cobrador(cobrador)
+    if "'" in descripcion:
+        descripcion = descripcion.replace("'", "´")
+    if "'" in transaccion:
+        transaccion = transaccion.replace("'", "´")
+    if "'" in observacion:
+        observacion = observacion.replace("'", "´")
+    parameters = str((categoria, descripcion, transaccion, egreso, observacion, dia, mes, año, idu))
+    query = f"INSERT INTO caja (categoria, descripcion, transaccion, egreso, observacion, dia, mes, año, id_user) VALUES {parameters}"
+    try:
+        run_query(query)
+    except:
+        mant.log_error()
+        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        print()
+        return
+    ult_reg_list = ult_reg()
+    print("Se registró: ", ult_reg_list[1], " - ", ult_reg_list[2], " - ","$", ult_reg_list[5], " - ", ult_reg_list[6], " - " "NÚMERO DE REGISTRO: ", f"{ult_reg_list[0]}".rjust(8, '0'))
+    return
+
+
 def opcion_menu_edit():                                                                             # OPCIÓN MENÚ EDITAR
     print("Seleccione una acción")
     print("")
@@ -1167,12 +1331,13 @@ def opcion_menu_edit():                                                         
     print("   2. Buscar un registro")
     print("   3. Modificar un registro")
     print("   4. Eliminar un registro")
+    print("   5. Ver estado de caja actual")
     print("   0. Volver")
     print("")
     accion = -1
     try:
         accion = int(input("Ingrese una opción: "))
-        while accion < 0 or accion > 4:
+        while accion < 0 or accion > 5:
             print("")
             print("Opción incorrecta.")
             print("")
@@ -1200,6 +1365,8 @@ def menu_edit(idu):                                                             
             modif_registro(idu)
         elif opcion == 4:   # Eliminar registro
             eliminar_registro(idu)
+        elif opcion == 5:   # Ver estado de caja actual
+            ver_estado_caja(idu)
         elif opcion == 0:   # Volver
             return
    
@@ -1803,6 +1970,62 @@ def delete_row(parametro1, parametro2):
     cursor.execute(instruccion)
     conn.commit()
     conn.close()
+
+
+def ver_estado_caja(idu):
+    loop = -1
+    while loop == -1:
+        try:
+            loop = caja_actual = float(input('Indique el saldo de caja actual: $ '))
+        except ValueError:
+            print('         ERROR! El dato solicitado debe ser de tipo numérico.')
+            loop = -1
+    caja_inicial = obtener_saldo_inicial()
+    ingresos = 0
+    egresos = 0
+    print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
+    print("----------------------------------------------------- MOVIMIENTOS DE CAJA ACTUAL ------------------------------------------------------------------------------")
+    print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
+    print()
+    try:
+        conn = sql.connect(database)
+        cursor = conn.cursor()
+        instruccion = f"SELECT * FROM caja WHERE cerrada = 0 ORDER BY id"
+        cursor.execute(instruccion)
+        datos = cursor.fetchall()
+        conn.commit()
+    except sql.OperationalError:
+        print("         ERROR. Se ha encontrado un caracter no permitido en la busqueda.")
+        return
+    print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
+    print("{:<9} {:<27} {:<27} {:<11} {:<15} {:<15} {:<30} {:<10} {:<6}".format('    ID   ','CATEGORÍA','DESCRIPCIÓN', 'TRANSACCIÓN', 'INGRESO', 'EGRESO','OBSERVACIONES', '  FECHA', 'USER'))
+    print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
+    for x in datos:
+        i_d, cat, des, tra, ing, egr, obs, dia, mes, año, cer, use = x
+        idu, nom, ape, tel, dom, user, pas, pri, act = buscar_usuario_por_id(use)
+        if ing == None:
+            ing = ''
+            egresos += egr
+        if egr == None:
+            egr = ''
+            ingresos += ing
+        print("{:<9} {:<27} {:<27} {:<11} {:<15} {:<15} {:<30} {:<10} {:<6}".format(f"{i_d}".rjust(8, '0'), cat[:27], des[:27], f"{tra}"[:10], ing, egr, obs[:30], f'{dia}/{mes}/{año}', f'{user}'))
+    conn.close()
+    print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
+    total = ingresos + caja_inicial - egresos - caja_actual
+    print()
+    print(f'Inicial:  $ {caja_inicial:.2f}')
+    print(f'Ingresos: $ {ingresos:.2f}')
+    print(f'Egresos:  $ {egresos:.2f}')
+    print(f'Actual:   $ {caja_actual:.2f}')
+    print('___________________________')
+    if total < 0:
+        print(f'Sobrante: $ {total:.2f}')
+    elif total == 0:
+        print(f'Diferencia: $ {total:.2f}')
+    else:
+        print(f'Faltante: $ {total:.2f}')
+    print()
 
 
 def opcion_menu_caja_mensual():                                                                     # OPCIÓN MENÚ CAJA MENSUAL

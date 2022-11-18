@@ -1,6 +1,7 @@
 import psycopg2 as sql
 import funciones_rendiciones as rend
 import funciones_cuentas as ctas
+import funciones_mantenimiento as mant
 import smtplib 
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText 
@@ -117,51 +118,63 @@ def recordatorio_cobrador(num_socio, periodo, nro_nicho, pan, nom_cob):
     server.quit()
 
 
-def aviso_de_mora(num_socio):
+def aviso_de_mora(id_operacion):
 
     # Variables independientes
-    nro, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = rend.obtener_datos_socio(num_socio)
-    id_o, soc, nic, fac, cob, tar, rut, ult, u_a, fup, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = ctas.obtener_datos_op_por_nro_socio(nro)
-    num_socio = str(num_socio).rjust(6, '0')
-    if nom_alt != None:
+    id_o, soc, nic, fac, cob, tar, rut, ult, u_a, fup, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = rend.obtener_datos_op(id_operacion)
+    nro, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = rend.obtener_datos_socio(soc)
+    if nom_alt:
         nom = f"[{nom_alt}]"
+    if mail:
+        # Datos del remitente
+        i_d, eti, addr_from, smtp_server, smtp_user, smtp_pass = obtener_mail(1)
 
-    # Datos del remitente
-    i_d, eti, addr_from, smtp_server, smtp_user, smtp_pass = obtener_mail(1)
+        # Correo del receptor
+        addr_to = f"{mail}"
 
-    # Correo del receptor
-    addr_to = f"{mail}"
+        # Construimos el mail
+        msg = MIMEMultipart() 
+        msg['To'] = addr_to
+        msg['From'] = addr_from
+        msg['Subject'] = f"Por favor regularice su situación - Bicon S.A."
 
-    # Construimos el mail
-    msg = MIMEMultipart() 
-    msg['To'] = addr_to
-    msg['From'] = addr_from
-    msg['Subject'] = f"Por favor regularice su situación - Bicon S.A."
+        # Cuerpo del mensaje
+        # Si se redacta en HTML colocar 'html' en el 2do parámetro
+        # Si se redacta en texto plano colocar 'plain' en el segundo parámetro
+        msg.attach(MIMEText(f"Sr/a. <b>{nom}</b>, le informamos que debido a la falta de pago durante dos años consecutivos de los servicios contratados en la operación con número {str(id_operacion).rjust(7, '0')}, su cuenta ha pasado a estado de moroso.<br>Le rogamos que se acerque a nuestras oficinas ubicadas en calle Córdoba 2915 (Rosario) a fin de regularizar dicha situación y así poder continuar brindándole nuestro mejor servicio.<br><br>Se adjunta una copia de su estado de cuenta actual.<br><br>Muchas Gracias por confiar en nosotros.<br><br>______________________________<br><br><b>Grupo Bicon S.A.</b><br>430 9999 / 430 8800<br>Córdoba 2915 - 2000<br>ROSARIO, Santa Fe<br><br><i>Este mensaje fue generado automáticamente, por favor no lo responda. Si usted cree que se trata de un error póngase en contacto con la administración para notificarlo. Muchas Gracias.</i>",'html'))
 
-    # Cuerpo del mensaje
-    # Si se redacta en HTML colocar 'html' en el 2do parámetro
-    # Si se redacta en texto plano colocar 'plain' en el segundo parámetro
-    msg.attach(MIMEText(f"Sr/a. <b>{nom}</b>, le informamos que debido a la falta de pago durante un año consecutivo de los servicios contratados, su cuenta ha pasado a estado de moroso.<br>Le rogamos que se acerque a nuestras oficinas ubicadas en calle Córdoba 2915 (Rosario) a fin de regularizar dicha situación y así poder continuar brindándole nuestro mejor servicio.<br><br>Se adjunta una copia de su estado de cuenta actual.<br><br>Muchas Gracias por confiar en nosotros.<br><br>______________________________<br><br><b>Grupo Bicon S.A.</b><br>430 9999 / 430 8800<br>Córdoba 2915 - 2000<br>ROSARIO, Santa Fe<br><br><i>Este mensaje fue generado automáticamente, por favor no lo responda. Si usted cree que se trata de un error póngase en contacto con la administración para notificarlo. Muchas Gracias.</i>",'html'))
+        # Cargamos el archivo a adjuntar
+        try:
+            fp = open(f'../reports/temp/estado_cta_mail.pdf','rb')
+        except PermissionError:
+            mant.log_error()
+            pass
+        except FileNotFoundError:
+            mant.log_error()
+            pass
+        except:
+            mant.log_error()
+            print("")
+            print("         ERROR. Comuníquese con el administrador...")
+            print()
+            pass
+        adjunto = MIMEBase('multipart', 'encrypted')
+        # Lo insertamos en una variable
+        adjunto.set_payload(fp.read()) 
+        fp.close()  
+        # Lo encriptamos en base64 para enviarlo
+        encoders.encode_base64(adjunto) 
+        # Agregamos una cabecera y le damos un nombre al archivo que adjuntamos puede ser el mismo u otro
+        adjunto.add_header('Content-Disposition', 'attachment', filename=f"Estado de cuenta - {str(soc).rjust(6, '0')}-{nom}.pdf")
+        # Lo adjuntamos al mensaje
+        msg.attach(adjunto) 
 
-    # Cargamos el archivo a adjuntar
-    fp = open(f'../reports/temp/estado_cta_mail.pdf','rb')
-    adjunto = MIMEBase('multipart', 'encrypted')
-    # Lo insertamos en una variable
-    adjunto.set_payload(fp.read()) 
-    fp.close()  
-    # Lo encriptamos en base64 para enviarlo
-    encoders.encode_base64(adjunto) 
-    # Agregamos una cabecera y le damos un nombre al archivo que adjuntamos puede ser el mismo u otro
-    adjunto.add_header('Content-Disposition', 'attachment', filename=f"Estado de cuenta - {str(nro).rjust(6, '0')}-{nom}.pdf")
-    # Lo adjuntamos al mensaje
-    msg.attach(adjunto) 
-
-    # Inicializamos el SMTP para hacer el envío
-    server = smtplib.SMTP(smtp_server)
-    server.starttls() 
-    # Logeamos con los datos ya seteados en la parte superior
-    server.login(smtp_user,smtp_pass)
-    # Enviamos
-    server.sendmail(addr_from, addr_to, msg.as_string())
-    # Apagamos conexion SMTP
-    server.quit()
+        # Inicializamos el SMTP para hacer el envío
+        server = smtplib.SMTP(smtp_server)
+        server.starttls() 
+        # Logeamos con los datos ya seteados en la parte superior
+        server.login(smtp_user,smtp_pass)
+        # Enviamos
+        server.sendmail(addr_from, addr_to, msg.as_string())
+        # Apagamos conexion SMTP
+        server.quit()

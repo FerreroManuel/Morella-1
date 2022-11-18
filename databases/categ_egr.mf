@@ -7,3 +7,4 @@ Pago de sueldos
 Pago de comisiones
 Alivios de caja
 A rendir
+Sin listado (-)

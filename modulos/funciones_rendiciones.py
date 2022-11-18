@@ -10,6 +10,7 @@ from datetime import datetime, date
 from dateutil.relativedelta import relativedelta as rd
 from smtplib import SMTPAuthenticationError
 from socket import gaierror
+from threading import Thread
 
 os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
 os.system('color 09')   # Colores del módulo (Azul sobre negro)
@@ -17,9 +18,11 @@ os.system('mode con: cols=160 lines=9999')
 
 
 def obtener_database():
-    arch = open("../databases/database.ini", "r")
-    db = arch.readline()
-    arch.close()
+    if not os.path.isfile("../databases/database.ini"):
+        arch = open("../databases/database.ini", "w")
+        arch.close()
+    with open("../databases/database.ini", "r") as arch:
+        db = arch.readline()
     return db
 database = obtener_database()
 
@@ -260,86 +263,73 @@ def ingresar_cobro(idu):
                         print("")
                         msj = ''
             else:
-                try:
-                    rendicion = int(input("Indique el número de rendición: "))
-                except ValueError:
-                    print("")
-                    print("Número de rendición inválido. No se han realizado cambios en el registro.")
-                    print("")
-                    return
-                except:
-                    mant.log_error()
-                    print("")
-                    input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                if c_f < 0:
+                    print()
+                    print("         ERROR. La operación debe cuotas previas a la implementación de Morella. Debe saldar la cuenta antes de abonar un nuevo recibo.")
                     print()
                     return
-                while msj == '':
-                    msj = input(f"¿Seguro que quiere ingresar el pago por el recibo nro. {f'{ndr}'.rjust(7, '0')} en la rendición nro. {rendicion}? (S/N) ")
-                    if msj == 'S' or msj == 's' or msj == 'Si' or msj == 'SI' or msj == 'sI' or msj == 'si':
-                        set_pago(ndr)
-                        act_periodo(per, ope, año)
-                        if per[0:3] == 'Doc':
-                            registrar_comision_doc(cob, rendicion, ndr, val)
-                        else:
-                            registrar_comision_mant(cob, rendicion, ndr, val) 
+                else:
+                    try:
+                        rendicion = int(input("Indique el número de rendición: "))
+                    except ValueError:
                         print("")
-                        cod, pan, pis, fil, num, cat, ocu, fall = obtener_datos_nicho(nic)
-                        categoria = f"Mantenimiento {obtener_panteon(pan)}"
-                        descripcion = f"{obtener_nom_cobrador(cob)}"
-                        observacion = f"Recibo nro. {f'{ndr}'.rjust(7, '0')}"
-                        dia = caja.obtener_dia()
-                        mes = caja.obtener_mes()
-                        año = caja.obtener_año()
-                        parameters = str((categoria, descripcion, rendicion, val, observacion, dia, mes, año, idu))
-                        query = f"INSERT INTO caja (categoria, descripcion, transaccion, ingreso, observacion, dia, mes, año, id_user) VALUES {parameters}"
-                        run_query(query)
-                        if mor == 1:
-                            id_op, soc, nic, fac, cob, tar, rut, ult, u_a, fup, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = obtener_datos_op(ope)
-                            fec_hoy = datetime.now().date()
-                            fup_sep = str(fup).split("/")
-                            fup_date = date(year = int(fup_sep[1]), month = int(fup_sep[0]), day = 1)
-                            cuenta = int(days_between(fup_date, fec_hoy)/730)
-                            if cuenta <= 0:
-                                print()
-                                print("         ATENCIÓN: A partir del pago ralizado el asociado deja de ser MOROSO, indique cobrador y ruta para la operación.")
-                                print()
-                                datos = vent.obtener_cobradores()
-                                counter = 0
-                                for i in datos:
-                                    counter += 1
-                                    id_cob, n_cob = i
-                                    print(f"    * {id_cob}. {n_cob}")
-                                print()
-                                loop = -1
-                                while loop == -1:
-                                    try:
-                                        loop = cobrador = int(input("Cobrador: "))
-                                        print()
-                                        while cobrador < 1 or cobrador > counter:
-                                            print("         ERROR. Debe indicar un ID de cobrador válido.")
-                                            print()
-                                            cobrador = int(input("Cobrador: "))
-                                    except ValueError:
-                                        print("         ERROR. Debe ingresar un dato de tipo numérico.")
-                                        print()
-                                        loop = -1
-                                    except:
-                                        mant.log_error()
-                                        print("")
-                                        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
-                                        print()
-                                        return
-                                if cobrador == 6:
-                                    deb_aut = 1
-                                    ruta = 0
-                                else:
+                        print("Número de rendición inválido. No se han realizado cambios en el registro.")
+                        print("")
+                        return
+                    except:
+                        mant.log_error()
+                        print("")
+                        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                        print()
+                        return
+                    while msj == '':
+                        msj = input(f"¿Seguro que quiere ingresar el pago por el recibo nro. {f'{ndr}'.rjust(7, '0')} en la rendición nro. {rendicion}? (S/N) ")
+                        if msj == 'S' or msj == 's' or msj == 'Si' or msj == 'SI' or msj == 'sI' or msj == 'si':
+                            set_pago(ndr)
+                            act_periodo(per, ope, año)
+                            if per[0:3] == 'Doc':
+                                registrar_comision_doc(cob, rendicion, ndr, val)
+                            else:
+                                registrar_comision_mant(cob, rendicion, ndr, val) 
+                            print("")
+                            cod, pan, pis, fil, num, cat, ocu, fall = obtener_datos_nicho(nic)
+                            categoria = f"Mantenimiento {obtener_panteon(pan)}"
+                            descripcion = f"{obtener_nom_cobrador(cob)}"
+                            observacion = f"Recibo nro. {f'{ndr}'.rjust(7, '0')}"
+                            dia = caja.obtener_dia()
+                            mes = caja.obtener_mes()
+                            año = caja.obtener_año()
+                            parameters = str((categoria, descripcion, rendicion, val, observacion, dia, mes, año, idu))
+                            query = f"INSERT INTO caja (categoria, descripcion, transaccion, ingreso, observacion, dia, mes, año, id_user) VALUES {parameters}"
+                            run_query(query)
+                            if mor == 1:
+                                id_op, soc, nic, fac, cob, tar, rut, ult, u_a, fup, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = obtener_datos_op(ope)
+                                fec_hoy = datetime.now().date()
+                                fup_sep = str(fup).split("/")
+                                fup_date = date(year = int(fup_sep[1]), month = int(fup_sep[0]), day = 1)
+                                cuenta = int(days_between(fup_date, fec_hoy)/730)
+                                if cuenta <= 0:
+                                    print()
+                                    print("         ATENCIÓN: A partir del pago ralizado el asociado deja de ser MOROSO, indique cobrador y ruta para la operación.")
+                                    print()
+                                    datos = vent.obtener_cobradores()
+                                    counter = 0
+                                    for i in datos:
+                                        counter += 1
+                                        id_cob, n_cob = i
+                                        print(f"    * {id_cob}. {n_cob}")
+                                    print()
                                     loop = -1
                                     while loop == -1:
                                         try:
-                                            loop = ruta = int(input("Indique nro. de ruta: "))
+                                            loop = cobrador = int(input("Cobrador: "))
                                             print()
+                                            while cobrador < 1 or cobrador > counter:
+                                                print("         ERROR. Debe indicar un ID de cobrador válido.")
+                                                print()
+                                                cobrador = int(input("Cobrador: "))
                                         except ValueError:
-                                            print("         ERROR. El dato solicitado debe ser de tipo numérico")
+                                            print("         ERROR. Debe ingresar un dato de tipo numérico.")
                                             print()
                                             loop = -1
                                         except:
@@ -348,56 +338,75 @@ def ingresar_cobro(idu):
                                             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                                             print()
                                             return
-                                    deb_aut = 0
-                                while deb_aut == 1:
-                                    try:
-                                        tarjeta = int(input("Ingrese los 16 dígitos de la tarjeta de crédito (Sin espacios): "))
-                                        if len(str(tarjeta)) < 16 or len(str(tarjeta)) > 16:
-                                            print("         ERROR. Indique un número de tarjeta válido")
+                                    if cobrador == 6:
+                                        deb_aut = 1
+                                        ruta = 0
+                                    else:
+                                        loop = -1
+                                        while loop == -1:
+                                            try:
+                                                loop = ruta = int(input("Indique nro. de ruta: "))
+                                                print()
+                                            except ValueError:
+                                                print("         ERROR. El dato solicitado debe ser de tipo numérico")
+                                                print()
+                                                loop = -1
+                                            except:
+                                                mant.log_error()
+                                                print("")
+                                                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                                                print()
+                                                return
+                                        deb_aut = 0
+                                    while deb_aut == 1:
+                                        try:
+                                            tarjeta = int(input("Ingrese los 16 dígitos de la tarjeta de crédito (Sin espacios): "))
+                                            if len(str(tarjeta)) < 16 or len(str(tarjeta)) > 16:
+                                                print("         ERROR. Indique un número de tarjeta válido")
+                                                print()
+                                                deb_aut = 1
+                                            else:
+                                                mant.edit_registro('operaciones', 'tarjeta', tarjeta, ope)
+                                                deb_aut = 0
+                                            print()
+                                        except ValueError:
+                                            print("         ERROR. El dato solicitado debe ser de tipo numérico.")
                                             print()
                                             deb_aut = 1
-                                        else:
-                                            mant.edit_registro('operaciones', 'tarjeta', tarjeta, ope)
-                                            deb_aut = 0
-                                        print()
-                                    except ValueError:
-                                        print("         ERROR. El dato solicitado debe ser de tipo numérico.")
-                                        print()
-                                        deb_aut = 1
-                                    except:
-                                        mant.log_error()
-                                        print("")
-                                        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
-                                        print()
-                                        return
-                                mant.edit_registro('operaciones', 'moroso', 0, ope)
-                                mant.edit_registro('operaciones', 'cobrador', cobrador, ope)
-                                mant.edit_registro('operaciones', 'ruta', ruta, ope)
-                        print("Pago ingresado exitosamente")
-                    elif msj == 'N' or msj == 'n' or msj == 'No' or msj == 'NO' or msj == 'nO' or msj == 'no':
-                        print("")
-                        print("No se han hecho cambios en el registro.")
-                    else:
-                        print("")
-                        print("Debe ingresar S para confirmar o N para cancelar.")
-                        print("")
-                        msj = ''
-                msj = ''
-                print("")
-                while msj == '':
-                    msj = input(f"¿Desea ingresar otro pago? (S/N) ")
-                    if msj == 'S' or msj == 's' or msj == 'Si' or msj == 'SI' or msj == 'sI' or msj == 'si':
-                        print("")
-                        ndr = 0
-                        loop = -1
-                    elif msj == 'N' or msj == 'n' or msj == 'No' or msj == 'NO' or msj == 'nO' or msj == 'no':
-                        print("")
-                        return
-                    else:
-                        print("")
-                        print("Debe ingresar S para confirmar o N para cancelar.")
-                        print("")
-                        msj = ''
+                                        except:
+                                            mant.log_error()
+                                            print("")
+                                            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                                            print()
+                                            return
+                                    mant.edit_registro('operaciones', 'moroso', 0, ope)
+                                    mant.edit_registro('operaciones', 'cobrador', cobrador, ope)
+                                    mant.edit_registro('operaciones', 'ruta', ruta, ope)
+                            print("Pago ingresado exitosamente")
+                        elif msj == 'N' or msj == 'n' or msj == 'No' or msj == 'NO' or msj == 'nO' or msj == 'no':
+                            print("")
+                            print("No se han hecho cambios en el registro.")
+                        else:
+                            print("")
+                            print("Debe ingresar S para confirmar o N para cancelar.")
+                            print("")
+                            msj = ''
+                    msj = ''
+                    print("")
+                    while msj == '':
+                        msj = input(f"¿Desea ingresar otro pago? (S/N) ")
+                        if msj == 'S' or msj == 's' or msj == 'Si' or msj == 'SI' or msj == 'sI' or msj == 'si':
+                            print("")
+                            ndr = 0
+                            loop = -1
+                        elif msj == 'N' or msj == 'n' or msj == 'No' or msj == 'NO' or msj == 'nO' or msj == 'no':
+                            print("")
+                            return
+                        else:
+                            print("")
+                            print("Debe ingresar S para confirmar o N para cancelar.")
+                            print("")
+                            msj = ''
 
 
 def ingresar_cobro_auto(per, ope, año, fecha, c_f):
@@ -585,20 +594,23 @@ def emitir_recibos():
                 print("POR FAVOR, NO CIERRE LA APLICACIÓN NI APAGUE EL SISTEMA MIENTRAS SE REALIZAN LAS ACCIONES SOLICITADAS")
                 print("")
                 print("Emitiendo recibos...")
+                recibos = buscar_operaciones(facturacion, cobrador)
                 if cobrador != 6:
-                    rep.recibos(facturacion, cobrador)
-                    print("")
-                    print("")
-                    print("Confeccionando listado...")
-                    rep.listado_recibos(facturacion, cobrador)
+                    thread1 = Thread(target=rep.recibos, args=(facturacion, cobrador, recibos))
+                    thread2 = Thread(target=rep.listado_recibos, args=(facturacion, cobrador, recibos))
+                    thread1.start()
+                    thread2.start()
+                    thread1.join()
+                    thread2.join()
                     print("")
                     return
                 elif cobrador == 6:
-                    rep.recibos_deb_aut(facturacion)
-                    print("")
-                    print("")
-                    print("Confeccionando listado...")
-                    rep.listado_recibos_deb_aut(facturacion)
+                    thread1 = Thread(target=rep.recibos_deb_aut, args=(facturacion, recibos))
+                    thread2 = Thread(target=rep.listado_recibos_deb_aut, args=(facturacion, recibos))
+                    thread1.start()
+                    thread2.start()
+                    thread1.join()
+                    thread2.join()
                     print("")
                     return
             elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
@@ -644,19 +656,21 @@ def ingresar_adelantos(idu):
     i_d, cat, val_mant_bic, val_mant_nob = obtener_categoria(cat)
     rec_impagos = obtener_recibos_impagos_op(oper)
     docs_imp = 0
-    mant_imp = 0
+    mant_imp = []
+    q_mant_imp = 0
     if rec_impagos != []:
         for i in rec_impagos:
             nro_rec_imp, ope_imp, per_imp, año_imp, pag_imp = i
             if per_imp[0:3] == 'Doc':
                 docs_imp += 1
             else:
-                mant_imp += 1
+                q_mant_imp += 1
+                mant_imp.append(i)
     if docs_imp > 0:
         print("         ERROR. La operación adeuda documentos. Debe abonar los documentos impagos antes de realizar el pago de cuotas.")
         print()
         return
-    if mant_imp > 0:
+    if q_mant_imp > 0 or c_f < 0:
         print()
         input(f"    *** ATENCIÓN! La operación adeuda cuotas. Éstas serán descontadas de las que adelante en esta transacción. *** ")
         print()
@@ -703,10 +717,12 @@ def ingresar_adelantos(idu):
             mes_hasta = pago_hasta[0:2]
             año_hasta = pago_hasta[3:7]
             periodo_hasta = calcular_periodo(mes_hasta)
-            if mant_imp > 0:
-                cant_deud = cant - mant_imp
-                if cant_deud < 0:
+            if q_mant_imp > 0:
+                cant_deud = cant - q_mant_imp
+                if c_f >= 0 and cant_deud < 0:
                     cant_deud = 0
+                elif c_f < 0:
+                    cant_deud = cant
                 mant.edit_registro('operaciones', 'cuotas_favor', int(c_f)+cant_deud, oper)
                 observacion = f"Pago de {cant} cuotas"
             else:
@@ -809,14 +825,24 @@ def ingresar_adelantos(idu):
             ndr = obtener_nro_recibo()
             registrar_comision_mant(cob, rendicion, ndr, valor_total)
             rep.recibo_adelanto(ndr, cob, periodo_hasta, año_hasta, valor_total)
-            if mant_imp > 0:
+            if q_mant_imp > 0 and c_f >= 0:
                 counter = 0
-                for i in rec_impagos:
+                for i in mant_imp:
                     counter += 1
                     nro_imp, ope_imp, per_imp, año_imp, pag_imp = i
                     set_pago(nro_imp)
                     if counter == cant:
                         break
+            if q_mant_imp > 0 and c_f < 0:
+                if cant > abs(c_f):
+                    counter = 0
+                    for i in mant_imp:
+                        counter += 1
+                        nro_imp, ope_imp, per_imp, año_imp, pag_imp = i
+                        set_pago(nro_imp)
+                        if counter == cant - abs(c_f):
+                            break
+                    mant.edit_registro('operaciones', 'cuotas_favor', int(c_f)+cant_deud-counter, oper)
             print("")
             return
         elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
@@ -1168,9 +1194,7 @@ def obtener_ult_rec_de_op(id_op):
     ult_rec = cursor.fetchone()
     conn.commit()
     conn.close()
-    for i in ult_rec:
-        ult_rec = i
-    return ult_rec
+    return ult_rec[0]
 
 
 def calcular_mes(periodo, tipo):
@@ -1455,7 +1479,6 @@ def set_moroso(id_op):
     conn = sql.connect(database)
     cursor = conn.cursor()
     instruccion = f"UPDATE operaciones SET moroso = '{1}', cobrador = '{5}' WHERE id = {id_op}"
-    # instruccion = f"UPDATE operaciones SET moroso = '{1}' WHERE id = {id_op}"
     cursor.execute(instruccion)
     conn.commit()
     conn.close()

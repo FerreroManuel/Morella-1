@@ -12,9 +12,11 @@ os.system('color 0d')   # Colores del módulo (Púrpura sobre negro)
 os.system('mode con: cols=160 lines=9999')
 
 def obtener_database():
-    arch = open("../databases/database.ini", "r")
-    db = arch.readline()
-    arch.close()
+    if not os.path.isfile("../databases/database.ini"):
+        arch = open("../databases/database.ini", "w")
+        arch.close()
+    with open("../databases/database.ini", "r") as arch:
+        db = arch.readline()
     return db
 database = obtener_database()
 
@@ -750,15 +752,15 @@ def buscar_estado_cta(nro_socio):
             i_d, soc, nic, fac, cob, tar, rut, ult, u_a, fec, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = x
             deuda = float(deuda_por_op(i_d))
             cob = rend.obtener_nom_cobrador(cob)
-            if mor == 1:
+            if mor:
                 mor = 'SI'
-            elif mor == 0:
+            else:
                 mor = 'NO'
-            if nom_alt == None:
+            if not nom_alt:
                 nom_alt = " "
-            if dom_alt == None:
+            if not dom_alt:
                 dom_alt = " "
-            if op_cob == None or op_cob == 0:
+            if not op_cob:
                 op_cob = " "
             print("{:<13} {:<11} {:<20} {:<20} {:<10} {:<33} {:<33} {:<8}".format(f'{i_d}'.rjust(7, '0'), f'{nic}'.rjust(10, '0'), f'$ {deuda:.2f}', cob, f'   {mor}', nom_alt[0:33], dom_alt[0:33], str(op_cob).rjust(8, ' ')))
         print("")
@@ -780,7 +782,7 @@ def buscar_estado_cta(nro_socio):
             print("")
             print("Generando reporte...")
             print("")
-            rep.report_estado_cta(nro_socio, nom, dni, f_a, dom, te_1, te_2, mail, c_p, loc, act)
+            rep.report_estado_cta(nro_socio, nom, dni, fac, dom, te_1, te_2, mail, c_p, loc, act)
         elif msj == 'N' or msj == 'n' or msj == 'No' or msj == 'NO' or msj == 'nO' or msj == 'no':
             print("")
         else:
@@ -821,9 +823,23 @@ def deuda_por_op(id_operacion):
             val = val_mant_nob
         if per[0:3] == 'Doc':
             val = rend.obtener_valor_doc(ope)
-        deuda = deuda + val
-    return deuda
+        deuda += val
+    return deuda + deuda_vieja_por_op(id_operacion)
 
+
+def deuda_vieja_por_op(id_operacion):
+    i_d, soc, nic, fac, cob, tar, rut, ult, u_a, fec, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = rend.obtener_datos_op(id_operacion)
+    cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
+    i_d, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
+    if fac == 'bicon':
+        val = val_mant_bic
+    elif fac == 'nob':
+        val = val_mant_nob
+    if c_f < 0:
+        return abs(c_f) * val
+    else:
+        return 0
+    
 
 def buscar_recibos_por_op(id_operacion):
         conn = sql.connect(database)
@@ -837,20 +853,16 @@ def buscar_recibos_por_op(id_operacion):
 
 
 def deuda_por_socio(nro_socio):
-    deuda_total = 0
-    conn = sql.connect(database)
-    cursor = conn.cursor()
-    instruccion = f"SELECT * FROM operaciones WHERE socio = '{nro_socio}'"
-    cursor.execute(instruccion)
-    datos = cursor.fetchall()
-    conn.commit()
-    conn.close
+    with sql.connect(database) as conn:
+        cursor = conn.cursor()
+        instruccion = f"SELECT * FROM operaciones WHERE socio = '{nro_socio}'"
+        cursor.execute(instruccion)
+        datos = cursor.fetchall()
     deuda = 0
     for d in datos:
             i_d, soc, nic, fac, cob, tar, rut, ult, u_a, fec, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = d
-            deuda = float(deuda_por_op(i_d))
-            deuda_total = float(deuda_total + deuda)
-    return deuda_total
+            deuda += float(deuda_por_op(i_d))
+    return deuda
 
 
 def buscar_op_por_nro_socio(nro_socio):
