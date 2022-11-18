@@ -1,6 +1,3 @@
-# REPORTER CREADO POR MANUEL FERRERO PARA EL SISTEMA [MORELLA] DE [MF! SOLUCIONES]
-
-
 ############ INICIO DE IMPORTACIONES ############
 
 import funciones_caja as caja
@@ -17,7 +14,6 @@ import psycopg2.errors
 from openpyxl import Workbook
 from smtplib import SMTPAuthenticationError
 from socket import gaierror
-import threading as th
 
 ############ FIN DE IMPORTACIONES ############
 
@@ -51,9 +47,6 @@ def report_caja_diaria(s_final):
 
     fecha = caja.obtener_fecha()
     hora = datetime.now().strftime('%H:%M')
-    dia = caja.obtener_dia()
-    mes = caja.obtener_mes()
-    año = caja.obtener_año()
     total_ing = 0
     total_egr = 0
     saldo_inicial = float(caja.obtener_saldo_inicial())
@@ -501,16 +494,6 @@ def report_caja_mensual_det(mes, año):
     pdf.cell(-27, 5, f'TOTAL INGRESOS: $ ', 0, 1, 'R')
     pdf.cell(0, 5, f'( {total_egr:.2f})', 0, 0, 'R')
     pdf.cell(-27, 5, f'TOTAL EGRESOS: $ ', 0, 1, 'R')
-    # pdf.cell(0, 5, f'_____________________________', 0, 1, 'R')
-    # if final == 0:
-    #     pdf.cell(0, 5, f' {final:.2f} ', 0, 0, 'R')
-    #     pdf.cell(-27, 5, f'DIFERENCIA: $ ', 0, 1, 'R')
-    # elif final > 0:
-    #     pdf.cell(0, 5, f' {final:.2f} ', 0, 0, 'R')
-    #     pdf.cell(-27, 5, f'FALTANTE: $ ', 0, 1, 'R')
-    # elif final < 0:
-    #     pdf.cell(0, 5, f' {-1*final:.2f}', 0, 0, 'R')
-    #     pdf.cell(-27, 5, f'SOBRANTE: $ ', 0, 1, 'R')
     pdf.ln(2)
     pdf.output(f'../reports/caja/mensual/detallada/caja_{str.lower(string_mes)}-{año}.pdf', 'F')
 
@@ -728,16 +711,6 @@ def report_caja_mensual_comp(mes, año):
     pdf.cell(-27, 5, f'TOTAL INGRESOS: $ ', 0, 1, 'R')
     pdf.cell(0, 5, f'( {total_egr:.2f})', 0, 0, 'R')
     pdf.cell(-27, 5, f'TOTAL EGRESOS: $ ', 0, 1, 'R')
-    # pdf.cell(0, 5, f'_____________________________', 0, 1, 'R')
-    # if final == 0:
-    #     pdf.cell(0, 5, f' {final:.2f} ', 0, 0, 'R')
-    #     pdf.cell(-27, 5, f'DIFERENCIA: $ ', 0, 1, 'R')
-    # elif final > 0:
-    #     pdf.cell(0, 5, f' {final:.2f} ', 0, 0, 'R')
-    #     pdf.cell(-27, 5, f'FALTANTE: $ ', 0, 1, 'R')
-    # elif final < 0:
-    #     pdf.cell(0, 5, f' {-1*final:.2f}', 0, 0, 'R')
-    #     pdf.cell(-27, 5, f'SOBRANTE: $ ', 0, 1, 'R')
     pdf.ln(2)
     pdf.output(f'../reports/caja/mensual/comprimida/caja_{str.lower(string_mes)}-{año}-COMP.pdf', 'F')
 
@@ -771,6 +744,7 @@ def report_caja_mensual_por_cob(mes, año):
     mes = f'{mes}'.rjust(2, '0')
     año = f'{año}'.rjust(3, '0').rjust(4, '2')
     cobradores = caja.obtener_cobrador()
+    counter = 0
 
     ############ FIN DE VARIABLES INDEPENDIENTES ############
     
@@ -921,8 +895,12 @@ def report_caja_mensual_por_cob(mes, año):
     pdf.alias_nb_pages()
     pdf.add_page()
     pdf.set_font('Arial', '', 10)
-    for i in select_cob(cobradores, mes, año):
+    datos = select_cob(cobradores, mes, año)
+    for i in datos:
         imprimir_registros_por_cob(i, mes, año)
+        counter += 1
+        mant.barra_progreso(counter, len(datos), titulo=f'Morella v{mant.VERSION} - MF! Soluciones informáticas')
+    os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
     pdf.ln(15)
     pdf.cell(0, 5, f' {total_mes_cob:.2f} ', 0, 0, 'R')
     pdf.cell(-27, 5, f'TOTAL: $ ', 0, 1, 'R')
@@ -958,6 +936,7 @@ def recibos(facturacion, id_cobrador, recibos):
     año = datetime.now().strftime('%Y')
     año2c = datetime.now().strftime('%y')
     fecha = f"{mes}/{año}"
+    counter = 0
 
     ############ FIN DE VARIABLES INDEPENDIENTES ############
 
@@ -1131,8 +1110,12 @@ def recibos(facturacion, id_cobrador, recibos):
                 pdf.cell(19, 5, 'Cobrador/a: ', 'LT', 0, 'L')
                 pdf.set_font('Arial', '', 9)
                 pdf.cell(5, 5, f'{cob}'.rjust(2, '0'), 'T', 0, 'L')
-                pdf.cell(69, 5, f'{nco}', 'RT', 0, 'L')
-                pdf.cell(4, 4, '', 0, 0, 'L')
+                pdf.cell(39, 5, f'{nco}', 'T', 0, 'L')
+                pdf.set_font('Arial', 'B', 9)
+                pdf.cell(9, 5, 'Ruta:', 'T', 0, 'L')
+                pdf.set_font('Arial', '', 9)
+                pdf.cell(21, 5, f'{rut}'.rjust(3, '0'), 'RT', 0, 'L')
+                pdf.cell(4, 5, '', 0, 0, 'L')
                 pdf.set_font('Arial', 'B', 9)
                 pdf.cell(17, 5, 'Domicilio: ', 'L', 0, 'L')
                 pdf.set_font('Arial', '', 9)
@@ -1141,11 +1124,7 @@ def recibos(facturacion, id_cobrador, recibos):
                 pdf.set_font('Arial', 'B', 9)
                 pdf.cell(17, 4, 'Categoría: ', 'LB', 0, 'L')
                 pdf.set_font('Arial', '', 9)
-                pdf.cell(46, 4, f'{cat}', 'B', 0, 'L')
-                pdf.set_font('Arial', 'B', 9)
-                pdf.cell(9, 4, 'Ruta:', 'B', 0, 'L')
-                pdf.set_font('Arial', '', 9)
-                pdf.cell(21, 4, f'{rut}'.rjust(3, '0'), 'RB', 0, 'L')
+                pdf.cell(76, 4, f'{cat}', 'RB', 0, 'L')
                 pdf.cell(4, 4, '', 0, 0, 'L')
                 pdf.set_font('Arial', 'B', 9)
                 pdf.cell(17, 4, 'Localidad:', 'LB', 0, 'L')
@@ -1156,7 +1135,11 @@ def recibos(facturacion, id_cobrador, recibos):
                 pdf.set_font('Arial', 'B', 9)
                 pdf.cell(19, 5, 'Cod. Nicho:', 'LTB', 0, 'L')
                 pdf.set_font('Arial', '', 9)
-                pdf.cell(74, 5, f'{cod}'.rjust(10, '0'), 'RTB', 0, 'L')
+                pdf.cell(44, 5, f'{cod}'.rjust(10, '0'), 'TB', 0, 'L')
+                pdf.set_font('Arial', 'B', 9)
+                pdf.cell(7, 5, f'Op:', 'TB', 0, 'L')
+                pdf.set_font('Arial', '', 9)
+                pdf.cell(23, 5, f'{id_o}'.rjust(7, "0"), 'RTB', 0, 'L')
                 pdf.cell(4, 5, '', 0, 0, 'L')
                 pdf.set_font('Arial', 'B', 9)
                 pdf.cell(16, 5, 'Cobrador:', 'LTB', 0, 'L')
@@ -1194,58 +1177,58 @@ def recibos(facturacion, id_cobrador, recibos):
                     pdf.set_font('Arial', 'B', 9)
                     pdf.cell(14, 5, 'Período: ', 'LTB', 0, 'L')
                     pdf.set_font('Arial', '', 9)
-                    pdf.cell(48, 5, f'{periodo_actual} - {int(año)+1}', 'RTB', 0, 'L')
+                    pdf.cell(44, 5, f'{periodo_actual} - {int(año)+1}', 'RTB', 0, 'L')
                     pdf.set_font('Arial', 'B', 9)
                     pdf.cell(14, 5, 'Importe:', 'LTB', 0, 'L')
                     pdf.set_font('Arial', '', 9)
-                    pdf.cell(17, 5, f'$ {val_mant:.2f}', 'RTB', 0, 'L')
+                    pdf.cell(21, 5, f'$ {val_mant:.2f}', 'RTB', 0, 'R')
                     pdf.cell(4, 5, '', 0, 0, 'C')
                     pdf.set_font('Arial', 'B', 9)
                     pdf.cell(14, 5, 'Período: ', 'LTB', 0, 'L')
                     pdf.set_font('Arial', '', 9)
-                    pdf.cell(48, 5, f'{periodo_actual} - {int(año)+1}', 'RTB', 0, 'L')
+                    pdf.cell(44, 5, f'{periodo_actual} - {int(año)+1}', 'RTB', 0, 'L')
                     pdf.set_font('Arial', 'B', 9)
                     pdf.cell(14, 5, 'Importe:', 'LTB', 0, 'L')
                     pdf.set_font('Arial', '', 9)
-                    pdf.cell(17, 5, f'$ {val_mant:.2f}', 'RTB', 1, 'L')
+                    pdf.cell(21, 5, f'$ {val_mant:.2f}', 'RTB', 1, 'R')
                     pdf.ln(2)
                 elif periodo_actual == "Diciembre - Enero":
                     pdf.set_font('Arial', 'B', 9)
                     pdf.cell(14, 5, 'Período: ', 'LTB', 0, 'L')
                     pdf.set_font('Arial', '', 9)
-                    pdf.cell(48, 5, f'{periodo_actual} - {año}/{int(año2c)+1}', 'RTB', 0, 'L')
+                    pdf.cell(44, 5, f'{periodo_actual} - {año}/{int(año2c)+1}', 'RTB', 0, 'L')
                     pdf.set_font('Arial', 'B', 9)
                     pdf.cell(14, 5, 'Importe:', 'LTB', 0, 'L')
                     pdf.set_font('Arial', '', 9)
-                    pdf.cell(17, 5, f'$ {val_mant:.2f}', 'RTB', 0, 'L')
+                    pdf.cell(21, 5, f'$ {val_mant:.2f}', 'RTB', 0, 'R')
                     pdf.cell(4, 5, '', 0, 0, 'C')
                     pdf.set_font('Arial', 'B', 9)
                     pdf.cell(14, 5, 'Período: ', 'LTB', 0, 'L')
                     pdf.set_font('Arial', '', 9)
-                    pdf.cell(48, 5, f'{periodo_actual} - {año}/{int(año2c)+1}', 'RTB', 0, 'L')
+                    pdf.cell(44, 5, f'{periodo_actual} - {año}/{int(año2c)+1}', 'RTB', 0, 'L')
                     pdf.set_font('Arial', 'B', 9)
                     pdf.cell(14, 5, 'Importe:', 'LTB', 0, 'L')
                     pdf.set_font('Arial', '', 9)
-                    pdf.cell(17, 5, f'$ {val_mant:.2f}', 'RTB', 1, 'L')
+                    pdf.cell(21, 5, f'$ {val_mant:.2f}', 'RTB', 1, 'R')
                     pdf.ln(2)
                 else:
                     pdf.set_font('Arial', 'B', 9)
                     pdf.cell(14, 5, 'Período: ', 'LTB', 0, 'L')
                     pdf.set_font('Arial', '', 9)
-                    pdf.cell(48, 5, f'{periodo_actual} - {año}', 'RTB', 0, 'L')
+                    pdf.cell(44, 5, f'{periodo_actual} - {año}', 'RTB', 0, 'L')
                     pdf.set_font('Arial', 'B', 9)
                     pdf.cell(14, 5, 'Importe:', 'LTB', 0, 'L')
                     pdf.set_font('Arial', '', 9)
-                    pdf.cell(17, 5, f'$ {val_mant:.2f}', 'RTB', 0, 'L')
+                    pdf.cell(21, 5, f'$ {val_mant:.2f}', 'RTB', 0, 'R')
                     pdf.cell(4, 5, '', 0, 0, 'C')
                     pdf.set_font('Arial', 'B', 9)
                     pdf.cell(14, 5, 'Período: ', 'LTB', 0, 'L')
                     pdf.set_font('Arial', '', 9)
-                    pdf.cell(48, 5, f'{periodo_actual} - {año}', 'RTB', 0, 'L')
+                    pdf.cell(44, 5, f'{periodo_actual} - {año}', 'RTB', 0, 'L')
                     pdf.set_font('Arial', 'B', 9)
                     pdf.cell(14, 5, 'Importe:', 'LTB', 0, 'L')
                     pdf.set_font('Arial', '', 9)
-                    pdf.cell(17, 5, f'$ {val_mant:.2f}', 'RTB', 1, 'L')
+                    pdf.cell(21, 5, f'$ {val_mant:.2f}', 'RTB', 1, 'R')
                     pdf.ln(2)
                 # Línea 8
                 q_rec_impagos = len(rend.obtener_recibos_impagos_op(id_o))
@@ -1259,6 +1242,9 @@ def recibos(facturacion, id_cobrador, recibos):
                     pdf.cell(190, 13, ' ', 0, 1, 'L')
                 else:
                     pdf.cell(190, 17, ' ', 0, 1, 'L')
+        counter += 1
+        mant.barra_progreso(counter, len(recibos), titulo=f'Morella v{mant.VERSION} - MF! Soluciones informáticas', solo_titulo=True)
+    os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
     try:
         if not os.path.isdir(f'../reports/recibos/{nco}'):
             os.mkdir(f'../reports/recibos/{nco}')
@@ -1511,7 +1497,7 @@ def recibos_deb_aut(facturacion, recibos):
     año = datetime.now().strftime('%Y')
     año2c = datetime.now().strftime('%y')
     fecha = f"{mes}/{año}"
-    
+    counter = 0    
 
     ############ FIN DE VARIABLES INDEPENDIENTES ############
 
@@ -1694,6 +1680,9 @@ def recibos_deb_aut(facturacion, recibos):
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             print()
             return
+        counter += 1
+        mant.barra_progreso(counter, len(recibos), titulo=f'Morella v{mant.VERSION} - MF! Soluciones informáticas', solo_titulo=True)
+    os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
     print("\n")
         
             ######################################## FIN DE REPORT ############################################
@@ -1982,7 +1971,6 @@ def recibos_documentos():
     cobradores = vent.obtener_cobradores()
     dia = datetime.now().strftime('%d')
     mes = datetime.now().strftime('%m')
-    str_mes = rend.obtener_str_mes(mes)
     str_mes_sig, int_mes_sig = rend.obtener_mes_siguiente(mes)
     año = datetime.now().strftime('%Y')
     año2c = datetime.now().strftime('%y')
@@ -1998,7 +1986,7 @@ def recibos_documentos():
     def buscar_documentos():
         conn = sql.connect(database)
         cursor = conn.cursor()
-        instruccion = f"SELECT * FROM documentos ORDER BY id"
+        instruccion = f"SELECT * FROM documentos ORDER BY id_op"
         cursor.execute(instruccion)
         documentos = cursor.fetchall()
         conn.commit()
@@ -2028,12 +2016,16 @@ def recibos_documentos():
     pdf.set_auto_page_break(True, 0)
     pdf.alias_nb_pages()
     pdf.add_page()
-    for cobrador in cobradores:
+    for i, cobrador in enumerate(cobradores):
+        counter = 0
+        print(f"{i+1}/{len(cobradores)}: ")
         id_cob, nom_cob = cobrador
         documentos = buscar_documentos()
+        if len(documentos) == 0:
+            mant.barra_progreso(counter, len(documentos), titulo=f'Morella v{mant.VERSION} - MF! Soluciones informáticas - {i+1}/{len(cobradores)}')
         for documento in documentos:
             id_op, cant_cuotas, val_cuotas, ult_rec = documento
-            if cant_cuotas > 0 and ult_rec == f'{mes}-{año2c}':
+            if cant_cuotas > 0 and ult_rec != f'{int_mes_sig}-{año2c}':
                 id_o, soc, nic, fac, cob, tar, rut, ult, u_a, fup, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = ctas.buscar_op_nro_operacion(id_op, 1)
                 if cob == id_cob:
                     # Variables individuales
@@ -2056,7 +2048,7 @@ def recibos_documentos():
                     ndr = rend.obtener_nro_recibo()
                     lista_recibos.append(ndr)
                     # Header                                                   <----- HAY QUE PENSAR COMO PONER LA IMG DE ÑUL Y SEPARARLOS   
-#                                                                                (asegurarse que el header de bicon comentado coincida con éste)
+                    #                                                           (asegurarse que el header de bicon comentado coincida con éste)
                     # Línea 1
                     pdf.set_font('Arial', 'I', 7)
                     pdf.cell(190, 3.1, '', 0, 1, 'L')
@@ -2217,7 +2209,11 @@ def recibos_documentos():
                     pdf.set_font('Arial', 'B', 9)
                     pdf.cell(19, 5, 'Cod. Nicho:', 'LTB', 0, 'L')
                     pdf.set_font('Arial', '', 9)
-                    pdf.cell(74, 5, f'{cod}'.rjust(10, '0'), 'RTB', 0, 'L')
+                    pdf.cell(44, 5, f'{cod}'.rjust(10, '0'), 'TB', 0, 'L')
+                    pdf.set_font('Arial', 'B', 9)
+                    pdf.cell(7, 5, f'Op:', 'TB', 0, 'L')
+                    pdf.set_font('Arial', '', 9)
+                    pdf.cell(23, 5, f'{id_o}'.rjust(7, "0"), 'RTB', 0, 'L')
                     pdf.cell(4, 5, '', 0, 0, 'L')
                     pdf.set_font('Arial', 'B', 9)
                     pdf.cell(16, 5, 'Cobrador:', 'LTB', 0, 'L')
@@ -2259,7 +2255,7 @@ def recibos_documentos():
                         pdf.set_font('Arial', 'B', 9)
                         pdf.cell(14, 5, 'Importe:', 'LTB', 0, 'L')
                         pdf.set_font('Arial', '', 9)
-                        pdf.cell(27, 5, f'$ {val_cuotas:.2f}', 'RTB', 0, 'L')
+                        pdf.cell(27, 5, f'$ {val_cuotas:.2f}', 'RTB', 0, 'R')
                         pdf.cell(4, 5, '', 0, 0, 'C')
                         pdf.set_font('Arial', 'B', 9)
                         pdf.cell(12, 5, 'Cuota: ', 'LTB', 0, 'L')
@@ -2268,7 +2264,7 @@ def recibos_documentos():
                         pdf.set_font('Arial', 'B', 9)
                         pdf.cell(14, 5, 'Importe:', 'LTB', 0, 'L')
                         pdf.set_font('Arial', '', 9)
-                        pdf.cell(27, 5, f'$ {val_cuotas:.2f}', 'RTB', 1, 'L')
+                        pdf.cell(27, 5, f'$ {val_cuotas:.2f}', 'RTB', 1, 'R')
                         pdf.ln(2)
                     elif mes == "12":
                         pdf.set_font('Arial', 'B', 9)
@@ -2278,7 +2274,7 @@ def recibos_documentos():
                         pdf.set_font('Arial', 'B', 9)
                         pdf.cell(14, 5, 'Importe:', 'LTB', 0, 'L')
                         pdf.set_font('Arial', '', 9)
-                        pdf.cell(27, 5, f'$ {val_cuotas:.2f}', 'RTB', 0, 'L')
+                        pdf.cell(27, 5, f'$ {val_cuotas:.2f}', 'RTB', 0, 'R')
                         pdf.cell(4, 5, '', 0, 0, 'C')
                         pdf.set_font('Arial', 'B', 9)
                         pdf.cell(12, 5, 'Cuota: ', 'LTB', 0, 'L')
@@ -2287,10 +2283,14 @@ def recibos_documentos():
                         pdf.set_font('Arial', 'B', 9)
                         pdf.cell(14, 5, 'Importe:', 'LTB', 0, 'L')
                         pdf.set_font('Arial', '', 9)
-                        pdf.cell(27, 5, f'$ {val_cuotas:.2f}', 'RTB', 1, 'L')
+                        pdf.cell(27, 5, f'$ {val_cuotas:.2f}', 'RTB', 1, 'R')
                         pdf.ln(2)
                     # Margen
                     pdf.cell(190, 17, ' ', 0, 1, 'L')
+            counter += 1
+            mant.barra_progreso(counter, len(documentos), titulo=f'Morella v{mant.VERSION} - MF! Soluciones informáticas - {i+1}/{len(cobradores)}')
+        print()
+    os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
 
     ############ GUARDAR REPORT ############
     try:
@@ -2340,6 +2340,7 @@ def listado_recibos_documentos(lista_recibos):
     fecha = f"{mes}/{año}"
     hora = datetime.now().strftime('%H:%M')
     imp_acu = float(0)
+    counter = 0
 
     ############ FIN DE VARIABLES INDEPENDIENTES ############
 
@@ -2348,7 +2349,7 @@ def listado_recibos_documentos(lista_recibos):
     def buscar_documento(id_op):
         conn = sql.connect(database)
         cursor = conn.cursor()
-        instruccion = f"SELECT * FROM documentos WHERE id = {id_op}"
+        instruccion = f"SELECT * FROM documentos WHERE id_op = {id_op}"
         cursor.execute(instruccion)
         documento = cursor.fetchone()
         conn.commit()
@@ -2361,6 +2362,13 @@ def listado_recibos_documentos(lista_recibos):
                 añovar += 1
             return añovar
 
+
+    def restar_cuota(id_op, cant_cuotas):
+        with sql.connect(database) as conn:
+            cursor = conn.cursor()
+            instruccion = f"UPDATE documentos SET cant_cuotas = '{cant_cuotas-1}' WHERE id_op = '{id_op}'"
+            cursor.execute(instruccion)
+
     ############ FIN DE FUNCIONES ############
 
 
@@ -2368,7 +2376,17 @@ def listado_recibos_documentos(lista_recibos):
     año_var = obtener_añovar(mes, año2c)
 
     ########### FIN DE VARIABLES DEPENDIENTES ############
-    
+
+    ############ INICIO DE FUNCIONES DEPENDIENTES ############
+    def evitar_duplicado(id_op):
+        ult_rec = f'{int_mes_sig}-{año_var}'
+        with sql.connect(database) as conn:
+            cursor = conn.cursor()
+            instruccion = f"UPDATE documentos SET ult_rec = '{ult_rec}' WHERE id_op = '{id_op}'"
+            cursor.execute(instruccion)
+
+    ############ FIN DE FUNCIONES DEPENDIENTES ############
+
 
     ############ INICIO DE REPORT ############
     class PDF(FPDF):
@@ -2421,6 +2439,8 @@ def listado_recibos_documentos(lista_recibos):
     pdf.set_auto_page_break(True, 30)
     pdf.alias_nb_pages()
     pdf.add_page()
+    if len(lista_recibos) == 0:
+        mant.barra_progreso(counter, len(lista_recibos), titulo=f'Morella v{mant.VERSION} - MF! Soluciones informáticas')
     for rec in lista_recibos:
         nro, ope, per, año, pag = rend.obtener_datos_recibo(rec)
         id_op, cant_cuotas, val_cuota, ult_rec = buscar_documento(ope)
@@ -2445,9 +2465,13 @@ def listado_recibos_documentos(lista_recibos):
         pdf.cell(20, 5, f'{val_cuota:.2f}', 0, 1, 'R')
         imp_acu = imp_acu + float(val_cuota)
         # Restando cuotas restantes
-        mant.edit_registro('documentos', 'cant_cuotas', int(cant_cuotas)-1, id_op)
+        restar_cuota(id_op, int(cant_cuotas))
         # Evitar duplicado de recibos
-        mant.edit_registro('documentos', 'ult_rec', f'{int_mes_sig}-{año_var}', id_op)
+        evitar_duplicado(id_op)
+        counter += 1
+        mant.barra_progreso(counter, len(lista_recibos), titulo=f'Morella v{mant.VERSION} - MF! Soluciones informáticas')
+    print()
+    os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
     pdf.ln(2)
     pdf.cell(91, 5, '', 0, 0, 'L')
     pdf.cell(33, 5, 'Cantidad de recibos:', 'LTB', 0, 'L')
@@ -2654,7 +2678,11 @@ def reimpresion_recibo(ndr):
     pdf.set_font('Arial', 'B', 9)
     pdf.cell(19, 5, 'Cod. Nicho:', 'LTB', 0, 'L')
     pdf.set_font('Arial', '', 9)
-    pdf.cell(74, 5, f'{cod}'.rjust(10, '0'), 'RTB', 0, 'L')
+    pdf.cell(44, 5, f'{cod}'.rjust(10, '0'), 'TB', 0, 'L')
+    pdf.set_font('Arial', 'B', 9)
+    pdf.cell(7, 5, f'Op:', 'TB', 0, 'L')
+    pdf.set_font('Arial', '', 9)
+    pdf.cell(23, 5, f'{id_o}'.rjust(7, "0"), 'RTB', 0, 'L')
     pdf.cell(4, 5, '', 0, 0, 'L')
     pdf.set_font('Arial', 'B', 9)
     pdf.cell(16, 5, 'Cobrador:', 'LTB', 0, 'L')
@@ -2691,20 +2719,26 @@ def reimpresion_recibo(ndr):
     pdf.set_font('Arial', 'B', 9)
     pdf.cell(14, 5, 'Período: ', 'LTB', 0, 'L')
     pdf.set_font('Arial', '', 9)
-    pdf.cell(48, 5, f'{per} - {año}', 'RTB', 0, 'L')
+    if per == 'Diciembre - Enero':
+        pdf.cell(44, 5, f'{per} - {año}/{int(str(año)[-2:])+1}', 'RTB', 0, 'L')
+    else:
+        pdf.cell(44, 5, f'{per} - {año}', 'RTB', 0, 'L')
     pdf.set_font('Arial', 'B', 9)
     pdf.cell(14, 5, 'Importe:', 'LTB', 0, 'L')
     pdf.set_font('Arial', '', 9)
-    pdf.cell(17, 5, f'$ {val:.2f}', 'RTB', 0, 'L')
+    pdf.cell(21, 5, f'$ {val:.2f}', 'RTB', 0, 'R')
     pdf.cell(4, 5, '', 0, 0, 'C')
     pdf.set_font('Arial', 'B', 9)
     pdf.cell(14, 5, 'Período: ', 'LTB', 0, 'L')
     pdf.set_font('Arial', '', 9)
-    pdf.cell(48, 5, f'{per} - {año}', 'RTB', 0, 'L')
+    if per == 'Diciembre - Enero':
+        pdf.cell(44, 5, f'{per} - {año}/{int(str(año)[-2:])+1}', 'RTB', 0, 'L')
+    else:
+        pdf.cell(44, 5, f'{per} - {año}', 'RTB', 0, 'L')
     pdf.set_font('Arial', 'B', 9)
     pdf.cell(14, 5, 'Importe:', 'LTB', 0, 'L')
     pdf.set_font('Arial', '', 9)
-    pdf.cell(17, 5, f'$ {val:.2f}', 'RTB', 1, 'L')
+    pdf.cell(21, 5, f'$ {val:.2f}', 'RTB', 1, 'R')
     pdf.ln(2)
     # Línea 8
     pdf.cell(190, 17, ' ', 0, 1, 'L')
@@ -2834,11 +2868,11 @@ def recibo_adelanto(ndr, cobrador, periodo_h, año_h, valor_total):
     pdf.cell(19, 5, 'Cobrador/a: ', 'L', 0, 'L')
     pdf.set_font('Arial', '', 9)
     pdf.cell(5, 5, f'{cobrador}'.rjust(2, '0'), 0, 0, 'L')
-    pdf.cell(41, 5, f'{nco}', 0, 0, 'L')
+    pdf.cell(39, 5, f'{nco}', 0, 0, 'L')
     pdf.set_font('Arial', 'B', 9)
     pdf.cell(10, 5, 'Ruta: ', 0, 0, 'R')
     pdf.set_font('Arial', '', 9)
-    pdf.cell(10, 5, f'{rut}', 'R', 1, 'L')
+    pdf.cell(12, 5, f'{rut}', 'R', 1, 'L')
     # Línea 4
     pdf.set_font('Arial', 'B', 9)
     pdf.cell(17, 4, 'Categoría: ', 'LB', 0, 'L')
@@ -2849,7 +2883,11 @@ def recibo_adelanto(ndr, cobrador, periodo_h, año_h, valor_total):
     pdf.set_font('Arial', 'B', 9)
     pdf.cell(19, 5, 'Cod. Nicho:', 'LTB', 0, 'L')
     pdf.set_font('Arial', '', 9)
-    pdf.cell(66, 5, f'{cod}'.rjust(10, '0'), 'RTB', 1, 'L')
+    pdf.cell(43, 5, f'{cod}'.rjust(10, '0'), 'TB', 0, 'L')
+    pdf.set_font('Arial', 'B', 9)
+    pdf.cell(7, 5, f'Op:', 'TB', 0, 'TB')
+    pdf.set_font('Arial', '', 9)
+    pdf.cell(16, 5, f'{id_o}'.rjust(7, "0"), 'RTB', 1, 'L')
     pdf.ln(1)
     # Línea 6
     pdf.set_font('Arial', 'B', 9)
@@ -2868,7 +2906,10 @@ def recibo_adelanto(ndr, cobrador, periodo_h, año_h, valor_total):
     pdf.set_font('Arial', 'B', 9)
     pdf.cell(11, 5, 'Hasta: ', 'LTB', 0, 'L')
     pdf.set_font('Arial', '', 9)
-    pdf.cell(49, 5, f'{periodo_h} - {año_h}', 'RTB', 0, 'L')
+    if periodo_h == 'Diciembre - Enero':
+        pdf.cell(49, 5, f'{periodo_h} - {año_h}/{int(str(año_h)[-2:])+1}', 'RTB', 0, 'L')
+    else:
+        pdf.cell(49, 5, f'{periodo_h} - {año_h}', 'RTB', 0, 'L')
     pdf.set_font('Arial', '', 9)
     pdf.cell(25, 5, f'$ {valor_total:.2f}', 'RTB', 1, 'C')
     pdf.ln(2)
@@ -3517,8 +3558,7 @@ def report_morosos_det():
         # Line break
         pdf.ln(3)
         counter += 1
-        progreso = int(counter*100/len(lista_limpia_morosos))
-        os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas   -   GENERANDO REPORTE: {progreso}%')
+        mant.barra_progreso(counter, len(lista_limpia_morosos), titulo=f'Morella v{mant.VERSION} - MF! Soluciones informáticas')
     pdf.set_font('Arial', 'B', 10)
     pdf.cell(0, 5, f'DEUDA TOTAL MOROSOS: $ {deuda_total_morosos:.2f}', 1, 1, 'R')
     
@@ -3681,8 +3721,7 @@ def report_morosos_comp():
         pdf.cell(21, 5, f'$ {float(ctas.deuda_por_op(id_op)):.2f}', 0, 1, 'R')
         deuda_total_morosos = deuda_total_morosos + ctas.deuda_por_op(id_op)
         counter += 1
-        progreso = int(counter*100/len(morosos))
-        os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas   -   GENERANDO REPORTE: {progreso}%')
+        mant.barra_progreso(counter, len(morosos), titulo=f'Morella v{mant.VERSION} - MF! Soluciones informáticas')
 
     pdf.ln(3)
     pdf.set_font('Arial', 'B', 10)
@@ -3759,8 +3798,7 @@ def report_excel_socios():
         datos_socio = (nro, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act)
         ws.append(datos_socio)
         counter += 1
-        progreso = int(counter*100/len(datos))
-        os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas   -   GENERANDO REPORTE: {progreso}%')
+        mant.barra_progreso(counter, len(datos), titulo=f'Morella v{mant.VERSION} - MF! Soluciones informáticas')
     print()
     os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
     # Export
@@ -3837,8 +3875,7 @@ def report_excel_modif_caja():
         datos_reg = (id_caj, cat, des, tra, ing, egr, obs, use, fyh)
         ws.append(datos_reg)
         counter += 1
-        progreso = int(counter*100/len(datos))
-        os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas   -   GENERANDO REPORTE: {progreso}%')
+        mant.barra_progreso(counter, len(datos), titulo=f'Morella v{mant.VERSION} - MF! Soluciones informáticas')
     os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')    
     print("")
 
@@ -3918,8 +3955,7 @@ def report_deb_aut(mes, año):
         datos_debaut = (id_debaut, cat, socio, oper, ingr, obs, fecha, usuario)
         ws.append(datos_debaut)
         counter += 1
-        progreso = int(counter*100/len(datos))
-        os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas   -   GENERANDO REPORTE: {progreso}%')
+        mant.barra_progreso(counter, len(datos), titulo=f'Morella v{mant.VERSION} - MF! Soluciones informáticas')
     os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
     print()
 
@@ -4033,8 +4069,8 @@ def report_cobradores():
         pdf.cell(1, 5, '', 0, 0, 'L')
         pdf.cell(90, 5, f'{cob}', 0, 1, 'L')
         counter += 1
-        progreso = int(counter*100/len(cobradores))
-        os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas   -   GENERANDO REPORTE: {progreso}%')
+        mant.barra_progreso(counter, len(cobradores), titulo=f'Morella v{mant.VERSION} - MF! Soluciones informáticas')
+    print()
     os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
     # Export
     pdf.output(f'../reports/temp/listado_cobradores.pdf', 'F')
@@ -4137,8 +4173,8 @@ def report_panteones():
         pdf.cell(1, 5, '', 0, 0, 'L')
         pdf.cell(90, 5, f'{cob}', 0, 1, 'L')
         counter += 1
-        progreso = int(counter*100/len(panteones))
-        os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas   -   GENERANDO REPORTE: {progreso}%')
+        mant.barra_progreso(counter, len(panteones), titulo=f'Morella v{mant.VERSION} - MF! Soluciones informáticas')
+    print()
     os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
     # Export
     pdf.output(f'../reports/temp/listado_panteones.pdf', 'F')
@@ -4161,3 +4197,137 @@ def report_panteones():
 
 
 
+    #################################################################################################################
+    ############################################# LISTADO ÚLTIMO RECIBO #############################################
+    #################################################################################################################
+
+
+def report_ult_recibo(cobrador: int, facturacion: str):
+    """Genera un reporte en Excel que contiene los datos de los últimos recibos impagos de cada operación de un cobrador y una facturación específicos.
+
+    :param cobrador: id del cobrador
+    :type cobrador: int
+
+    :param facturacion: Categoría de facturación (bicon / nob)
+    :type facturacion: str
+
+    """
+    ############ INICIO DE VARIABLES INDEPENDIENTES ############
+    counter = 0
+    n_cob = rend.obtener_nom_cobrador(cobrador)
+    title = f"Últimos recibos de {n_cob}"
+    if len(title) > 31:
+        title = f'Ult.rec.{n_cob}'[:31]
+    
+    ############ FIN DE VARIABLES INDEPENDIENTES ############
+
+
+    ############ INICIO DE FUNCIONES ############
+    def ult_rec_imp(cobrador: int, facturacion: str) -> list:
+        """Retorna los siguientes datos de los últimos recibos impagos de todas las operaciones de un cobrador y una facturación específicos:
+
+            > Número de socio
+
+            > Nombre del asociado o nombre alternativo si posee
+
+            > Número de recibo
+
+            > Período y año
+
+            > Importe
+
+        :param cobrador: id del cobrador
+        :type cobrador: int
+
+        :param facturacion: Categoría de facturación (bicon / nob)
+        :type facturacion: str
+        
+        :rtype: list
+
+        """
+        instruccion = f"""
+        SELECT o.socio, s.nombre, o.nombre_alt, r.nro_recibo, r.periodo, r.año, cn.valor_mant_bicon, cn.valor_mant_nob
+        FROM recibos r
+        JOIN operaciones o
+        ON r.operacion = o.id
+        JOIN socios s
+        ON o.socio = s.nro_socio
+        JOIN nichos n
+        ON o.nicho = n.codigo
+        JOIN cat_nichos cn
+        ON n.categoria = cn.id
+        WHERE o.cobrador = {cobrador}
+        AND r.pago = 0
+        AND o.facturacion = '{facturacion}'
+        AND nro_recibo IN(
+            SELECT MAX(nro_recibo) 
+            FROM recibos
+            GROUP BY operacion
+        )
+        ORDER BY r.nro_recibo;
+        """
+        with sql.connect(database) as conn:
+            cursor = conn.cursor()
+            cursor.execute(instruccion)
+            ultimos_recibos = cursor.fetchall()
+        return ultimos_recibos
+
+    ############ FIN DE FUNCIONES ############
+        
+
+    ############ INICIO DE VARIABLES DEPENDIENTES ############
+    ultimos_recibos = ult_rec_imp(cobrador, facturacion)
+
+    ########### FIN DE VARIABLES DEPENDIENTES ############
+
+
+    ############ INICIO DE REPORT ############
+    print("Generando archivo Excel")
+    print("")
+    wb = Workbook()
+    ws = wb.active
+    ws.title = title
+    ws.append(('Número de socio', 'Nombre asociado','Número de recibo', 'Período', 'Importe'))
+    for recibo in ultimos_recibos:
+        nro_soc, nombre, nombre_alt, nro_rec, periodo, año, val_mant_bic, val_mant_nob = recibo
+        if nombre_alt:
+            nombre = nombre_alt
+        periodo_recibo = f"{periodo} {año}"
+        if facturacion == 'bicon':
+            importe = val_mant_bic
+        elif facturacion == 'nob':
+            importe = val_mant_nob
+        datos_recibo = (nro_soc, nombre, nro_rec, periodo_recibo, importe)
+        ws.append(datos_recibo)
+        counter += 1
+        mant.barra_progreso(counter, len(ultimos_recibos), titulo=f'Morella v{mant.VERSION} - MF! Soluciones informáticas')
+    os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
+    print()
+
+    # Export
+    try:
+        if ' ' in n_cob:
+            n_cob = n_cob.replace(' ', '_')
+        wb.save(f"../reports/excel/ultimos_recibos_{n_cob}.xlsx")
+        print("")
+        print("Archivo creado exitosamente.")
+        ############ ABRIR REPORT ############
+        print("Abriendo reporte. Cierre el archivo para continuar...")
+        print("")
+        ruta = f'../reports/excel'
+        arch = f'ultimos_recibos_{n_cob}.xlsx'
+        os.chdir(ruta)
+        os.system(arch)
+        ruta = '../../modulos/'
+        os.chdir(ruta)
+    except PermissionError:
+        print("")
+        print("         ERROR. El archivo no pudo ser creado porque se encuentra en uso. Ciérrelo y vuelva a intentarlo.")
+    except:
+        mant.log_error()
+        print("")
+        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        print()
+        return
+
+            ######################################## FIN DE REPORT ############################################

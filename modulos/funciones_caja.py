@@ -273,7 +273,6 @@ def obtener_categ_egr():
 #     conn.close()
 #     return datos
 
-
 def obtener_cobrador():
     archivo = open("../databases/cobradores.mf", 'r', encoding='Utf-8')
     cobradores = []
@@ -836,10 +835,45 @@ def reg_pago_comision(idu):
             print()
             return
         total_com = 0
+        total_cob = 0
         for i in datos:
             cob, ren, rec, imp, com = i
-            total_com = total_com + com
+            total_com += com
+            total_cob += cob
         categoria = "Pago de comisiones"
+        if total_cob == cob * len(datos):
+            pass
+        else:
+            print("                                                                *** ATENCIÓN ***")
+            print("                                                     La rendición posee varios cobradores.")
+            print()
+            print("Indique el ID del cobrador que cobra la comisión: ")
+            datos = obtener_cobradores()
+            counter = 0
+            for i in datos:
+                counter += 1
+                id_cob, n_cob = i
+                print(f"    * {id_cob}. {n_cob}")
+            print()
+            loop = -1
+            while loop == -1:
+                try:
+                    loop = cob = int(input("Cobrador: "))
+                    print()
+                    while cob < 1 or cob > counter:
+                        print("         ERROR. Debe indicar un ID de cobrador válido.")
+                        print()
+                        cob = int(input("Cobrador: "))
+                except ValueError:
+                    print("         ERROR. Debe ingresar un dato de tipo numérico.")
+                    print()
+                    loop = -1
+                except:
+                    mant.log_error()
+                    print("")
+                    input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                    print()
+                    return
         cobrador = obtener_nom_cobrador(cob)
         observacion = input("Observaciones: ")
         print("")
@@ -2021,11 +2055,11 @@ def ver_estado_caja(idu):
     print(f'Actual:   $ {caja_actual:.2f}')
     print('___________________________')
     if total < 0:
-        print(f'Sobrante: $ {total:.2f}')
+        print(f'Sobrante: $ {abs(total):.2f}')
     elif total == 0:
         print(f'Diferencia: $ {total:.2f}')
     else:
-        print(f'Faltante: $ {total:.2f}')
+        print(f'Faltante: $ {abs(total):.2f}')
     print()
 
 

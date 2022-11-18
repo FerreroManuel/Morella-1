@@ -523,7 +523,6 @@ def venta_nicho(idu):
             print("[OK!]")
             print()
             print("Registrando deuda en la base de datos. Por favor no interrumpa el proceso ni apague la computadora...", end=" ")
-            query_cuot = "INSERT INTO documentos VALUES (?, ?, ?, ?)"
             param_cuot = str((id_op, cuotas, cuo, ult_rec))
             query_cuot = f"INSERT INTO documentos VALUES {param_cuot}"
             mant.run_query(query_cuot)
@@ -1081,6 +1080,23 @@ def crear_op(idu, id_socio, ret):
         if exist == "":
             cod_nicho = mant.alta_nicho(idu, 1)
             try:
+                id_operacion, soc, nic, fac, cob, tar, rut, ult, u_a, fec, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = ctas.buscar_op_cod_nicho(str(cod_nicho), 1)
+                print()
+                print()
+                print(f"         ERROR. El nicho indicado ya se encuentra asociado a la operación {str(id_operacion).rjust(7, '0')}")
+                print()
+                print()
+                print()
+                print()
+                print()
+                return -1
+            except UnboundLocalError:
+                pass
+            except TypeError:
+                pass
+            except IndexError:
+                pass
+            try:
                 cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(cod_nicho)
             except UnboundLocalError:
                 return -1
@@ -1100,6 +1116,9 @@ def crear_op(idu, id_socio, ret):
                     try:
                         loop = id_socio = int(exist)
                         n_so, nom_soc, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = ctas.obtener_datos_socio(id_socio)
+                        print()
+                        print(f'            Socio {str(n_so).rjust(6, "0")} - {nom_soc}. Domicilio: {dom}')
+                        print()
                     except ValueError:
                         print("         ERROR. El dato solicitado debe ser de tipo numérico")
                         print()
@@ -1893,6 +1912,7 @@ def cambiar_nicho(idu, id_op):
                     if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
                         msj = "S"
                         mant.set_null_registro('operaciones', 'nicho', 'id', id_op)
+                        mant.edit_nicho('ocupado', 0, cod_nic)                        
                         print("Nicho desasociado exitosamente.")
                         print()
                         return

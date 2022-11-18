@@ -1,5 +1,7 @@
 print("\n\nCargando las funciones necesarias para ejectuar el módulo. Por favor aguarde... \n\n")
 import funciones_mantenimiento as mant
+import funciones_ventas as vent
+import funciones_rendiciones as rend
 import reporter as rep
 import psycopg2 as sql
 import psycopg2.errors
@@ -142,11 +144,12 @@ def opcion_menu():                                                              
     print("   4. Listado de ingresos por débito automático (excel)")
     print("   5. Listado de panteones")
     print("   6. Listado de cobradores")
+    print("   7. Listado de últimos recibos impagos (Excel)")
     print("   0. Salir")
     print("")
     try:
         opcion = int(input("Ingrese una opción: "))
-        while opcion < 0 or opcion > 6:
+        while opcion < 0 or opcion > 7:
             print("")
             print("Opción incorrecta.")
             print("")
@@ -179,6 +182,8 @@ def menu(idu):                                                                  
             panteones(idu)
         elif opcion == 6:   # Listado de cobradores
             cobradores(idu)
+        elif opcion == 7:   # Listado de últimos recibos impagos (Excel)
+            ultimos_recibos(idu)
         elif opcion == 0:   # Salir
             return
 
@@ -322,7 +327,77 @@ def cobradores(idu):
         print()
 
 
-def cerrar_consola():           ################# ¿¿¿¿¿¿¿¿¿¿¿¿????????????
+def ultimos_recibos(idu):
+    i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_id(idu)
+    if pri < 1:
+        print("No posee privilegios para realizar esta acción")
+        print()
+    else:
+        print("Indique el ID de cobrador: ")
+        cobradores = vent.obtener_cobradores()
+        counter = 0
+        for i in cobradores:
+            counter += 1
+            id_cob, n_cob = i
+            print(f"    * {id_cob}. {n_cob}")
+        print()
+        loop = -1
+        while loop == -1:
+            try:
+                loop = cobrador = int(input("Cobrador: "))
+                print()
+                while cobrador < 1 or cobrador > counter:
+                    print("         ERROR. Debe indicar un ID de cobrador válido.")
+                    print()
+                    cobrador = int(input("Cobrador: "))
+            except ValueError:
+                print("         ERROR. Debe ingresar un dato de tipo numérico.")
+                print()
+                loop = -1
+            except:
+                mant.log_error()
+                print("")
+                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                print()
+                return
+        print("")
+        print("********** Elija una facturación **********")
+        print("")
+        print("   1. Bicon")
+        print("   2. NOB")
+        print("")
+        opcion = -1
+        while opcion == -1:
+            try:
+                opcion = int(input("Ingrese una opción: "))
+                if opcion < 1 or opcion > 2:
+                    print("")
+                    print("Opción incorrecta.")
+                    print("")
+                    opcion = -1
+            except ValueError: 
+                print("Opción incorrecta.")
+                opcion = -1
+            except:
+                mant.log_error()
+                print("")
+                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                print()
+                return
+        if opcion == 1:
+            facturacion = 'bicon'
+        elif opcion == 2:
+            facturacion = 'nob'
+        print("Confeccionando el listado. Por favor aguarde...")
+        print()
+        ###
+        print(f'COBRADOR: {rend.obtener_nom_cobrador(cobrador)} - FACTURACIÓN: {facturacion}')
+        ###
+        rep.report_ult_recibo(cobrador, facturacion)
+        print()
+
+
+def cerrar_consola():
     print("")
     print("")
     print("")

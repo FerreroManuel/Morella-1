@@ -1,4 +1,4 @@
-VERSION = '1.3.2.2209'
+VERSION = '1.3.3.2210'
 SHORT_VERSION = VERSION[:3]
 
 import funciones_rendiciones as rend
@@ -105,6 +105,25 @@ def iniciar_sesion():
         i_d = -1
         nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
         return i_d, nom, ape, tel, dom, use, pas, pri, act
+
+
+def barra_progreso(progreso, total, titulo:str=None, solo_titulo=False):
+    if total:
+        porcentaje = 100 * (progreso / float(total))
+    else:
+        porcentaje = 100
+    if solo_titulo:
+        if titulo:
+            os.system(f'TITLE {titulo}  -  PROGRESO: {porcentaje:.2f}%')
+        else:
+            os.system(f'TITLE PROGRESO: {porcentaje:.2f}%')
+    else:
+        barra = ('#' * int(porcentaje) + '-' * (100 - int(porcentaje)))
+        print(f"\r [{barra}] {porcentaje:.2f}%", end='\r')
+        if titulo:
+            os.system(f'TITLE {titulo}  -  PROGRESO: {porcentaje:.2f}%')
+        else:
+            os.system(f'TITLE PROGRESO: {porcentaje:.2f}%')
 
 
 def buscar_usuario_por_user(user):
@@ -372,7 +391,6 @@ def edit_registro(tabla, parametro1, parametro2, id):
     parametro2 = reemplazar_comilla(parametro2)
     conn = sql.connect(database)
     cursor = conn.cursor()
-    parametro2 = reemplazar_comilla(parametro2)
     instruccion = f"UPDATE {tabla} SET {parametro1} = '{parametro2}' WHERE id = '{id}'"
     cursor.execute(instruccion)
     conn.commit()

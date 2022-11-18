@@ -287,10 +287,10 @@ def ingresar_cobro(idu):
                         msj = input(f"¿Seguro que quiere ingresar el pago por el recibo nro. {f'{ndr}'.rjust(7, '0')}, perteneciente a la operación {str(ope).rjust(7, '0')} en la rendición nro. {rendicion}? (S/N) ")
                         if msj == 'S' or msj == 's' or msj == 'Si' or msj == 'SI' or msj == 'sI' or msj == 'si':
                             set_pago(ndr)
-                            act_periodo(per, ope, año)
                             if per[0:3] == 'Doc':
                                 registrar_comision_doc(cob, rendicion, ndr, val)
                             else:
+                                act_periodo(per, ope, año)
                                 registrar_comision_mant(cob, rendicion, ndr, val) 
                             print("")
                             cod, pan, pis, fil, num, cat, ocu, fall = obtener_datos_nicho(nic)
@@ -566,7 +566,7 @@ def emitir_recibos():
                 print("Emitiendo recibos...")
                 lista_recibos = rep.recibos_documentos()
                 print()
-                print("Confeccionando listados...")
+                print("Confeccionando listado...")
                 rep.listado_recibos_documentos(lista_recibos)
                 print()
                 return
@@ -644,6 +644,16 @@ def ingresar_adelantos(idu):
     print("")
     try:
         i_d, soc, nic, fac, cob, tar, rut, ult, u_a, fec, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = obtener_datos_op(oper)
+        soc, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = obtener_datos_socio(soc)
+        if nom_alt:
+            nom = nom_alt
+        if dom_alt:
+            dom = dom_alt
+        if ult == 'Diciembre - Enero':
+            ultimo_pago = f'{ult} {u_a}/{int(str(u_a)[-2:])+1}'
+        else:
+            ultimo_pago = f'{ult} {u_a}'
+        print(f'Operación: {str(i_d).rjust(7, "0")} - {nom}. Domicilio: {dom}. Último pago: {ultimo_pago}')
     except TypeError:
         print("         ERROR. Número de operación inexistente.")
         return
@@ -1488,7 +1498,7 @@ def set_moroso(id_op):
 def obtener_valor_doc(id_op):
     conn = sql.connect(database)
     cursor = conn.cursor()
-    instruccion = f"SELECT * FROM documentos WHERE id = {id_op}"
+    instruccion = f"SELECT * FROM documentos WHERE id_op = {id_op}"
     cursor.execute(instruccion)
     documento = cursor.fetchone()
     conn.commit()
