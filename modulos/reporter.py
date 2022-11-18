@@ -3500,7 +3500,7 @@ def report_morosos_det():
         pdf.ln(3)
         counter += 1
         progreso = int(counter*100/len(lista_limpia_morosos))
-        os.system(f'TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas   -   GENERANDO REPORTE: {progreso}%')
+        os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas   -   GENERANDO REPORTE: {progreso}%')
     pdf.set_font('Arial', 'B', 10)
     pdf.cell(0, 5, f'DEUDA TOTAL MOROSOS: $ {deuda_total_morosos:.2f}', 1, 1, 'R')
     
@@ -3518,7 +3518,7 @@ def report_morosos_det():
     os.system(arch)
     ruta = '../../modulos/'
     os.chdir(ruta)
-    os.system(f'TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas')
+    os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
            
             ######################################## FIN DE REPORT ############################################
 
@@ -3664,7 +3664,7 @@ def report_morosos_comp():
         deuda_total_morosos = deuda_total_morosos + ctas.deuda_por_op(id_op)
         counter += 1
         progreso = int(counter*100/len(morosos))
-        os.system(f'TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas   -   GENERANDO REPORTE: {progreso}%')
+        os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas   -   GENERANDO REPORTE: {progreso}%')
 
     pdf.ln(3)
     pdf.set_font('Arial', 'B', 10)
@@ -3684,7 +3684,7 @@ def report_morosos_comp():
     os.system(arch)
     ruta = '../../modulos/'
     os.chdir(ruta)
-    os.system('TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas')
+    os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
            
             ######################################## FIN DE REPORT ############################################
 
@@ -3742,9 +3742,9 @@ def report_excel_socios():
         ws.append(datos_socio)
         counter += 1
         progreso = int(counter*100/len(datos))
-        os.system(f'TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas   -   GENERANDO REPORTE: {progreso}%')
+        os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas   -   GENERANDO REPORTE: {progreso}%')
     print()
-    os.system(f'TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas')
+    os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
     # Export
     try:
         wb.save(f"../reports/excel/listado_socios-{fecha}.xlsx")
@@ -3820,8 +3820,8 @@ def report_excel_modif_caja():
         ws.append(datos_reg)
         counter += 1
         progreso = int(counter*100/len(datos))
-        os.system(f'TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas   -   GENERANDO REPORTE: {progreso}%')
-    os.system(f'TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas')    
+        os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas   -   GENERANDO REPORTE: {progreso}%')
+    os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')    
     print("")
 
     # Export
@@ -3901,8 +3901,8 @@ def report_deb_aut(mes, año):
         ws.append(datos_debaut)
         counter += 1
         progreso = int(counter*100/len(datos))
-        os.system(f'TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas   -   GENERANDO REPORTE: {progreso}%')
-    os.system(f'TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas')
+        os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas   -   GENERANDO REPORTE: {progreso}%')
+    os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
     print()
 
     # Export
@@ -4016,8 +4016,8 @@ def report_cobradores():
         pdf.cell(90, 5, f'{cob}', 0, 1, 'L')
         counter += 1
         progreso = int(counter*100/len(cobradores))
-        os.system(f'TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas   -   GENERANDO REPORTE: {progreso}%')
-    os.system(f'TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas')
+        os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas   -   GENERANDO REPORTE: {progreso}%')
+    os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
     # Export
     pdf.output(f'../reports/temp/listado_cobradores.pdf', 'F')
         
@@ -4120,8 +4120,8 @@ def report_panteones():
         pdf.cell(90, 5, f'{cob}', 0, 1, 'L')
         counter += 1
         progreso = int(counter*100/len(panteones))
-        os.system(f'TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas   -   GENERANDO REPORTE: {progreso}%')
-    os.system(f'TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas')
+        os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas   -   GENERANDO REPORTE: {progreso}%')
+    os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
     # Export
     pdf.output(f'../reports/temp/listado_panteones.pdf', 'F')
         

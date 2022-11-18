@@ -6,7 +6,7 @@ from colorama import init, Fore, Back
 from datetime import datetime
 from getpass import getpass
 
-os.system('TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas')
+os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
 os.system('color 0E')   # Colores del módulo (Amarillo sobre negro)
 os.system('mode con: cols=160 lines=9999')
 

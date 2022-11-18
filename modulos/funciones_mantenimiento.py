@@ -1,3 +1,5 @@
+VERSION = '1.2.1.2208'
+
 import funciones_rendiciones as rend
 import funciones_cuentas as ctas
 from traceback import format_exc
@@ -6,7 +8,7 @@ import os
 from datetime import datetime
 from getpass import getpass
 
-os.system('TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas')
+os.system(f'TITLE Morella v{VERSION} - MF! Soluciones informáticas')
 os.system('color 0a')   # Colores del módulo (Verde sobre negro)
 os.system('mode con: cols=160 lines=9999')
 

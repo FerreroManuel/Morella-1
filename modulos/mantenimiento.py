@@ -2,12 +2,12 @@ print("\n\nCargando las funciones necesarias para ejectuar el módulo. Por favor
 import funciones_mantenimiento as func
 import os
 
-os.system('TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas')
+os.system(f'TITLE Morella v{func.VERSION} - MF! Soluciones informáticas')
 os.system('color 0a')   # Colores del módulo (Verde sobre negro)
 os.system('mode con: cols=160 lines=9999')
 
 try:
-    print("Morella v1.2.0.2205 - MF! Soluciones informáticas.")
+    print(f"Morella v{func.VERSION} - MF! Soluciones informáticas.")
     print("")
     print("")
     print("   #############################################")

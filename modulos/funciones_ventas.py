@@ -7,7 +7,7 @@ from getpass import getpass
 from datetime import datetime
 
 
-os.system('TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas')
+os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
 os.system('color 0B')   # Colores del módulo (Celeste sobre negro)
 os.system('mode con: cols=160 lines=9999')
 
@@ -328,7 +328,7 @@ def edit_registro_socio(parametro1, parametro2, id):
     parametro2 = mant.reemplazar_comilla(parametro2)
     conn = sql.connect(database)
     cursor = conn.cursor()
-    instruccion = f"UPDATE socios SET {parametro1} = {parametro2} WHERE nro_socio = '{id}'"
+    instruccion = f"UPDATE socios SET {parametro1} = '{parametro2}' WHERE nro_socio = '{id}'"
     cursor.execute(instruccion)
     conn.commit()
     conn.close()
@@ -860,8 +860,17 @@ def edit_tel(idu, id_soc):
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 print()
                 return
-        tel_nuevo = input("Ingrese teléfono nuevo: ").title()
-        if len(tel_nuevo) < 7:
+        tel_nuevo = input("Ingrese teléfono nuevo o presione enter para eliminar el teléfono actual: ").title()
+        if tel_nuevo == "":
+            if pos_tel == 1:
+                mant.set_null_registro('socios', 'telefono_1', 'nro_socio', id_soc)
+            elif pos_tel == 2:
+                mant.set_null_registro('socios', 'telefono_2', 'nro_socio', id_soc)
+            print()
+            print("Teléfono eliminado exitosamente.")
+            print()
+            return
+        elif len(tel_nuevo) < 7:
             print()
             print("         ERROR. Indique un número de teléfono válido")
             print()

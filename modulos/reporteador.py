@@ -5,7 +5,7 @@ import psycopg2 as sql
 from getpass import getpass
 import os
 
-os.system('TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas')
+os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
 os.system('color 80')   # Colores del módulo (Negro sobre gris)
 
 def obtener_database():
@@ -374,7 +374,7 @@ def cerrar_consola():           ################# ¿¿¿¿¿¿¿¿¿¿¿¿??????
 #######################################################################################################################################################
 
 try:
-    print("Morella v1.2.0.2205 - MF! Soluciones informáticas.")
+    print(f"Morella v{mant.VERSION} - MF! Soluciones informáticas.")
     print("")
     print("")
     print("   #############################################")

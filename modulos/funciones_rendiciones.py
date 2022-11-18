@@ -11,7 +11,7 @@ from dateutil.relativedelta import relativedelta as rd
 from smtplib import SMTPAuthenticationError
 from socket import gaierror
 
-os.system('TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas')
+os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
 os.system('color 09')   # Colores del módulo (Azul sobre negro)
 os.system('mode con: cols=160 lines=9999')
 
@@ -991,6 +991,7 @@ def reimprimir_recibo():
     ndr = 0
     while ndr == 0:
         try:
+            print()
             ndr = int(input("Indique el número de recibo a reimprimir: "))
         except ValueError:
             print("         ERROR. El dato solicitado debe ser de tipo numérico")
@@ -1004,25 +1005,25 @@ def reimprimir_recibo():
             return
     try:
         nro, ope, per, año, pag = obtener_datos_recibo(ndr)
+        if pag == 1:
+            print("         ERROR. No se puede reimprimir un recibo que ya ha sido abonado.")
+            print()
+            return
+        else:
+            print("Confeccionando recibo. Por favor aguarde...")
+            print()
+            rep.reimpresion_recibo(ndr)
+        print()
     except TypeError:
         print("")
-        print("Número de recibo inválido.")
+        print("         ERROR. Número de recibo inválido.")
         print("")
     except:
         mant.log_error()
         print("")
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         print()
-    if pag == 1:
-        print("         ERROR. No se puede reimprimir un recibo que ya ha sido abonado.")
-        print()
-        return
-    else:
-        print("Confeccionando recibo. Por favor aguarde...")
-        print()
-        rep.reimpresion_recibo(ndr)
-        print()
-
+    
 
 def registrar_comision_mant(cobrador, rendicion, recibo, cobro):
     rendicion = mant.reemplazar_comilla(rendicion)

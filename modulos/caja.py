@@ -3,11 +3,11 @@ import funciones_caja as func
 import funciones_mantenimiento as mant
 import os
 
-os.system('TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas')
+os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
 os.system('color 0E')   # Colores del módulo (Amarillo sobre negro)
 
 try:
-    print("Morella v1.2.0.2205 - MF! Soluciones informáticas.")
+    print(f"Morella v{mant.VERSION} - MF! Soluciones informáticas.")
     print("")
     print("")
     print("   #############################################")
