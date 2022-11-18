@@ -5,23 +5,24 @@ Este repositorio corresponde a la versión 1 de Morella, un sistema de gestión 
 ## Módulos
 El sistema consiste de 6 módulos:
 
-Caja (caja.py):
+### Caja (caja.py):
   > Módulo destinado al registro de ingresos y egresos en la caja diaria y su impresión. También ofrece la impresión de la caja mensual de forma detallada, comprimida o dividida por cobradores.
 
-Cuentas (cuentas.py):
+### Cuentas (cuentas.py):
   > Módulo destinado a la búsqueda de los estados de cuenta de los asociados y que permite generar un reporte con el estado de cuenta deseado.
 
-Mantenimiento de tablas (mantenimiento.py):
+### Mantenimiento de tablas (mantenimiento.py):
   > Módulo destinado al mantenimiento de tablas en el cual se pueden crear o editar usuarios, panteones, nichos, cobradores, centros de egresos, precios y mails.
+  >
   > El mismo contiene un menú secreto para uso exclusivo del administrador de sistema, al cual se ingresa generando un error de tipo KeboardInterrupt (Ctrl+C) al momento en el que el sistema solicita el nombre de usuario y escribiendo la palabra admin seguido de presionar la tecla enter. Desde ese menú el administrador tiene la posibilidad de restaurar su cuenta, en caso de haber sido bloqueada por varios intentos de login fallidos, y de modificar los datos de conexión con la base de datos.
 
-Rendiciones (rendiciones.py):
+### Rendiciones (rendiciones.py):
   > Módulo destinado a la cobranza de las cuotas de compra y mantenimiento de los nichos y a la emisión de recibos para los cobradores. 
 
-Reporteador (reporteador.py):
+### Reporteador (reporteador.py):
   > Módulo destinado a la generación de diferentes reportes en PDF y XLSX como el listado de socios, listado de morosos (detallado y comprimido), listado de modificaciones de caja, listado de ingresos por débito automático, listado de panteones y listado de cobradores.
 
-Ventas (ventas.py):
+### Ventas (ventas.py):
   > Módulo destinado a la venta de nichos y la creación y edición tanto de socios como de operaciones.
 
 
