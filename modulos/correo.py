@@ -1,4 +1,5 @@
 import psycopg2 as sql
+import psycopg2.errors
 import funciones_rendiciones as rend
 import funciones_cuentas as ctas
 import funciones_mantenimiento as mant

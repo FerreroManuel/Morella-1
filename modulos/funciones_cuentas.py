@@ -4,6 +4,7 @@ import funciones_mantenimiento as mant
 import funciones_ventas as vent
 import reporter as rep
 import psycopg2 as sql
+import psycopg2.errors
 import os
 from getpass import getpass
 

@@ -1,6 +1,7 @@
 import funciones_mantenimiento as mant
 import reporter as rep
 import psycopg2 as sql
+import psycopg2.errors
 import os
 from colorama import init, Fore, Back
 from datetime import datetime

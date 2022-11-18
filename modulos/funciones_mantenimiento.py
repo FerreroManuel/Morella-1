@@ -1,10 +1,11 @@
-VERSION = '1.3.1.2209'
+VERSION = '1.3.2.2209'
 SHORT_VERSION = VERSION[:3]
 
 import funciones_rendiciones as rend
 import funciones_cuentas as ctas
 from traceback import format_exc
 import psycopg2 as sql
+import psycopg2.errors
 import os
 from datetime import datetime
 from getpass import getpass

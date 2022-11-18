@@ -2,6 +2,7 @@ print("\n\nCargando las funciones necesarias para ejectuar el módulo. Por favor
 import funciones_mantenimiento as mant
 import reporter as rep
 import psycopg2 as sql
+import psycopg2.errors
 from getpass import getpass
 import os
 

@@ -4,6 +4,7 @@ import funciones_ventas as vent
 import correo as email
 import reporter as rep
 import psycopg2 as sql
+import psycopg2.errors
 from getpass import getpass
 import os
 from datetime import datetime, date
@@ -283,7 +284,7 @@ def ingresar_cobro(idu):
                         print()
                         return
                     while msj == '':
-                        msj = input(f"¿Seguro que quiere ingresar el pago por el recibo nro. {f'{ndr}'.rjust(7, '0')} en la rendición nro. {rendicion}? (S/N) ")
+                        msj = input(f"¿Seguro que quiere ingresar el pago por el recibo nro. {f'{ndr}'.rjust(7, '0')}, perteneciente a la operación {str(ope).rjust(7, '0')} en la rendición nro. {rendicion}? (S/N) ")
                         if msj == 'S' or msj == 's' or msj == 'Si' or msj == 'SI' or msj == 'sI' or msj == 'si':
                             set_pago(ndr)
                             act_periodo(per, ope, año)
@@ -295,7 +296,7 @@ def ingresar_cobro(idu):
                             cod, pan, pis, fil, num, cat, ocu, fall = obtener_datos_nicho(nic)
                             categoria = f"Mantenimiento {obtener_panteon(pan)}"
                             descripcion = f"{obtener_nom_cobrador(cob)}"
-                            observacion = f"Recibo nro. {f'{ndr}'.rjust(7, '0')}"
+                            observacion = f"Rec: {f'{ndr}'.rjust(7, '0')} - Op: {str(ope).rjust(7, '0')}"
                             dia = caja.obtener_dia()
                             mes = caja.obtener_mes()
                             año = caja.obtener_año()
@@ -724,10 +725,10 @@ def ingresar_adelantos(idu):
                 elif c_f < 0:
                     cant_deud = cant
                 mant.edit_registro('operaciones', 'cuotas_favor', int(c_f)+cant_deud, oper)
-                observacion = f"Pago de {cant} cuotas"
+                observacion = f"Pago {cant} cuotas. Op: {operacion}"
             else:
                 mant.edit_registro('operaciones', 'cuotas_favor', int(c_f)+cant, oper)
-                observacion = f"Adelanto de {cant} cuotas"
+                observacion = f"Adel. {cant} cuotas. Op: {operacion}"
             mant.edit_registro('operaciones', 'ult_pago', periodo_hasta, oper)
             mant.edit_registro('operaciones', 'ult_año', año_hasta, oper)
             mant.edit_registro('operaciones', 'fecha_ult_pago', f"{mes_hasta}/{año_hasta}", oper)

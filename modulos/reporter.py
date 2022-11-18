@@ -13,6 +13,7 @@ from fpdf import FPDF
 from datetime import datetime, date
 import os
 import psycopg2 as sql
+import psycopg2.errors
 from openpyxl import Workbook
 from smtplib import SMTPAuthenticationError
 from socket import gaierror

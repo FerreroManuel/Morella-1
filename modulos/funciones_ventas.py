@@ -2,6 +2,7 @@ import funciones_rendiciones as rend
 import funciones_mantenimiento as mant
 import funciones_cuentas as ctas
 import psycopg2 as sql
+import psycopg2.errors
 import os
 from getpass import getpass
 from datetime import datetime
@@ -345,7 +346,7 @@ def opcion_menu():                                                              
     print("   3. Modificar datos de socio")
     print("   4. Ingresar nueva operación")
     print("   5. Ver datos de operación")
-    print("   6. Editar datos de operación")
+    print("   6. Modificar datos de operación")
     print("   0. Salir")
     print("")
     try:
@@ -428,7 +429,7 @@ def venta_nicho(idu):
                         ctas.menu_buscar()
                         print()
                         id_socio = int(input("Indique el nro. de socio: "))
-                    n_so, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = ctas.obtener_datos_socio(id_socio)
+                    n_so, nom_socio, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = ctas.obtener_datos_socio(id_socio)
                     loop = 1
                 except TypeError:
                     print()
@@ -456,21 +457,21 @@ def venta_nicho(idu):
         id_op, soc, nic, fac, cob, tar, rut, ult, u_a, fec, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = rend.obtener_datos_op(id_op)
         cod_nic, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
         i_d, nom_precio, pre, ant, cuo = obtener_precio_venta(cat, pis, fil)
-        msj = ""
-        while msj != "S" and msj != "N":
-            msj = input(f"¿Quiere agregar datos complementarios a la operación? (S/N)): ")
-            print()
-            if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
-                agregar_datos_comp(id_op)
-                msj = "S"
-                pass
-            elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
-                msj = "N"
-                pass
-            else:
-                print()
-                print("         ERROR. Debe indicar S para agregar datos o N para cancelar.")
-                print()
+        # msj = ""
+        # while msj != "S" and msj != "N":
+        #     msj = input(f"¿Quiere agregar datos complementarios a la operación? (S/N)): ")
+        #     print()
+        #     if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
+        #         agregar_datos_comp(id_op)
+        #         msj = "S"
+        #         pass
+        #     elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
+        #         msj = "N"
+        #         pass
+        #     else:
+        #         print()
+        #         print("         ERROR. Debe indicar S para agregar datos o N para cancelar.")
+        #         print()
         loop = -1
         while loop == -1:
             try:
@@ -492,7 +493,7 @@ def venta_nicho(idu):
                 print()
                 return
         if cuotas == 1:
-            print(f"El/la socio/a nro. {str(id_socio).rjust(6, '0')}, {nom} abona la compra del nicho {str(nic).rjust(10, '0')} en un pago de $ {float(pre):.2f}")
+            print(f"El/la socio/a nro. {str(id_socio).rjust(6, '0')}, {nom_socio} abona la compra del nicho {str(nic).rjust(10, '0')} en un pago de $ {float(pre):.2f}")
             print()
             trans = input("Indique el nro de rendición: ")
             print()
@@ -508,7 +509,7 @@ def venta_nicho(idu):
             print("Proceso finalizado exitosamente.")
             print()
         elif cuotas == 10:
-            print(f"El/la socio/a nro. {str(id_socio).rjust(6, '0')}, {nom} abona la compra del nicho {str(nic).rjust(10, '0')} realizando un anticipo de $ {float(ant):.2f} y el resto en 10 cuotas de $ {float(cuo):.2f} c/u.")
+            print(f"El/la socio/a nro. {str(id_socio).rjust(6, '0')}, {nom_socio} abona la compra del nicho {str(nic).rjust(10, '0')} realizando un anticipo de $ {float(ant):.2f} y el resto en 10 cuotas de $ {float(cuo):.2f} c/u.")
             print()
             trans = input("Indique el nro de rendición: ")
             print()
@@ -1220,7 +1221,38 @@ def crear_op(idu, id_socio, ret):
         cuotas_favor = 0
         ult_rec = datetime.now().strftime('%m-%y')
         paga = 1
-        op_cobol = 0
+        msj = ""
+        while msj != "S" and msj != "N":
+            msj = input(f"¿Desea indicar un número de operación de Cobol para la operación? (S/N): ")
+            print()
+            if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
+                msj = "S"
+                op_cobol = input("Número de operación de Cobol: ")
+                if op_cobol == "":
+                    op_cobol = None
+                else:
+                    try:
+                        op_cobol = int(op_cobol)
+                    except ValueError:
+                        print("         ERROR. El dato solicitado debe ser de tipo numérico.")
+                        print()
+                        return
+                    except:
+                        mant.log_error()
+                        print("")
+                        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                        print()
+                        return
+                print()
+                pass
+            elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
+                msj = "N"
+                op_cobol = None
+                pass
+            else:
+                print()
+                print("         ERROR. Debe indicar S para indicar un nombre alternativo o N para cancelar.")
+                print()
         msj = ""
         while msj != "S" and msj != "N":
             msj = input(f"¿Desea indicar un nombre alternativo para la operación? (S/N): ")
@@ -1441,18 +1473,18 @@ def ver_operacion():
         print()
         return
     cobrador = rend.obtener_nom_cobrador(cob)
-    try:
-        dat_comp = obtener_datos_complementarios(id_op)
-    except UnboundLocalError:
-        dat_comp = None
-    except TypeError:
-        dat_comp = None
-    except:
-        mant.log_error()
-        print("")
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
-        print()
-        return
+    # try:
+    #     dat_comp = obtener_datos_complementarios(id_op)
+    # except UnboundLocalError:
+    #     dat_comp = None
+    # except TypeError:
+    #     dat_comp = None
+    # except:
+    #     mant.log_error()
+    #     print("")
+    #     input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    #     print()
+    #     return
     id_soc, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = ctas.obtener_datos_socio(nro_soc)
     cod_nicho, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(cod_nic)
     panteon = rend.obtener_panteon(pan)
@@ -1525,9 +1557,9 @@ def ver_operacion():
     print()    
     print(f"    COBRADOR: {cobrador}    -   RUTA: {rut}")
     print()
-    if dat_comp != None:
-        print(f"    DATOS COMPLEMENTARIOS: {dat_comp}")
-        print()
+    # if dat_comp != None:
+    #     print(f"    DATOS COMPLEMENTARIOS: {dat_comp}")
+    #     print()
     print(f"-".rjust(150, '-'))
 
 
@@ -1540,14 +1572,15 @@ def opcion_menu_editar_op():                                                    
     print("   3. Cambiar cobrador")
     print("   4. Editar ruta")
     print("   5. Editar tarjeta de crédito")
-    print("   6. Editar nombre alternativo")
-    print("   7. Editar domicilio alternativo")
-    print("   8. Cambiar estado de cobro")
+    print("   6. Editar número de operación de Cobol")
+    print("   7. Editar nombre alternativo")
+    print("   8. Editar domicilio alternativo")
+    print("   9. Cambiar estado de cobro")
     print("   0. Volver")
     print("")
     try:
         opcion = int(input("Ingrese una opción: "))
-        while opcion < 0 or opcion > 8:
+        while opcion < 0 or opcion > 9:
             print("")
             print("Opción incorrecta.")
             print("")
@@ -1640,10 +1673,12 @@ def menu_editar_op(idu):                                                        
         elif opcion == 5:
             editar_tarjeta(idu, id_op)
         elif opcion == 6:
-            editar_nom_alt(idu, id_op)
+            editar_op_cobol(idu, id_op)
         elif opcion == 7:
-            editar_dom_alt(idu, id_op)
+            editar_nom_alt(idu, id_op)
         elif opcion == 8:
+            editar_dom_alt(idu, id_op)
+        elif opcion == 9:
             cambiar_estado_cobro(idu, id_op, paga)
         elif opcion == 0:
             return
@@ -2011,6 +2046,41 @@ def editar_tarjeta(idu, id_op):
         print()
 
 
+def editar_op_cobol(idu, id_op):
+    i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_id(idu)
+    if pri < 2:
+        print()
+        print("         ERROR. No posee los privilegios necesarios para realizar esta acción.")
+        print()
+    else:
+        print("***** Editar nro. de operación de Cobol *****")
+        print()
+        op_cobol_nuevo = input("Ingrese número de operación de Cobol nuevo o presione enter para eliminarlo: ")
+        if op_cobol_nuevo == "":
+            conn = sql.connect(database)
+            cursor = conn.cursor()
+            instruccion = f"UPDATE operaciones SET op_cobol = NULL WHERE id = '{id_op}'"
+            cursor.execute(instruccion)
+            conn.commit()
+            conn.close()
+        else:
+            try:
+                mant.edit_registro('operaciones', 'op_cobol', int(op_cobol_nuevo), id_op)
+            except ValueError:
+                print("         ERROR. El dato solicitado debe ser de tipo numérico.")
+                print()
+                return
+            except:
+                mant.log_error()
+                print("")
+                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                print()
+                return
+        print()
+        print("Número de operación de Cobol modificado exitosamente.")
+        print()
+
+
 def editar_nom_alt(idu, id_op):
     i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_id(idu)
     if pri < 2:
@@ -2020,7 +2090,7 @@ def editar_nom_alt(idu, id_op):
     else:
         print("***** Editar nombre alternativo *****")
         print()
-        nombre_nuevo = input("Ingrese apellido y nombres alternativos nuevos o presione enter para eliminarlo: ").title()
+        nombre_nuevo = input("Ingrese apellido y nombres alternativos nuevos o presione enter para eliminarlos: ").title()
         print()
         if nombre_nuevo == "":
             conn = sql.connect(database)
