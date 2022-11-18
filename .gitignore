@@ -1,0 +1,128 @@
+# Archivo que contiene la información sobre el acceso a la base de datos
+database.ini
+
+# Archivos no relacionados al funcionamiento del sistema
+-Planificación
+
+databases/*.sql
+databases/*.db
+databases/*.csv
+
+databases - copia/
+
+modulos/ahre.py
+modulos/calc_deuda.py
+modulos/cambio_rutas.py
+modulos/funciones_globales.py
+modulos/funciones_prevenir.py
+modulos/nuevas_rutas_nestor.py
+modulos/op_nestor.py
+modulos/prevenir.py
+modulos/setup.py
+
+others/
+
+reports/**/*.pdf
+reports/**/*.txt
+reports/**/*.xlsx
+
+bicon.py
+PRIVILEGIOS.docx
+prueba.html
+QRCode.png
+setup.py
+
+# Logs
+*.log
+
+# Archivos de Python
+__pycache__
+*.py[cod] 
+*$py.class
+
+# Distribution / packaging 
+.Python build/ 
+develop-eggs/ 
+dist/ 
+downloads/ 
+eggs/ 
+.eggs/ 
+lib/ 
+lib64/ 
+parts/ 
+sdist/ 
+var/ 
+wheels/ 
+*.egg-info/ 
+.installed.cfg 
+*.egg 
+*.manifest 
+*.spec 
+
+# Installer logs 
+pip-log.txt 
+pip-delete-this-directory.txt 
+
+# Unit test / coverage reports 
+htmlcov/ 
+.tox/ 
+.coverage 
+.coverage.* 
+.cache 
+.pytest_cache/ 
+nosetests.xml 
+coverage.xml 
+*.cover 
+.hypothesis/ 
+
+# Jupyter Notebook 
+.ipynb_checkpoints 
+
+# pyenv 
+.python-version 
+
+# celery 
+celerybeat-schedule.* 
+
+# SageMath parsed files 
+*.sage.py 
+
+# Environments 
+.env 
+.venv 
+env/ 
+venv/ 
+ENV/ 
+env.bak/ 
+venv.bak/ 
+
+# mkdocs documentation 
+/site 
+
+# mypy 
+.mypy_cache/ 
+
+# Sublime Text # 
+*.tmlanguage.cache 
+*.tmPreferences.cache 
+*.stTheme.cache 
+*.sublime-workspace 
+*.sublime-project 
+
+# sftp configuration file 
+sftp-config.json 
+
+# Package control specific files Package 
+Control.last-run 
+Control.ca-list 
+Control.ca-bundle 
+Control.system-ca-bundle 
+GitHub.sublime-settings 
+
+# Visual Studio Code # 
+.vscode/* 
+!.vscode/settings.json 
+!.vscode/tasks.json 
+!.vscode/launch.json 
+!.vscode/extensions.json 
+.history
