@@ -1,6 +1,6 @@
-# REPORTER CREADO POR MANUEL FERRERO PARA EL SISTEMA [MORELLA] DE  [MF! SOLUCIONES]
-# Version 1.1.0.2205
-# OpenSource
+# REPORTER CREADO POR MANUEL FERRERO PARA EL SISTEMA [MORELLA] DE [MF! SOLUCIONES]
+# Version 1.2.0.2205
+
 
 ############ INICIO DE IMPORTACIONES ############
 
@@ -13,13 +13,30 @@ import correo as email
 from fpdf import FPDF
 from datetime import datetime, date
 import os
-import sqlite3 as sql
+import psycopg2 as sql
 from openpyxl import Workbook
 from smtplib import SMTPAuthenticationError
 from socket import gaierror
 
 ############ FIN DE IMPORTACIONES ############
 
+
+######## INICIO DE FUNCIONES  GRALES #########
+
+def obtener_database():
+    arch = open("../databases/database.ini", "r")
+    db = arch.readline()
+    arch.close()
+    return db
+
+########## FIN DE FUNCIONES GRALES ###########
+
+
+######### INICIO DE VARIABLES GRALES #########
+
+database = obtener_database()
+
+########### FIN DE VARIABLES GRALES ##########
 
 
 
@@ -204,7 +221,7 @@ def report_caja_diaria(s_final):
             self.cell(0, 10, 'Página ' + str(self.page_no()) + ' de {nb}', 0, 0, 'C')
             # Firma
             self.set_font('Arial', 'I', 8)
-            self.cell(-10, 10, 'Reporte generado en *MORELLA v1.1* by ', 0, 0, 'R')
+            self.cell(-10, 10, 'Reporte generado en *MORELLA v1.2* by ', 0, 0, 'R')
             self.image('../docs/mf_logo.jpg', 190, 274, 8)
 
     # Instantiation of inherited class
@@ -465,7 +482,7 @@ def report_caja_mensual_det(mes, año):
             self.cell(0, 10, 'Página ' + str(self.page_no()) + ' de {nb}', 0, 0, 'C')
             # Firma
             self.set_font('Arial', 'I', 8)
-            self.cell(-10, 10, 'Reporte generado en *MORELLA v1.1* by ', 0, 0, 'R')
+            self.cell(-10, 10, 'Reporte generado en *MORELLA v1.2* by ', 0, 0, 'R')
             self.image('../docs/mf_logo.jpg', 190, 274, 8)
 
     # Instantiation of inherited class
@@ -691,7 +708,7 @@ def report_caja_mensual_comp(mes, año):
             #self.set_font('Arial', 'BIU', 8)
             #self.cell(-15, 10, 'MF!', 0, 0, 'R')
             self.set_font('Arial', 'I', 8)
-            self.cell(-10, 10, 'Reporte generado en *MORELLA v1.1* by ', 0, 0, 'R')
+            self.cell(-10, 10, 'Reporte generado en *MORELLA v1.2* by ', 0, 0, 'R')
             self.image('../docs/mf_logo.jpg', 190, 274, 8)
 
     # Instantiation of inherited class
@@ -894,7 +911,7 @@ def report_caja_mensual_por_cob(mes, año):
             self.cell(0, 10, 'Página ' + str(self.page_no()) + ' de {nb}', 0, 0, 'C')
             # Firma
             self.set_font('Arial', 'I', 8)
-            self.cell(-10, 10, 'Reporte generado en *MORELLA v1.1* by ', 0, 0, 'R')
+            self.cell(-10, 10, 'Reporte generado en *MORELLA v1.2* by ', 0, 0, 'R')
             self.image('../docs/mf_logo.jpg', 190, 274, 8)
 
     # Instantiation of inherited class
@@ -1015,9 +1032,9 @@ def recibos(facturacion, id_cobrador):
                     añovar = f"{int(datetime.now().strftime('%Y'))+1}"
                 else:
                     añovar = datetime.now().strftime('%Y')
-                query = f"INSERT INTO recibos VALUES (NULL, ?, ?, ?, 0)"
-                parameters = (id_o, periodo_actual, añovar)
-                rend.run_query(query, parameters)
+                parameters = str((id_o, periodo_actual, añovar, 0))
+                query = f"INSERT INTO recibos (operacion, periodo, año, pago) VALUES {parameters}"
+                rend.run_query(query)
                 ndr = rend.obtener_nro_recibo()
                 # Header
                 if fac == 'bicon':
@@ -1243,9 +1260,10 @@ def recibos(facturacion, id_cobrador):
                 # elif ult == "Noviembre - Diciembre" and u_a == f'{int(año)-1}':            |
                 #     pdf.cell(190, 17, ' ', 0, 1, 'L')                                    --
                 q_rec_impagos = len(rend.obtener_recibos_impagos_op(id_o))
-                if q_rec_impagos == 0:
+                if q_rec_impagos == 1:
                     pdf.cell(190, 17, ' ', 0, 1, 'L')
                 else:
+                    q_rec_impagos -= 1
                     pdf.cell(93, 4, f'----------- ATENCIÓN: El asociado adeuda {q_rec_impagos} cuotas. ----------', 1, 1, 'C')
                     # Margen
                     pdf.cell(190, 13, ' ', 0, 1, 'L')
@@ -1255,7 +1273,7 @@ def recibos(facturacion, id_cobrador):
         # if mail != None and cob != 6 and mor == 0:
         #     try:
         #         email.recordatorio_cobrador(nro, periodo_actual, cod, pan, nco)
-        #     except SMTPAuthenticationError:
+        #     except S|MTPAuthenticationError:
         #         pass
         #      except gaierror:
         #          pass
@@ -1392,7 +1410,7 @@ def listado_recibos(facturacion, id_cobrador):
             self.cell(0, 10, 'Página ' + str(self.page_no()) + ' de {nb}', 0, 0, 'C')
             # Firma
             self.set_font('Arial', 'I', 8)
-            self.cell(-10, 10, 'Reporte generado en *MORELLA v1.1* by ', 0, 0, 'R')
+            self.cell(-10, 10, 'Reporte generado en *MORELLA v1.2* by ', 0, 0, 'R')
             self.image('../docs/mf_logo.jpg', 190, 274, 8)
 
     # Instantiation of inherited class
@@ -1564,9 +1582,9 @@ def recibos_deb_aut(facturacion):
                     añovar = f"{int(datetime.now().strftime('%Y'))+1}"
                 else:
                     añovar = datetime.now().strftime('%Y')
-                query = f"INSERT INTO recibos VALUES (NULL, ?, ?, ?, 0)"
-                parameters = (id_o, periodo_actual, añovar)
-                rend.run_query(query, parameters)
+                parameters = str((id_o, periodo_actual, añovar, 0))
+                query = f"INSERT INTO recibos (operacion, periodo, año, pago) VALUES {parameters}"
+                rend.run_query(query)
                 ndr = rend.obtener_nro_recibo()
                 # Header
                 # Bicon
@@ -1822,7 +1840,7 @@ def listado_recibos_deb_aut(facturacion):
             self.cell(0, 10, 'Página ' + str(self.page_no()) + ' de {nb}', 0, 0, 'C')
             # Firma
             self.set_font('Arial', 'I', 8)
-            self.cell(-10, 10, 'Reporte generado en *MORELLA v1.1* by ', 0, 0, 'R')
+            self.cell(-10, 10, 'Reporte generado en *MORELLA v1.2* by ', 0, 0, 'R')
             self.image('../docs/mf_logo.jpg', 190, 274, 8)
 
     # Instantiation of inherited class
@@ -1980,7 +1998,6 @@ def listado_recibos_deb_aut(facturacion):
 def recibos_documentos():
     ############ INICIO DE VARIABLES INDEPENDIENTES ############
 
-    database = "../databases/bicon.db"
     cobradores = vent.obtener_cobradores()
     dia = datetime.now().strftime('%d')
     mes = datetime.now().strftime('%m')
@@ -2052,9 +2069,9 @@ def recibos_documentos():
                         nom = f"[{nom_alt}]"
                     if dom_alt != None:
                         dom = f"[{dom_alt}]"
-                    query = f"INSERT INTO recibos VALUES (NULL, ?, ?, ?, 0)"
-                    parameters = (id_o, f'Doc: {str_mes_sig}', str(año_var))
-                    rend.run_query(query, parameters)
+                    parameters = str((id_o, f'Doc: {str_mes_sig}', str(año_var), 0))
+                    query = f"INSERT INTO recibos (operacion, periodo, año, pago) VALUES {parameters}"
+                    rend.run_query(query)
                     ndr = rend.obtener_nro_recibo()
                     lista_recibos.append(ndr)
                     # Header                                                   <----- HAY QUE PENSAR COMO PONER LA IMG DE ÑUL Y SEPARARLOS   
@@ -2337,7 +2354,6 @@ def recibos_documentos():
 def listado_recibos_documentos(lista_recibos):
     ############ INICIO DE VARIABLES INDEPENDIENTES ############
 
-    database = "../databases/bicon.db"
     dia = datetime.now().strftime('%d')
     mes = datetime.now().strftime('%m')
     str_mes_sig, int_mes_sig = rend.obtener_mes_siguiente(mes)
@@ -2419,7 +2435,7 @@ def listado_recibos_documentos(lista_recibos):
             self.cell(0, 10, 'Página ' + str(self.page_no()) + ' de {nb}', 0, 0, 'C')
             # Firma
             self.set_font('Arial', 'I', 8)
-            self.cell(-10, 10, 'Reporte generado en *MORELLA v1.1* by ', 0, 0, 'R')
+            self.cell(-10, 10, 'Reporte generado en *MORELLA v1.2* by ', 0, 0, 'R')
             self.image('../docs/mf_logo.jpg', 190, 274, 8)
 
     # Instantiation of inherited class
@@ -2989,7 +3005,7 @@ def report_estado_cta(nro_socio, nombre, dni, fec_alta, domicilio, te_1, te_2, m
             self.cell(0, 10, 'Página ' + str(self.page_no()) + ' de {nb}', 0, 0, 'C')
             # Firma
             self.set_font('Arial', 'I', 8)
-            self.cell(-10, 10, 'Reporte generado en *MORELLA v1.1* by ', 0, 0, 'R')
+            self.cell(-10, 10, 'Reporte generado en *MORELLA v1.2* by ', 0, 0, 'R')
             self.image('../docs/mf_logo.jpg', 190, 274, 8)
 
     # Instantiation of inherited class
@@ -3190,7 +3206,7 @@ def report_estado_cta_mail(nro_socio, nombre, dni, domicilio, te_1, te_2, mail, 
             self.cell(0, 10, 'Página ' + str(self.page_no()) + ' de {nb}', 0, 0, 'C')
             # Firma
             self.set_font('Arial', 'I', 8)
-            self.cell(-10, 10, 'Reporte generado en *MORELLA v1.1* by ', 0, 0, 'R')
+            self.cell(-10, 10, 'Reporte generado en *MORELLA v1.2* by ', 0, 0, 'R')
             self.image('../docs/mf_logo.jpg', 190, 274, 8)
 
     # Instantiation of inherited class
@@ -3363,7 +3379,7 @@ def report_morosos_det():
             self.cell(0, 10, 'Página ' + str(self.page_no()) + ' de {nb}', 0, 0, 'C')
             # Firma
             self.set_font('Arial', 'I', 8)
-            self.cell(-10, 10, 'Reporte generado en *MORELLA v1.1* by ', 0, 0, 'R')
+            self.cell(-10, 10, 'Reporte generado en *MORELLA v1.2* by ', 0, 0, 'R')
             self.image('../docs/mf_logo.jpg', 190, 274, 8)
 
     # Instantiation of inherited class
@@ -3484,7 +3500,7 @@ def report_morosos_det():
         pdf.ln(3)
         counter += 1
         progreso = int(counter*100/len(lista_limpia_morosos))
-        os.system(f'TITLE Morella v1.1.0.2205- MF! Soluciones informáticas   -   GENERANDO REPORTE: {progreso}%')
+        os.system(f'TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas   -   GENERANDO REPORTE: {progreso}%')
     pdf.set_font('Arial', 'B', 10)
     pdf.cell(0, 5, f'DEUDA TOTAL MOROSOS: $ {deuda_total_morosos:.2f}', 1, 1, 'R')
     
@@ -3502,7 +3518,7 @@ def report_morosos_det():
     os.system(arch)
     ruta = '../../modulos/'
     os.chdir(ruta)
-    os.system(f'TITLE Morella v1.1.0.2205- MF! Soluciones informáticas')
+    os.system(f'TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas')
            
             ######################################## FIN DE REPORT ############################################
 
@@ -3614,7 +3630,7 @@ def report_morosos_comp():
             self.cell(0, 10, 'Página ' + str(self.page_no()) + ' de {nb}', 0, 0, 'C')
             # Firma
             self.set_font('Arial', 'I', 8)
-            self.cell(-10, 10, 'Reporte generado en *MORELLA v1.1* by ', 0, 0, 'R')
+            self.cell(-10, 10, 'Reporte generado en *MORELLA v1.2* by ', 0, 0, 'R')
             self.image('../docs/mf_logo.jpg', 190, 274, 8)
 
     # Instantiation of inherited class
@@ -3648,7 +3664,7 @@ def report_morosos_comp():
         deuda_total_morosos = deuda_total_morosos + ctas.deuda_por_op(id_op)
         counter += 1
         progreso = int(counter*100/len(morosos))
-        os.system(f'TITLE Morella v1.1.0.2205- MF! Soluciones informáticas   -   GENERANDO REPORTE: {progreso}%')
+        os.system(f'TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas   -   GENERANDO REPORTE: {progreso}%')
 
     pdf.ln(3)
     pdf.set_font('Arial', 'B', 10)
@@ -3668,7 +3684,7 @@ def report_morosos_comp():
     os.system(arch)
     ruta = '../../modulos/'
     os.chdir(ruta)
-    os.system('TITLE Morella v1.1.0.2205- MF! Soluciones informáticas')
+    os.system('TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas')
            
             ######################################## FIN DE REPORT ############################################
 
@@ -3683,7 +3699,6 @@ def report_morosos_comp():
 
 def report_excel_socios():
     ############ INICIO DE VARIABLES INDEPENDIENTES ############
-    database = "../databases/bicon.db"
     fecha = datetime.today().strftime("%Y-%m-%d")
     counter = 0
 
@@ -3727,9 +3742,9 @@ def report_excel_socios():
         ws.append(datos_socio)
         counter += 1
         progreso = int(counter*100/len(datos))
-        os.system(f'TITLE Morella v1.1.0.2205- MF! Soluciones informáticas   -   GENERANDO REPORTE: {progreso}%')
+        os.system(f'TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas   -   GENERANDO REPORTE: {progreso}%')
     print()
-    os.system(f'TITLE Morella v1.1.0.2205- MF! Soluciones informáticas')
+    os.system(f'TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas')
     # Export
     try:
         wb.save(f"../reports/excel/listado_socios-{fecha}.xlsx")
@@ -3767,7 +3782,6 @@ def report_excel_socios():
 
 def report_excel_modif_caja():
     ############ INICIO DE VARIABLES INDEPENDIENTES ############
-    database = "../databases/bicon.db"
     fecha = datetime.today().strftime("%Y-%m-%d")
     counter = 0
 
@@ -3806,8 +3820,8 @@ def report_excel_modif_caja():
         ws.append(datos_reg)
         counter += 1
         progreso = int(counter*100/len(datos))
-        os.system(f'TITLE Morella v1.1.0.2205- MF! Soluciones informáticas   -   GENERANDO REPORTE: {progreso}%')
-    os.system(f'TITLE Morella v1.1.0.2205- MF! Soluciones informáticas')    
+        os.system(f'TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas   -   GENERANDO REPORTE: {progreso}%')
+    os.system(f'TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas')    
     print("")
 
     # Export
@@ -3847,7 +3861,6 @@ def report_excel_modif_caja():
 
 def report_deb_aut(mes, año):
     ############ INICIO DE VARIABLES INDEPENDIENTES ############
-    database = "../databases/bicon.db"
     fecha_hoy = datetime.today().strftime("%Y-%m-%d")
     counter = 0
 
@@ -3888,8 +3901,8 @@ def report_deb_aut(mes, año):
         ws.append(datos_debaut)
         counter += 1
         progreso = int(counter*100/len(datos))
-        os.system(f'TITLE Morella v1.1.0.2205- MF! Soluciones informáticas   -   GENERANDO REPORTE: {progreso}%')
-    os.system(f'TITLE Morella v1.1.0.2205- MF! Soluciones informáticas')
+        os.system(f'TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas   -   GENERANDO REPORTE: {progreso}%')
+    os.system(f'TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas')
     print()
 
     # Export
@@ -3929,7 +3942,6 @@ def report_deb_aut(mes, año):
 
 def report_cobradores():
     ############ INICIO DE VARIABLES INDEPENDIENTES ############
-    database = "../databases/bicon.db"
     fecha_hoy = datetime.today().strftime("%Y-%m-%d")
     fecha = caja.obtener_fecha()
     hora = datetime.now().strftime('%H:%M')
@@ -3989,7 +4001,7 @@ def report_cobradores():
             self.cell(0, 10, 'Página ' + str(self.page_no()) + ' de {nb}', 0, 0, 'C')
             # Firma
             self.set_font('Arial', 'I', 8)
-            self.cell(-10, 10, 'Reporte generado en *MORELLA v1.1* by ', 0, 0, 'R')
+            self.cell(-10, 10, 'Reporte generado en *MORELLA v1.2* by ', 0, 0, 'R')
             self.image('../docs/mf_logo.jpg', 190, 274, 8)
 
     # Instantiation of inherited class
@@ -4004,8 +4016,8 @@ def report_cobradores():
         pdf.cell(90, 5, f'{cob}', 0, 1, 'L')
         counter += 1
         progreso = int(counter*100/len(cobradores))
-        os.system(f'TITLE Morella v1.1.0.2205- MF! Soluciones informáticas   -   GENERANDO REPORTE: {progreso}%')
-    os.system(f'TITLE Morella v1.1.0.2205- MF! Soluciones informáticas')
+        os.system(f'TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas   -   GENERANDO REPORTE: {progreso}%')
+    os.system(f'TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas')
     # Export
     pdf.output(f'../reports/temp/listado_cobradores.pdf', 'F')
         
@@ -4034,7 +4046,6 @@ def report_cobradores():
 
 def report_panteones():
     ############ INICIO DE VARIABLES INDEPENDIENTES ############
-    database = "../databases/bicon.db"
     fecha_hoy = datetime.today().strftime("%Y-%m-%d")
     fecha = caja.obtener_fecha()
     hora = datetime.now().strftime('%H:%M')
@@ -4094,7 +4105,7 @@ def report_panteones():
             self.cell(0, 10, 'Página ' + str(self.page_no()) + ' de {nb}', 0, 0, 'C')
             # Firma
             self.set_font('Arial', 'I', 8)
-            self.cell(-10, 10, 'Reporte generado en *MORELLA v1.1* by ', 0, 0, 'R')
+            self.cell(-10, 10, 'Reporte generado en *MORELLA v1.2* by ', 0, 0, 'R')
             self.image('../docs/mf_logo.jpg', 190, 274, 8)
 
     # Instantiation of inherited class
@@ -4109,8 +4120,8 @@ def report_panteones():
         pdf.cell(90, 5, f'{cob}', 0, 1, 'L')
         counter += 1
         progreso = int(counter*100/len(panteones))
-        os.system(f'TITLE Morella v1.1.0.2205- MF! Soluciones informáticas   -   GENERANDO REPORTE: {progreso}%')
-    os.system(f'TITLE Morella v1.1.0.2205- MF! Soluciones informáticas')
+        os.system(f'TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas   -   GENERANDO REPORTE: {progreso}%')
+    os.system(f'TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas')
     # Export
     pdf.output(f'../reports/temp/listado_panteones.pdf', 'F')
         

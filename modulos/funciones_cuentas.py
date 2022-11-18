@@ -3,16 +3,20 @@ import funciones_rendiciones as rend
 import funciones_mantenimiento as mant
 import funciones_ventas as vent
 import reporter as rep
-import sqlite3 as sql
+import psycopg2 as sql
 import os
-import getpass
+from getpass import getpass
 
-os.system('TITLE Morella v1.1.0.2205- MF! Soluciones informáticas')
+os.system('TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas')
 os.system('color 0d')   # Colores del módulo (Púrpura sobre negro)
 os.system('mode con: cols=160 lines=9999')
 
-
-database = "../databases/bicon.db"
+def obtener_database():
+    arch = open("../databases/database.ini", "r")
+    db = arch.readline()
+    arch.close()
+    return db
+database = obtener_database()
 
 
 def iniciar_sesion():
@@ -20,9 +24,11 @@ def iniciar_sesion():
     user = input("Usuario: ").lower()
     try:
         i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_user(user)
+        if i_d == 0 and nom == 0 and ape == 0:
+            return 0, 0, 0, 0, 0, 0, 0, 0, 0
         if act == 1:
             counter = 0
-            pw = getpass.getpass("Contraseña: ")
+            pw = getpass("Contraseña: ")
             while pw != pas:
                 print("Contraseña incorrecta")
                 print()
@@ -35,22 +41,22 @@ def iniciar_sesion():
                     return i_d, nom, ape, tel, dom, use, pas, pri, act
                 print("")
                 print
-                pw = getpass.getpass("Contraseña: ")
+                pw = getpass("Contraseña: ")
             if pw == pas:
                 print()
                 print(f"Bienvenido/a {nom}, que tengas un buen día.")
                 print()
                 while pw == "0000":
-                    pw_new = str(getpass.getpass("Ingrese la nueva contraseña: "))
+                    pw_new = str(getpass("Ingrese la nueva contraseña: "))
                     while len(pw_new) < 4:
                         print("La contraseña debe ser de 4 dígitos o más.")
-                        pw_new = str(getpass.getpass("Ingrese la nueva contraseña: "))
+                        pw_new = str(getpass("Ingrese la nueva contraseña: "))
                         print()
                     while pw_new == "0000":
                         print("La contraseña no puede ser 0000.")
-                        pw_new = str(getpass.getpass("Ingrese la nueva contraseña: "))
+                        pw_new = str(getpass("Ingrese la nueva contraseña: "))
                         print()
-                    pw_conf = str(getpass.getpass("Repita la nueva contraseña: "))
+                    pw_conf = str(getpass("Repita la nueva contraseña: "))
                     print()
                     if pw_new == pw_conf:
                         mant.edit_registro('usuarios', 'pass', str(pw_new), i_d)
@@ -94,9 +100,18 @@ def iniciar_sesion():
 
 
 def buscar_usuario_por_user(user):
-    conn = sql.connect(database)
+    try:
+        conn = sql.connect(database)
+    except sql.OperationalError:
+        mant.log_error()
+        print()
+        print("         ERROR. La base de datos no responde. Asegurese de estar conectado a la red y que el servidor se encuentre encendido.")
+        print()
+        print("         Si es así y el problema persiste, comuníquese con el administrador del sistema.")
+        print()
+        return 0, 0, 0, 0, 0, 0, 0, 0, 0
     cursor = conn.cursor()
-    instruccion = f"SELECT * FROM usuarios WHERE user = '{user}'"
+    instruccion = f"SELECT * FROM usuarios WHERE user_name = '{user}'"
     cursor.execute(instruccion)
     datos = cursor.fetchone()
     conn.commit()
@@ -396,10 +411,13 @@ def buscar_op_nro_socio(nro_socio):
 
 
 def buscar_op_nombre_socio(nombre):
+    nombre = mant.reemplazar_comilla(nombre)
+    if nombre == "":
+        return
     try:
         conn = sql.connect(database)
         cursor = conn.cursor()
-        instruccion = f'SELECT * FROM socios WHERE nombre like "%{nombre}%"'
+        instruccion = f"SELECT * FROM socios WHERE nombre ilike '%{nombre}%'"
         cursor.execute(instruccion)
         datos = cursor.fetchall()
         conn.commit()
@@ -411,9 +429,9 @@ def buscar_op_nombre_socio(nombre):
             print("****************************************************************************************************************************************************************")
         input("Presione la tecla enter para continuar... ")
         conn.close()
-    except sql.OperationalError:
+    except sql.errors.SyntaxError:
         print("")
-        print('ERROR. Nombre inválido. Recuerde que no se pueden utilizar comillas dobles (") en los nombres')
+        print("         ERROR. Nombre inválido. No se pueden utilizar comillas simples (') en las busquedas")
         print()
         return
     except:
@@ -442,10 +460,13 @@ def buscar_op_dni(dni):
 
 
 def buscar_op_domicilio(domicilio):
+    domicilio = mant.reemplazar_comilla(domicilio)
+    if domicilio == "":
+        return
     try:
         conn = sql.connect(database)
         cursor = conn.cursor()
-        instruccion = f"SELECT * FROM socios WHERE domicilio like '%{domicilio}%'"
+        instruccion = f"SELECT * FROM socios WHERE domicilio ilike '%{domicilio}%'"
         cursor.execute(instruccion)
         datos = cursor.fetchall()
         conn.commit()
@@ -457,9 +478,9 @@ def buscar_op_domicilio(domicilio):
             print("***********************************************************************************************************************************************************")
         input("Presione la tecla enter para continuar... ")
         conn.close()
-    except sql.OperationalError:
+    except sql.errors.SyntaxError:
         print("")
-        print("         ERROR. Domicilio inválido. Recuerde que no se pueden utilizar comillas simples (') en los domicilios")
+        print("         ERROR. Domicilio inválido. Recuerde que no se pueden utilizar comillas simples (') en las busquedas")
         print("")
         return
     except:
@@ -478,7 +499,7 @@ def buscar_op_cod_nicho(cod_nicho, ret):
         print("         ERROR. Código de nicho inválido")
         print()
         return
-    except sql.OperationalError:
+    except sql.errors.SyntaxError:
         print("         ERROR. Código de nicho inválido")
         print()
         return
@@ -576,39 +597,63 @@ def buscar_op_cob(cod_cobrador):
 
 
 def buscar_op_nom_alt(nom_alt):
-    conn = sql.connect(database)
-    cursor = conn.cursor()
-    instruccion = f'SELECT * FROM operaciones WHERE nombre_alt like "%{nom_alt}%"'
-    cursor.execute(instruccion)
-    datos = cursor.fetchall()
-    conn.commit()
-    conn.close()
-    print("")
-    print("***********************************************************************************************************************************************************")
-    for x in datos:
-        i_d, soc, nic, fac, cob, tar, rut, ult, u_a, fec, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = x
-        buscar_op_nro_socio(soc)
+    try:
+        conn = sql.connect(database)
+        cursor = conn.cursor()
+        instruccion = f"SELECT * FROM operaciones WHERE nombre_alt ilike '%{nom_alt}%'"
+        cursor.execute(instruccion)
+        datos = cursor.fetchall()
+        conn.commit()
+        conn.close()
+        print("")
         print("***********************************************************************************************************************************************************")
-    print()
-    input("Presione la tecla enter para continuar... ")
+        for x in datos:
+            i_d, soc, nic, fac, cob, tar, rut, ult, u_a, fec, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = x
+            buscar_op_nro_socio(soc)
+            print("***********************************************************************************************************************************************************")
+        print()
+        input("Presione la tecla enter para continuar... ")
+    except sql.errors.SyntaxError:
+        print("")
+        print("         ERROR. Nombre inválido. No se pueden utilizar comillas simples (') en las busquedas")
+        print()
+        return
+    except:
+        mant.log_error()
+        print("")
+        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        print()
+        return
 
 
 def buscar_op_dom_alt(dom_alt):
-    conn = sql.connect(database)
-    cursor = conn.cursor()
-    instruccion = f"SELECT * FROM operaciones WHERE domicilio_alt like '%{dom_alt}%'"
-    cursor.execute(instruccion)
-    datos = cursor.fetchall()
-    conn.commit()
-    conn.close()
-    print("")
-    print("***********************************************************************************************************************************************************")
-    for x in datos:
-        i_d, soc, nic, fac, cob, tar, rut, ult, u_a, fec, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = x
-        buscar_op_nro_socio(soc)
+    try:
+        conn = sql.connect(database)
+        cursor = conn.cursor()
+        instruccion = f"SELECT * FROM operaciones WHERE domicilio_alt ilike '%{dom_alt}%'"
+        cursor.execute(instruccion)
+        datos = cursor.fetchall()
+        conn.commit()
+        conn.close()
+        print("")
         print("***********************************************************************************************************************************************************")
-    print()        
-    input("Presione la tecla enter para continuar... ")
+        for x in datos:
+            i_d, soc, nic, fac, cob, tar, rut, ult, u_a, fec, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = x
+            buscar_op_nro_socio(soc)
+            print("***********************************************************************************************************************************************************")
+        print()        
+        input("Presione la tecla enter para continuar... ")
+    except sql.errors.SyntaxError:
+        print("")
+        print("         ERROR. Nombre inválido. No se pueden utilizar comillas simples (') en las busquedas")
+        print()
+        return
+    except:
+        mant.log_error()
+        print("")
+        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        print()
+        return
 
 
 def buscar_op_cobol(op_cobol):

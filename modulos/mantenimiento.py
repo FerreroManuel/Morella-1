@@ -2,12 +2,12 @@ print("\n\nCargando las funciones necesarias para ejectuar el módulo. Por favor
 import funciones_mantenimiento as func
 import os
 
-os.system('TITLE Morella v1.1.0.2205- MF! Soluciones informáticas')
+os.system('TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas')
 os.system('color 0a')   # Colores del módulo (Verde sobre negro)
 os.system('mode con: cols=160 lines=9999')
 
 try:
-    print("Morella v1.1.0.2205- MF! Soluciones informáticas.")
+    print("Morella v1.2.0.2205 - MF! Soluciones informáticas.")
     print("")
     print("")
     print("   #############################################")
@@ -23,9 +23,89 @@ try:
 
     while idu < 0:
         print("")
-        idu, nom, ape, tel, dom, use, pas, pri, act = func.iniciar_sesion()
+        try:
+            idu, nom, ape, tel, dom, use, pas, pri, act = func.iniciar_sesion()
+        except KeyboardInterrupt:
+            mantenimiento = func.getpass("\n\nPresione enter para volver... ")
+            print()
+            if mantenimiento == "admin":
+                print()
+                print()
+                print()
+                print()
+                print("                         +++++++++++++++++++++++++++++++++++++++++++++++++")
+                print("                         +++++++++++++++++++++++++++++++++++++++++++++++++")
+                print("                         ++++++++++                             ++++++++++")
+                print("                         ++++++++++    MENÚ DE ADMINISTRADOR    ++++++++++")
+                print("                         ++++++++++                             ++++++++++")
+                print("                         +++++++++++++++++++++++++++++++++++++++++++++++++")
+                print("                         +++++++++++++++++++++++++++++++++++++++++++++++++")
+                print()
+                print("   _________________________________________________________________________________________________________")
+                print("  |                                                                                                         |")
+                print("  |  ATENCION! Este menú es de uso exclusivo del administrador de sistemas.                                 |")
+                print("  |  Cualquier modificación que realice desde este menú puede corromper el sistema dejándolo inutilizable.  |")
+                print("  |  Toda acción realizada a partir de aquí queda bajo su responsabilidad total y absoluta.                 |")
+                print("  |  El administrador no se hace responsable por los daños que pueda ocasionar.                             |")
+                print("  |_________________________________________________________________________________________________________|")
+                print()
+                print()
+                print()
+                print("********** Acciones disponibles **********")
+                print("")
+                print("   1. Restaurar cuenta ADMIN")
+                print("   2. Mantenimiento de ruta a base de datos")
+                print("   0. Salir")
+                print("")
+                loop = -1
+                cerrar = 0
+                while loop == -1:
+                    try:
+                        loop = opcion = int(input("Ingrese una opción: "))
+                        print()
+                        while opcion < 0 or opcion > 2:
+                            print("Opción incorrecta.")
+                            print("")
+                            loop = opcion = int(input("Ingrese una opción: "))
+                            print()
+                    except ValueError:
+                        print("Opción incorrecta.")
+                        print()
+                        loop = opcion = int(input("Ingrese una opción: "))
+                        print()
+                    except:
+                        func.log_error()
+                        print("")
+                        func.getpass("         ERROR. Información al respecto en el log de errores...  Presione enter para continuar con el inicio de sesión...")
+                        print()
+                if opcion == 1:
+                    func.mant_restaurar_admin()
+                elif opcion == 2:
+                    try:
+                        func.mant_database()
+                        print()
+                    except:
+                        func.log_error()
+                        print("")
+                        func.getpass("         ERROR. Información al respecto en el log de errores...  Presione enter para continuar con el inicio de sesión...")
+                        print()
+                    cerrar = 1
+                else:
+                    cerrar = 1
+                if cerrar == 1:
+                    pass
 
 
+    if idu == 0:
+        mantenimiento = func.getpass("Presione enter para salir...")        
+        print()
+        if mantenimiento == "admin":
+            try:
+                func.mant_database()
+            except:
+                func.log_error()
+                print("")
+                func.getpass("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
 
     if idu > 0:
         if pri >= 1:
@@ -35,7 +115,7 @@ try:
         else:
             print("         ERROR. No posee los privilegios necesarios para realizar esta operación. Comuníquese con un admnistrador.")
             print("")
-            input("Presione enter para continuar...")
+            func.getpass("Presione enter para continuar...")
             print("")
 
     ########## CERRANDO CONSOLA ##########
@@ -45,5 +125,5 @@ try:
 except:
     func.log_error()
     print("")
-    input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    func.getpass("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
     print()

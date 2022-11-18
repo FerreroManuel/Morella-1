@@ -1,18 +1,23 @@
 import funciones_rendiciones as rend
 import funciones_mantenimiento as mant
 import funciones_cuentas as ctas
-import sqlite3 as sql
+import psycopg2 as sql
 import os
-import getpass
+from getpass import getpass
 from datetime import datetime
 
 
-os.system('TITLE Morella v1.1.0.2205- MF! Soluciones informáticas')
+os.system('TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas')
 os.system('color 0B')   # Colores del módulo (Celeste sobre negro)
 os.system('mode con: cols=160 lines=9999')
 
 
-database = "../databases/bicon.db"
+def obtener_database():
+    arch = open("../databases/database.ini", "r")
+    db = arch.readline()
+    arch.close()
+    return db
+database = obtener_database()
 dia = datetime.now().strftime('%d')
 mes = datetime.now().strftime('%m')
 año = datetime.now().strftime('%Y')
@@ -23,9 +28,11 @@ def iniciar_sesion():
     user = input("Usuario: ").lower()
     try:
         i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_user(user)
+        if i_d == 0 and nom == 0 and ape == 0:
+            return 0, 0, 0, 0, 0, 0, 0, 0, 0
         if act == 1:
             counter = 0
-            pw = getpass.getpass("Contraseña: ")
+            pw = getpass("Contraseña: ")
             while pw != pas:
                 print("Contraseña incorrecta")
                 print()
@@ -38,22 +45,22 @@ def iniciar_sesion():
                     return i_d, nom, ape, tel, dom, use, pas, pri, act
                 print("")
                 print
-                pw = getpass.getpass("Contraseña: ")
+                pw = getpass("Contraseña: ")
             if pw == pas:
                 print()
                 print(f"Bienvenido/a {nom}, que tengas un buen día.")
                 print()
                 while pw == "0000":
-                    pw_new = str(getpass.getpass("Ingrese la nueva contraseña: "))
+                    pw_new = str(getpass("Ingrese la nueva contraseña: "))
                     while len(pw_new) < 4:
                         print("La contraseña debe ser de 4 dígitos o más.")
-                        pw_new = str(getpass.getpass("Ingrese la nueva contraseña: "))
+                        pw_new = str(getpass("Ingrese la nueva contraseña: "))
                         print()
                     while pw_new == "0000":
                         print("La contraseña no puede ser 0000.")
-                        pw_new = str(getpass.getpass("Ingrese la nueva contraseña: "))
+                        pw_new = str(getpass("Ingrese la nueva contraseña: "))
                         print()
-                    pw_conf = str(getpass.getpass("Repita la nueva contraseña: "))
+                    pw_conf = str(getpass("Repita la nueva contraseña: "))
                     print()
                     if pw_new == pw_conf:
                         mant.edit_registro('usuarios', 'pass', str(pw_new), i_d)
@@ -97,9 +104,18 @@ def iniciar_sesion():
 
 
 def buscar_usuario_por_user(user):
-    conn = sql.connect(database)
+    try:
+        conn = sql.connect(database)
+    except sql.OperationalError:
+        mant.log_error()
+        print()
+        print("         ERROR. La base de datos no responde. Asegurese de estar conectado a la red y que el servidor se encuentre encendido.")
+        print()
+        print("         Si es así y el problema persiste, comuníquese con el administrador del sistema.")
+        print()
+        return 0, 0, 0, 0, 0, 0, 0, 0, 0
     cursor = conn.cursor()
-    instruccion = f"SELECT * FROM usuarios WHERE user = '{user}'"
+    instruccion = f"SELECT * FROM usuarios WHERE user_name = '{user}'"
     cursor.execute(instruccion)
     datos = cursor.fetchone()
     conn.commit()
@@ -243,9 +259,10 @@ def obtener_precio_venta(id_cat, pis, fil):
 def agregar_datos_comp(id_op):
     print()
     datos_comp = str(input(f"Ingrese los datos complementarios que quiera incluir en la operación nro. {str(id_op).rjust(7, '0')}: "))
-    query = "INSERT INTO datos_complementarios VALUES (?, ?)"
-    parameters = (id_op, datos_comp)
-    mant.run_query(query, parameters)
+    datos_comp = mant.reemplazar_comilla(datos_comp)
+    parameters = str((id_op, datos_comp))
+    query = f"INSERT INTO datos_complementarios VALUES {parameters}"
+    mant.run_query(query)
     print()
     print("Datos agregados exitosamente.")
     print()
@@ -308,9 +325,10 @@ def ult_reg(tabla, columna):
 
 
 def edit_registro_socio(parametro1, parametro2, id):
+    parametro2 = mant.reemplazar_comilla(parametro2)
     conn = sql.connect(database)
     cursor = conn.cursor()
-    instruccion = f"UPDATE socios SET '{parametro1}'='{parametro2}' WHERE nro_socio = '{id}'"
+    instruccion = f"UPDATE socios SET {parametro1} = {parametro2} WHERE nro_socio = '{id}'"
     cursor.execute(instruccion)
     conn.commit()
     conn.close()
@@ -480,9 +498,9 @@ def venta_nicho(idu):
             print()
             ingreso = pre
             observ = f"Operación nro. {str(id_op).rjust(7, '0')}"
-            parameters = ('Compra de nicho', f'Nicho {str(nic).rjust(10, "0")}', trans, ingreso, observ, dia, mes, año, 0, idu)
-            query = "INSERT INTO caja VALUES (NULL, ?, ?, ?, ?, '', ?, ?, ?, ?, ?, ?)"
-            mant.run_query(query, parameters)
+            parameters = str(('Compra de nicho', f'Nicho {str(nic).rjust(10, "0")}', trans, ingreso, observ, dia, mes, año, 0, idu))
+            query = f"INSERT INTO caja (categoria, descripcion, transaccion, ingreso, observacion, dia, mes, año, cerrada, id_user) VALUES {parameters}"
+            mant.run_query(query)
             print("[OK!]")
             print()
             print("Proceso finalizado exitosamente.")
@@ -496,15 +514,16 @@ def venta_nicho(idu):
             ingreso = ant
             observ = f"Operación nro. {str(id_op).rjust(7, '0')}"
             ult_rec = datetime.now().strftime('%m-&y')
-            query_caja = "INSERT INTO caja VALUES (NULL, ?, ?, ?, ?, '', ?, ?, ?, ?, ?, ?)"
-            param_caja = ('Compra de nicho', f'Nicho {str(nic).rjust(10, "0")}', trans, ingreso, observ, dia, mes, año, 0, idu)
-            mant.run_query(query_caja, param_caja)
+            param_caja = str(('Compra de nicho', f'Nicho {str(nic).rjust(10, "0")}', trans, ingreso, observ, dia, mes, año, 0, idu))
+            query_caja = f"INSERT INTO caja (categoria, descripcion, transaccion, ingreso, observacion, dia, mes, año, cerrada, id_user) VALUES {param_caja}"
+            mant.run_query(query_caja)
             print("[OK!]")
             print()
             print("Registrando deuda en la base de datos. Por favor no interrumpa el proceso ni apague la computadora...", end=" ")
             query_cuot = "INSERT INTO documentos VALUES (?, ?, ?, ?)"
-            param_cuot = (id_op, cuotas, cuo, ult_rec)
-            mant.run_query(query_cuot, param_cuot)
+            param_cuot = str((id_op, cuotas, cuo, ult_rec))
+            query_cuot = f"INSERT INTO documentos VALUES {param_cuot}"
+            mant.run_query(query_cuot)
             print("[OK!]")
             print()
             print("Proceso finalizado exitosamente.")
@@ -552,6 +571,7 @@ def crear_socio(idu, ret):
         loop = -1
         while loop == -1:
             loop = nombre = input("Ingrese apellido y nombre: ").title()
+            nombre = mant.reemplazar_comilla(nombre)
             if len(nombre) < 3:
                 print()
                 print("         ERROR. El campo debe tener al menos 3 caracteres")
@@ -561,19 +581,28 @@ def crear_socio(idu, ret):
         while loop == -1:
             print()
             loop = telefono_1 = input("Ingrese un nro. de teléfono (preferentemente fijo): ").title()
+            telefono_1 = mant.reemplazar_comilla(telefono_1)
             print()
             loop = telefono_2 = input("Ingrese un nro. de teléfono (preferentemente celular): ").title()
+            telefono_2 = mant.reemplazar_comilla(telefono_2)
             print()
             if len(telefono_1) < 7 and len(telefono_2) < 7:
                 print()
                 print("         ERROR. Debe indicar al menos un teléfono válido")
                 print()
                 loop = -1
+            if telefono_1 == "":
+                telefono_1 = None
+            if telefono_2 == "":
+                telefono_2 = None
         email = input("Ingrese un email: ").lower()
+        if email == "":
+            email = None
         print()
         loop = -1
         while loop == -1:
             loop = domicilio = input("Ingrese domicilio : ").title()
+            domicilio = mant.reemplazar_comilla(domicilio)
             if len(domicilio) < 3:
                 print()
                 print("         ERROR. El campo debe tener al menos 3 caracteres")
@@ -605,10 +634,11 @@ def crear_socio(idu, ret):
             print()
         except TypeError:
             localidad = input("Ingrese localidad: ").title()
+            localidad = mant.reemplazar_comilla(localidad)
             print()
-            query = "INSERT INTO cod_post VALUES (?, ?)"
-            parameters = (cod_postal, localidad)
-            mant.run_query(query, parameters)
+            parameters = str((cod_postal, localidad))
+            query = f"INSERT INTO cod_post VALUES {parameters}"
+            mant.run_query(query)
         f_nacimiento = input("Ingrese fecha de nacimiento (DD/MM/AAAA): ")
         while len(f_nacimiento) != 10 or f_nacimiento[2] != '/' or f_nacimiento[5] != '/':
             print("         ERROR. Ingrese una fecha válida. Recuerde que debe ingresarse con el siguiente formato: (DD/MM/AAAA)")
@@ -617,9 +647,9 @@ def crear_socio(idu, ret):
         print()
         f_alta = datetime.now().strftime('%d/%m/%Y')
         print("Ingresando socio a la base de datos. No interrumpa el proceso ni apague la computadora.")
-        query = "INSERT INTO socios VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
         parameters = (nombre, documento, telefono_1, telefono_2, email, domicilio, localidad, cod_postal, f_nacimiento, f_alta, 1)
-        mant.run_query(query, parameters)
+        query = "INSERT INTO socios (nombre, dni, telefono_1, telefono_2, mail, domicilio, localidad, cod_postal, fecha_nacimiento, fecha_alta, activo) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        mant.run_query_w_par(query, parameters)
         print("[OK!]")
         print()
         print("Proceso finalizado exitosamente.")
@@ -795,7 +825,7 @@ def edit_dni(idu, id_soc):
         try:
             edit_registro_socio('dni', dni_nuevo, id_soc)
             print()
-        except sql.IntegrityError:
+        except sql.errors.UniqueViolation:
             nro_soc, nomb, dni, tel1, tel2, mail, dom, loc, cod_pos, f_nac, f_alt, act = buscar_socio_dni(dni_nuevo)
             print(f"         ERROR. El número de documento ingresado pertenece al socio nro. {str(nro_soc).rjust(6, '0')} - {nomb}.")
             print()
@@ -919,10 +949,11 @@ def edit_loc(idu, id_soc):
                 print()
             except TypeError:
                 localidad = input("Ingrese localidad: ").title()
+                localidad = mant.reemplazar_comilla(localidad)
                 print()
-                query = "INSERT INTO cod_post VALUES (?, ?)"
-                parameters = (cod_postal, localidad)
-                mant.run_query(query, parameters)
+                parameters = str((cod_postal, localidad))
+                query = f"INSERT INTO cod_post VALUES {parameters}"
+                mant.run_query(query)
                 edit_registro_socio('cod_postal', cod_postal, id_soc)
                 edit_registro_socio('localidad', localidad, id_soc)
                 print("Localidad modificada exitosamente.")
@@ -996,7 +1027,7 @@ def crear_op(idu, id_socio, ret):
             print("Esta acción NO genera impacto en la caja ni deuda por compra al asociado.")
             print("Si el asociado está realizando la compra de un nicho debe indicar la opción 1 (Venta de nicho) en el menú anterior.")
             print()
-            msj = input("Presione enter para continuar o ingrese cualquier letra para volver: ")
+            msj = getpass("Presione enter para continuar o ingrese cualquier letra para volver: ")
             if msj != "":
                 return
         print()
@@ -1183,6 +1214,9 @@ def crear_op(idu, id_socio, ret):
             if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
                 msj = "S"
                 nombre_alt = input("Nombre alternativo: ").title()
+                nombre_alt = mant.reemplazar_comilla(nombre_alt)
+                if nombre_alt == "":
+                    nombre_alt = None
                 print()
                 pass
             elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
@@ -1199,7 +1233,10 @@ def crear_op(idu, id_socio, ret):
             print()
             if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
                 msj = "S"
-                domicilio_alt = input("Nombre alternativo: ").title()
+                domicilio_alt = input("Domicilio alternativo: ").title()
+                domicilio_alt = mant.reemplazar_comilla(domicilio_alt)
+                if domicilio_alt == "":
+                    domicilio_alt = None
                 print()
                 pass
             elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
@@ -1211,9 +1248,9 @@ def crear_op(idu, id_socio, ret):
                 print("         ERROR. Debe indicar S para indicar un domicilio alternativo o N para cancelar.")
                 print()
         print("Ingresando socio a la base de datos. No interrumpa el proceso ni apague la computadora.", end="  ")
-        query = "INSERT INTO operaciones VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
         parameters = (id_socio, cod_nicho, facturacion, cobrador, tarjeta, ruta, ult_pago, ult_año, fecha_ult_pago, moroso, cuotas_favor, ult_rec, paga, op_cobol, nombre_alt, domicilio_alt)
-        mant.run_query(query, parameters)
+        query = f"INSERT INTO operaciones (socio, nicho, facturacion, cobrador, tarjeta, ruta, ult_pago, ult_año, fecha_ult_pago, moroso, cuotas_favor, ult_rec, paga, op_cobol, nombre_alt, domicilio_alt) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        mant.run_query_w_par(query, parameters)
         print("[OK!]")
         print()
         print("Proceso finalizado exitosamente.")
@@ -1967,7 +2004,7 @@ def editar_nom_alt(idu, id_op):
         if nombre_nuevo == "":
             conn = sql.connect(database)
             cursor = conn.cursor()
-            instruccion = f"UPDATE operaciones SET 'nombre_alt' = NULL WHERE id = '{id_op}'"
+            instruccion = f"UPDATE operaciones SET nombre_alt = NULL WHERE id = '{id_op}'"
             cursor.execute(instruccion)
             conn.commit()
             conn.close()
@@ -1991,7 +2028,7 @@ def editar_dom_alt(idu, id_op):
         if domicilio_nuevo == "":
             conn = sql.connect(database)
             cursor = conn.cursor()
-            instruccion = f"UPDATE operaciones SET 'domicilio_alt' = NULL WHERE id = '{id_op}'"
+            instruccion = f"UPDATE operaciones SET domicilio_alt = NULL WHERE id = '{id_op}'"
             cursor.execute(instruccion)
             conn.commit()
             conn.close()

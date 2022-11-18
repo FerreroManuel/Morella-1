@@ -1,4 +1,4 @@
-import sqlite3 as sql
+import psycopg2 as sql
 import funciones_rendiciones as rend
 import funciones_cuentas as ctas
 import smtplib 
@@ -7,7 +7,12 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase 
 from email import encoders 
 
-database = "../databases/bicon.db"
+def obtener_database():
+    arch = open("../databases/database.ini", "r")
+    db = arch.readline()
+    arch.close()
+    return db
+database = obtener_database()
 
 def obtener_mail(id):
     conn = sql.connect(database)

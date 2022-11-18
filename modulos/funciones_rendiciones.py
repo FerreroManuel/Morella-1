@@ -3,20 +3,25 @@ import funciones_mantenimiento as mant
 import funciones_ventas as vent
 import correo as email
 import reporter as rep
-import sqlite3 as sql
-import getpass
+import psycopg2 as sql
+from getpass import getpass
 import os
 from datetime import datetime, date
 from dateutil.relativedelta import relativedelta as rd
 from smtplib import SMTPAuthenticationError
 from socket import gaierror
 
-os.system('TITLE Morella v1.1.0.2205- MF! Soluciones informáticas')
+os.system('TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas')
 os.system('color 09')   # Colores del módulo (Azul sobre negro)
 os.system('mode con: cols=160 lines=9999')
 
 
-database = "../databases/bicon.db"
+def obtener_database():
+    arch = open("../databases/database.ini", "r")
+    db = arch.readline()
+    arch.close()
+    return db
+database = obtener_database()
 
 
 def iniciar_sesion():
@@ -24,9 +29,11 @@ def iniciar_sesion():
     user = input("Usuario: ").lower()
     try:
         i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_user(user)
+        if i_d == 0 and nom == 0 and ape == 0:
+            return 0, 0, 0, 0, 0, 0, 0, 0, 0
         if act == 1:
             counter = 0
-            pw = getpass.getpass("Contraseña: ")
+            pw = getpass("Contraseña: ")
             while pw != pas:
                 print("Contraseña incorrecta")
                 print()
@@ -39,22 +46,22 @@ def iniciar_sesion():
                     return i_d, nom, ape, tel, dom, use, pas, pri, act
                 print("")
                 print
-                pw = getpass.getpass("Contraseña: ")
+                pw = getpass("Contraseña: ")
             if pw == pas:
                 print()
                 print(f"Bienvenido/a {nom}, que tengas un buen día.")
                 print()
                 while pw == "0000":
-                    pw_new = str(getpass.getpass("Ingrese la nueva contraseña: "))
+                    pw_new = str(getpass("Ingrese la nueva contraseña: "))
                     while len(pw_new) < 4:
                         print("La contraseña debe ser de 4 dígitos o más.")
-                        pw_new = str(getpass.getpass("Ingrese la nueva contraseña: "))
+                        pw_new = str(getpass("Ingrese la nueva contraseña: "))
                         print()
                     while pw_new == "0000":
                         print("La contraseña no puede ser 0000.")
-                        pw_new = str(getpass.getpass("Ingrese la nueva contraseña: "))
+                        pw_new = str(getpass("Ingrese la nueva contraseña: "))
                         print()
-                    pw_conf = str(getpass.getpass("Repita la nueva contraseña: "))
+                    pw_conf = str(getpass("Repita la nueva contraseña: "))
                     print()
                     if pw_new == pw_conf:
                         mant.edit_registro('usuarios', 'pass', str(pw_new), i_d)
@@ -98,9 +105,18 @@ def iniciar_sesion():
 
 
 def buscar_usuario_por_user(user):
-    conn = sql.connect(database)
+    try:
+        conn = sql.connect(database)
+    except sql.OperationalError:
+        mant.log_error()
+        print()
+        print("         ERROR. La base de datos no responde. Asegurese de estar conectado a la red y que el servidor se encuentre encendido.")
+        print()
+        print("         Si es así y el problema persiste, comuníquese con el administrador del sistema.")
+        print()
+        return 0, 0, 0, 0, 0, 0, 0, 0, 0
     cursor = conn.cursor()
-    instruccion = f"SELECT * FROM usuarios WHERE user = '{user}'"
+    instruccion = f"SELECT * FROM usuarios WHERE user_name = '{user}'"
     cursor.execute(instruccion)
     datos = cursor.fetchone()
     conn.commit()
@@ -173,32 +189,30 @@ def ingresar_cobro(idu):
     ndr = 0
     msj = ''
     print("")
-    while ndr == 0:
-        try:
-            ndr = int(input("Indique el nro. de recibo a ingresar: "))
-            msj = ''
-            print("")    
-            nro, ope, per, año, pag = obtener_datos_recibo(ndr)
-        except ValueError:
-            print("")
-            print("         ERROR. El dato solicitado debe ser de tipo numérico.")
-            print("")
-            ndr = 0
-        except TypeError:
-            print("")
-            print("         ERROR. Número de recibo inválido. No se han realizado cambios en el registro.")
-            print("")
-            return
-        except sql.OperationalError:
-            print("")
-            print("         ERROR. Número de recibo inválido. No se han realizado cambios en el registro.")
-            print("")
-            return
-        except:
-            mant.log_error()
-            print("")
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
-            print()
+    loop = -1
+    while loop == -1:
+        while ndr == 0:
+            try:
+                ndr = int(input("Indique el nro. de recibo a ingresar: "))
+                msj = ''
+                print("")    
+                nro, ope, per, año, pag = obtener_datos_recibo(ndr)
+            except ValueError:
+                print("")
+                print("         ERROR. El dato solicitado debe ser de tipo numérico.")
+                print("")
+                ndr = 0
+            except TypeError:
+                print("")
+                print("         ERROR. Número de recibo inválido. No se han realizado cambios en el registro.")
+                print("")
+                return
+            except:
+                mant.log_error()
+                print("")
+                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                print()
+                return
         id_op, soc, nic, fac, cob, tar, rut, ult, u_a, fec, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = obtener_datos_op(ope)
         cod, pan, pis, fil, num, cat, ocu, fall = obtener_datos_nicho(nic)
         id_cat, cat, val_mant_bic, val_mant_nob = obtener_categoria(cat)
@@ -216,7 +230,8 @@ def ingresar_cobro(idu):
                 msj = input(f"¿Desea ingresar otro pago? (S/N) ")
                 if msj == 'S' or msj == 's' or msj == 'Si' or msj == 'SI' or msj == 'sI' or msj == 'si':
                     print("")
-                    ndr = 0      
+                    ndr = 0
+                    loop = -1
                 elif msj == 'N' or msj == 'n' or msj == 'No' or msj == 'NO' or msj == 'nO' or msj == 'no':
                     print("")
                     return
@@ -234,7 +249,8 @@ def ingresar_cobro(idu):
                     msj = input(f"¿Desea ingresar otro pago? (S/N) ")
                     if msj == 'S' or msj == 's' or msj == 'Si' or msj == 'SI' or msj == 'sI' or msj == 'si':
                         print("")
-                        ndr = 0      
+                        ndr = 0
+                        loop = -1
                     elif msj == 'N' or msj == 'n' or msj == 'No' or msj == 'NO' or msj == 'nO' or msj == 'no':
                         print("")
                         return
@@ -265,7 +281,7 @@ def ingresar_cobro(idu):
                         if per[0:3] == 'Doc':
                             registrar_comision_doc(cob, rendicion, ndr, val)
                         else:
-                            registrar_comision_mant(cob, rendicion,ndr, val) 
+                            registrar_comision_mant(cob, rendicion, ndr, val) 
                         print("")
                         cod, pan, pis, fil, num, cat, ocu, fall = obtener_datos_nicho(nic)
                         categoria = f"Mantenimiento {obtener_panteon(pan)}"
@@ -274,9 +290,9 @@ def ingresar_cobro(idu):
                         dia = caja.obtener_dia()
                         mes = caja.obtener_mes()
                         año = caja.obtener_año()
-                        query = f"INSERT INTO caja VALUES (NULL, ?, ?, ?, ?, '', ?, ?, ?, ?, '0', ?)"
-                        parameters = (categoria, descripcion, rendicion, val, observacion, dia, mes, año, idu)
-                        run_query(query, parameters)
+                        parameters = str((categoria, descripcion, rendicion, val, observacion, dia, mes, año, idu))
+                        query = f"INSERT INTO caja (categoria, descripcion, transaccion, ingreso, observacion, dia, mes, año, id_user) VALUES {parameters}"
+                        run_query(query)
                         if mor == 1:
                             id_op, soc, nic, fac, cob, tar, rut, ult, u_a, fup, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = obtener_datos_op(ope)
                             fec_hoy = datetime.now().date()
@@ -372,7 +388,8 @@ def ingresar_cobro(idu):
                     msj = input(f"¿Desea ingresar otro pago? (S/N) ")
                     if msj == 'S' or msj == 's' or msj == 'Si' or msj == 'SI' or msj == 'sI' or msj == 'si':
                         print("")
-                        ndr = 0      
+                        ndr = 0
+                        loop = -1
                     elif msj == 'N' or msj == 'n' or msj == 'No' or msj == 'NO' or msj == 'nO' or msj == 'no':
                         print("")
                         return
@@ -508,10 +525,10 @@ def obtener_datos_recibo(ndr):
     return nro, ope, per, año, pag
 
 
-def run_query(query, parameters = ()):
+def run_query(query):
     conn = sql.connect(database)
     cursor = conn.cursor()
-    cursor.execute(query, parameters)
+    cursor.execute(query)
     conn.commit()
     conn.close()
 
@@ -521,6 +538,9 @@ def emitir_recibos():
     if facturacion == "ERROR":
         print("")
         print("         ERROR. El período de facturación no corresponde con el mes.")
+    elif facturacion == "VOLVER":
+        print()
+        return
     elif facturacion == "documentos":
         mes = datetime.now().strftime('%m')
         str_mes_siguiente, int_mes_siguiente = obtener_mes_siguiente(mes)
@@ -552,6 +572,8 @@ def emitir_recibos():
                 print("")
     else:
         cobrador = menu_cobradores()
+        if cobrador == 0:
+            return
         ncobrador = obtener_nom_cobrador(cobrador)
         periodo = obtener_periodo()
         print("")
@@ -771,19 +793,19 @@ def ingresar_adelantos(idu):
                 mant.edit_registro('operaciones', 'moroso', 0, oper)
                 mant.edit_registro('operaciones', 'cobrador', cobrador, oper)
                 mant.edit_registro('operaciones', 'ruta', ruta, oper)
-            query = f"INSERT INTO caja VALUES (NULL, ?, ?, ?, ?, '', ?, ?, ?, ?, '0', ?)"
             categoria = f"Mantenimiento {obtener_panteon(pan)}"
             descripcion = f"{obtener_nom_cobrador(cob)}"
             dia = caja.obtener_dia()
             mes = caja.obtener_mes()
             año = caja.obtener_año()
-            parameters = (categoria, descripcion, rendicion, valor_total, observacion, dia, mes, año, idu)
-            run_query(query, parameters)
+            parameters = str((categoria, descripcion, rendicion, valor_total, observacion, dia, mes, año, idu))
+            query = f"INSERT INTO caja (categoria, descripcion, transaccion, ingreso, observacion, dia, mes, año, id_user) VALUES {parameters}"
+            run_query(query)
             print("")
             print("Adelanto de cuotas registrado exitosamente. Generando recibo, por favor aguarde...")
-            query = f"INSERT INTO recibos VALUES (NULL, ?, ?, ?, 1)"
-            parameters = (oper, periodo_hasta, año_hasta)
-            run_query(query, parameters)
+            parameters = str((oper, periodo_hasta, año_hasta, 1))
+            query = f"INSERT INTO recibos (operacion, periodo, año, pago) VALUES {parameters}"
+            run_query(query)
             ndr = obtener_nro_recibo()
             registrar_comision_mant(cob, rendicion, ndr, valor_total)
             rep.recibo_adelanto(ndr, cob, periodo_hasta, año_hasta, valor_total)
@@ -904,9 +926,9 @@ def registrar_debito_automatico(idu):
                         dia = caja.obtener_dia()
                         mes = caja.obtener_mes()
                         año = caja.obtener_año()
-                        query = f"INSERT INTO debitos_automaticos VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-                        parameters = (categoria, socio, operacion, val, observacion, dia, mes, año, idu)
-                        run_query(query, parameters)
+                        parameters = str((categoria, socio, operacion, val, observacion, dia, mes, año, idu))
+                        query = f"INSERT INTO debitos_automaticos (categoria, socio, operacion, igreso, observacion, dia, mes, año, id_user) VALUES {parameters}"
+                        run_query(query)
                         print("Pago ingresado exitosamente")
                         print("")
                         msj = ''
@@ -923,20 +945,20 @@ def registrar_debito_automatico(idu):
                                 except FileNotFoundError:
                                     print("ERROR: No es posible encontrar el recibo.")
                                     print("")
-                                    input("Presione enter para continuar...")
+                                    getpass("Presione enter para continuar...")
                                 except SMTPAuthenticationError:
                                     print("ERROR: Los datos de acceso al servidor son incorrectos. El recibo no ha sido enviado.")
                                     print("")
-                                    input("Presione enter para continuar...")
+                                    getpass("Presione enter para continuar...")
                                 except gaierror:
                                     print("ERROR: No fue posible conectarse a internet. El recibo no ha sido enviado.")
                                     print("")
-                                    input("Presione enter para continuar...")
+                                    getpass("Presione enter para continuar...")
                                 except:
                                     mant.log_error()
                                     print("         ERROR. El recibo no ha sido enviado. Póngase en contacto con el administrador.")
                                     print("")
-                                    input("Presione enter para continuar...")
+                                    getpass("Presione enter para continuar...")
                             elif msj == 'N' or msj == 'n' or msj == 'No' or msj == 'NO' or msj == 'nO' or msj == 'no':
                                 print("")
                                 print("El recibo no ha sido enviado.")
@@ -1003,6 +1025,7 @@ def reimprimir_recibo():
 
 
 def registrar_comision_mant(cobrador, rendicion, recibo, cobro):
+    rendicion = mant.reemplazar_comilla(rendicion)
     cobradores = [6, 7, 9, 13, 15]
     if cobrador not in cobradores:
         comision = float(cobro)*0.15
@@ -1015,6 +1038,7 @@ def registrar_comision_mant(cobrador, rendicion, recibo, cobro):
 
 
 def registrar_comision_doc(cobrador, rendicion, recibo, cobro):
+    rendicion = mant.reemplazar_comilla(rendicion)
     cobradores = [6, 7, 9, 13, 15]
     if cobrador not in cobradores:
         comision = float(cobro)*0.075
@@ -1044,24 +1068,28 @@ def opcion_menu_facturacion():
     print("   1. Bicon")
     print("   2. NOB")
     print("   3. Documentos")
+    print("   0. Volver")
     print("")
-    try:
-        opcion = int(input("Ingrese una opción: "))
-        while opcion < 1 or opcion > 3:
-            print("")
-            print("Opción incorrecta.")
-            print("")
+    opcion = -1
+    while opcion -1:
+        try:
             opcion = int(input("Ingrese una opción: "))
-    except ValueError: 
-        print("Opción incorrecta.")
-        opcion = -1
-    except:
-        mant.log_error()
-        print("")
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
-        print()
-        opcion = -1
-    return opcion
+            if opcion < 0 or opcion > 3:
+                print("")
+                print("Opción incorrecta.")
+                print("")
+                opcion = -1
+            else:
+                return opcion
+        except ValueError: 
+            print("Opción incorrecta.")
+            opcion = -1
+        except:
+            mant.log_error()
+            print("")
+            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            print()
+            opcion = -1
 
 
 def menu_facturacion():
@@ -1070,6 +1098,8 @@ def menu_facturacion():
     if opcion == 3:
         facturacion = "documentos"
         return facturacion
+    elif opcion == 0:
+        return "VOLVER"
     else: 
         while opcion != 0 and mes % 2 == 0:
             if opcion == 1:
@@ -1095,13 +1125,14 @@ def menu_cobradores():
         counter += 1
         id_cob, n_cob = i
         print(f"    * {id_cob}. {n_cob}")
+    print(f"    * 0. Volver")
     print()
     loop = -1
     while loop == -1:
         try:
             loop = cobrador = int(input("Cobrador: "))
             print()
-            while cobrador < 1 or cobrador > counter:
+            while cobrador < 0 or cobrador > counter:
                 print("         ERROR. Debe indicar un ID de cobrador válido.")
                 print()
                 cobrador = int(input("Cobrador: "))

@@ -1,19 +1,24 @@
 import funciones_rendiciones as rend
 import funciones_cuentas as ctas
 from traceback import format_exc
-import sqlite3 as sql
+import psycopg2 as sql
 import os
 from datetime import datetime
-import getpass
+from getpass import getpass
 
-os.system('TITLE Morella v1.1.0.2205- MF! Soluciones informáticas')
+os.system('TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas')
 os.system('color 0a')   # Colores del módulo (Verde sobre negro)
 os.system('mode con: cols=160 lines=9999')
 
 
-database = "../databases/bicon.db"
+def obtener_database():
+    arch = open("../databases/database.ini", "r")
+    db = arch.readline()
+    arch.close()
+    return db
+database = obtener_database()
 arch_log_error = "../error.log"
-
+arch_ini = "../databases/database.ini"
 
 
 def iniciar_sesion():
@@ -21,9 +26,11 @@ def iniciar_sesion():
     user = input("Usuario: ").lower()
     try:
         i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_user(user)
+        if i_d == 0 and nom == 0 and ape == 0:
+            return 0, 0, 0, 0, 0, 0, 0, 0, 0
         if act == 1:
             counter = 0
-            pw = getpass.getpass("Contraseña: ")
+            pw = getpass("Contraseña: ")
             while pw != pas:
                 print("Contraseña incorrecta")
                 print()
@@ -36,22 +43,22 @@ def iniciar_sesion():
                     return i_d, nom, ape, tel, dom, use, pas, pri, act
                 print("")
                 print
-                pw = getpass.getpass("Contraseña: ")
+                pw = getpass("Contraseña: ")
             if pw == pas:
                 print()
                 print(f"Bienvenido/a {nom}, que tengas un buen día.")
                 print()
                 while pw == "0000":
-                    pw_new = str(getpass.getpass("Ingrese la nueva contraseña: "))
+                    pw_new = str(getpass("Ingrese la nueva contraseña: "))
                     while len(pw_new) < 4:
                         print("La contraseña debe ser de 4 dígitos o más.")
-                        pw_new = str(getpass.getpass("Ingrese la nueva contraseña: "))
+                        pw_new = str(getpass("Ingrese la nueva contraseña: "))
                         print()
                     while pw_new == "0000":
                         print("La contraseña no puede ser 0000.")
-                        pw_new = str(getpass.getpass("Ingrese la nueva contraseña: "))
+                        pw_new = str(getpass("Ingrese la nueva contraseña: "))
                         print()
-                    pw_conf = str(getpass.getpass("Repita la nueva contraseña: "))
+                    pw_conf = str(getpass("Repita la nueva contraseña: "))
                     print()
                     if pw_new == pw_conf:
                         edit_registro('usuarios', 'pass', str(pw_new), i_d)
@@ -95,9 +102,18 @@ def iniciar_sesion():
 
 
 def buscar_usuario_por_user(user):
-    conn = sql.connect(database)
+    try:
+        conn = sql.connect(database)
+    except sql.OperationalError:
+        log_error()
+        print()
+        print("         ERROR. La base de datos no responde. Asegurese de estar conectado a la red y que el servidor se encuentre encendido.")
+        print()
+        print("         Si es así y el problema persiste, comuníquese con el administrador del sistema.")
+        print()
+        return 0, 0, 0, 0, 0, 0, 0, 0, 0
     cursor = conn.cursor()
-    instruccion = f"SELECT * FROM usuarios WHERE user = '{user}'"
+    instruccion = f"SELECT * FROM usuarios WHERE user_name = '{user}'"
     cursor.execute(instruccion)
     datos = cursor.fetchone()
     conn.commit()
@@ -127,7 +143,23 @@ def log_error():
     log_error.close
 
 
-def run_query(query, parameters = ()):
+def reemplazar_comilla(variable):
+    if type(variable) == str and "'" in variable:
+        variable = variable.replace("'", "´")
+    else:
+        variable = variable
+    return variable
+
+
+def run_query(query):
+    conn = sql.connect(database)
+    cursor = conn.cursor()
+    cursor.execute(query)
+    conn.commit()
+    conn.close()
+
+
+def run_query_w_par(query, parameters = ()):
     conn = sql.connect(database)
     cursor = conn.cursor()
     cursor.execute(query, parameters)
@@ -136,6 +168,7 @@ def run_query(query, parameters = ()):
 
 
 def delete_row(tabla, parametro1, parametro2):
+    parametro2 = reemplazar_comilla(parametro2)
     conn = sql.connect(database)
     cursor = conn.cursor()
     instruccion = f"DELETE FROM {tabla} WHERE {parametro1} = '{parametro2}'"
@@ -293,7 +326,6 @@ def cambio_precio_venta_porcentaje(porcentaje):
         cursor = conn.cursor()
         instruccion = f"UPDATE precios_venta SET precio = {n_pre_r}, anticipo = {n_ant}, cuotas = {n_cuo_r} WHERE id = {i_d}"
         cursor.execute(instruccion)
-        datos = cursor.fetchall()
         conn.commit()
         conn.close()
 
@@ -326,21 +358,16 @@ def cambio_precio_mant_porcentaje(porcentaje):
         cursor = conn.cursor()
         instruccion = f"UPDATE cat_nichos SET valor_mant_bicon = {n_vmb_t}, valor_mant_nob = {n_vmn_t} WHERE id = {i_d}"
         cursor.execute(instruccion)
-        datos = cursor.fetchall()
         conn.commit()
         conn.close()
 
 
 def edit_registro(tabla, parametro1, parametro2, id):
+    parametro2 = reemplazar_comilla(parametro2)
     conn = sql.connect(database)
     cursor = conn.cursor()
-    if type(parametro2) == str:
-        if "'" in parametro2:
-            instruccion = f'UPDATE {tabla} SET "{parametro1}"="{parametro2}" WHERE id="{id}"'
-        else:
-            instruccion = f"UPDATE {tabla} SET '{parametro1}'='{parametro2}' WHERE id='{id}'"
-    else:
-        instruccion = f"UPDATE {tabla} SET '{parametro1}'='{parametro2}' WHERE id='{id}'"
+    parametro2 = reemplazar_comilla(parametro2)
+    instruccion = f"UPDATE {tabla} SET {parametro1} = '{parametro2}' WHERE id = '{id}'"
     cursor.execute(instruccion)
     conn.commit()
     conn.close()
@@ -349,16 +376,17 @@ def edit_registro(tabla, parametro1, parametro2, id):
 def set_null_registro(tabla, parametro1, parametro2, id):
     conn = sql.connect(database)
     cursor = conn.cursor()
-    instruccion = f"UPDATE {tabla} SET '{parametro1}'=NULL WHERE {parametro2}='{id}'"
+    instruccion = f"UPDATE {tabla} SET {parametro1} = NULL WHERE {parametro2} = '{id}'"
     cursor.execute(instruccion)
     conn.commit()
     conn.close()
 
 
 def edit_nicho(parametro1, parametro2, cod_nicho):
+    parametro2 = reemplazar_comilla(parametro2)
     conn = sql.connect(database)
     cursor = conn.cursor()
-    instruccion = f"UPDATE nichos SET '{parametro1}'='{parametro2}' WHERE codigo='{cod_nicho}'"
+    instruccion = f"UPDATE nichos SET {parametro1} = '{parametro2}' WHERE codigo = '{cod_nicho}'"
     cursor.execute(instruccion)
     conn.commit()
     conn.close()
@@ -608,11 +636,15 @@ def crear_usuario(idu):
             privilegios_usuario = input("Nivel de privilegios: ")
         activo_usuario = 1
         print()
-        query = f"INSERT INTO usuarios VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?)"
-        parameters = (nombre_usuario, apellido_usuario, telefono_usuario, domicilio_usuario, login_usuario, pass_usuario, privilegios_usuario, activo_usuario)
+        nombre_usuario = reemplazar_comilla(nombre_usuario)
+        apellido_usuario = reemplazar_comilla(apellido_usuario)
+        telefono_usuario = reemplazar_comilla(telefono_usuario)
+        domicilio_usuario = reemplazar_comilla(domicilio_usuario)
+        parameters = str((nombre_usuario, apellido_usuario, telefono_usuario, domicilio_usuario, login_usuario, pass_usuario, privilegios_usuario, activo_usuario))
+        query = f"INSERT INTO usuarios (nombre, apellido, telefono, domicilio, user_name, pass, privilegios, activo) VALUES {parameters}"
         try:
-            run_query(query, parameters)
-        except sql.IntegrityError:
+            run_query(query)
+        except sql.errors.UniqueViolation:
             print()
             print(f"         ERROR. Ya existe un usuario con el nombre {login_usuario}.")
             print()
@@ -621,7 +653,7 @@ def crear_usuario(idu):
         print()
         print("ANTENCIÓN: Al realizar su primer ingreso deberá colocar la contraseña 0000 y luego se le solicitará la creación de una contraseña.")
         print()
-        input("Presione enter para continuar... ")
+        getpass("Presione enter para continuar... ")
         print()
 
 
@@ -701,8 +733,8 @@ def modificar_usuario(idu):
                 return
             nuevo_user = generar_user(nuevo_nombre, ape_m)
             try:
-                edit_registro('usuarios', 'user', nuevo_user, i_d_m)
-            except sql.IntegrityError:
+                edit_registro('usuarios', 'user_name', nuevo_user, i_d_m)
+            except sql.errors.UniqueViolation:
                 print()
                 print(f"         ERROR. Ya existe un usuario con el nombre {nuevo_user}.")
                 print()
@@ -751,8 +783,8 @@ def modificar_usuario(idu):
                 return
             nuevo_user = generar_user(nom_m, nuevo_apellido)
             try:
-                edit_registro('usuarios', 'user', nuevo_user, i_d_m)
-            except sql.IntegrityError:
+                edit_registro('usuarios', 'user_name', nuevo_user, i_d_m)
+            except sql.errors.UniqueViolation:
                 print()
                 print(f"         ERROR. Ya existe un usuario con el nombre {nuevo_user}.")
                 print()
@@ -838,7 +870,7 @@ def modificar_usuario(idu):
         elif opcion == 5:   # Modificar contraseña
             if pri < 4:
                 counter = 0
-                pw_act = getpass.getpass("Ingrese su contraseña actual: ")
+                pw_act = getpass("Ingrese su contraseña actual: ")
                 print()
                 while pw_act != pas:
                     print("Contraseña incorrecta")
@@ -848,20 +880,20 @@ def modificar_usuario(idu):
                         edit_registro('usuarios', 'activo', 2, i_d)
                         print("Su usuario ha sido bloqueado por repetición de claves incorrectas. Comuníquese con un administrador.")
                         exit()
-                    pw_act = getpass.getpass("Ingrese su contraseña actual: ")
+                    pw_act = getpass("Ingrese su contraseña actual: ")
                     print()
                 if pw_act == pas:
-                    pw_new = str(getpass.getpass("Ingrese la nueva contraseña: "))
+                    pw_new = str(getpass("Ingrese la nueva contraseña: "))
                     print()
                     while len(pw_new) < 4:
                         print("La contraseña debe ser de 4 dígitos o más.")
-                        pw_new = str(getpass.getpass("Ingrese la nueva contraseña: "))
+                        pw_new = str(getpass("Ingrese la nueva contraseña: "))
                         print()
                     while pw_new == "0000":
                         print("La contraseña no puede ser 0000.")
-                        pw_new = str(getpass.getpass("Ingrese la nueva contraseña: "))
+                        pw_new = str(getpass("Ingrese la nueva contraseña: "))
                         print()
-                    pw_conf = str(getpass.getpass("Repita la nueva contraseña: "))
+                    pw_conf = str(getpass("Repita la nueva contraseña: "))
                     print()
                     if pw_new == pw_conf:
                         edit_registro('usuarios', 'pass', str(pw_new), i_d)
@@ -872,7 +904,7 @@ def modificar_usuario(idu):
                         print()
             elif pri >= 4:
                 counter = 0
-                pw_act = getpass.getpass("Ingrese su contraseña actual: ")
+                pw_act = getpass("Ingrese su contraseña actual: ")
                 print()
                 while pw_act != pas:
                     print("Contraseña incorrecta")
@@ -882,7 +914,7 @@ def modificar_usuario(idu):
                         edit_registro('usuarios', 'activo', 2, i_d)
                         print("Su usuario ha sido bloqueado por repetición de claves incorrectas. Comuníquese con un administrador.")
                         exit()
-                    pw_act = getpass.getpass("Ingrese su contraseña actual: ")
+                    pw_act = getpass("Ingrese su contraseña actual: ")
                     print()
                 if pw_act == pas:
                     usuario = str(input("Indique el usuario que desea modificar: "))
@@ -898,17 +930,17 @@ def modificar_usuario(idu):
                         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                         return
                     print()
-                    pw_new = str(getpass.getpass("Ingrese la nueva contraseña: "))
+                    pw_new = str(getpass("Ingrese la nueva contraseña: "))
                     print()
                     while len(pw_new) < 4:
                         print("La contraseña debe ser de 4 dígitos o más.")
-                        pw_new = str(getpass.getpass("Ingrese la nueva contraseña: "))
+                        pw_new = str(getpass("Ingrese la nueva contraseña: "))
                         print()
                     while pw_new == "0000" and i_d_m == i_d:
                         print("La contraseña no puede ser 0000.")
-                        pw_new = str(getpass.getpass("Ingrese la nueva contraseña: "))
+                        pw_new = str(getpass("Ingrese la nueva contraseña: "))
                         print()
-                    pw_conf = str(getpass.getpass("Repita la nueva contraseña: "))
+                    pw_conf = str(getpass("Repita la nueva contraseña: "))
                     print()
                     if pw_new == pw_conf:
                         edit_registro('usuarios', 'pass', str(pw_new), i_d_m)
@@ -1172,16 +1204,16 @@ def agregar_panteon(idu):
         print()
         msj = ""
         while msj != "S" and msj != "N":
+            nuevo_panteon = reemplazar_comilla(nuevo_panteon)
             msj = str(input(f"¿Seguro que quiere dar de alta el panteón <{nuevo_panteon}>? (S/N): "))
             if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
                 msj = "S"
                 print()
                 print("Agregando panteón. Aguarde un momento.")
-                query = "INSERT INTO panteones VALUES (?, ?)"
-                parameters = (None, nuevo_panteon)
+                query = f"INSERT INTO panteones (panteon) VALUES ('{nuevo_panteon}')"
                 try:
-                    run_query(query, parameters)
-                except sql.IntegrityError:
+                    run_query(query)
+                except sql.errors.UniqueViolation:
                     print()
                     print("         ERROR. Ya existe un panteón con ese nombre. No se realizaron cambios en el registro.")
                     print()
@@ -1333,6 +1365,10 @@ def alta_nicho(idu, ret):
             print("         ERROR. No debe ocupar más de dos caracteres.")
             print()
             return
+        if "'" in piso:
+            print("         ERROR. No se puede utilizar comillas simples (').")
+            print()
+            return
         try:
             fila = int(input("Indique número de fila: "))
             if len(str(fila)) < 1 or len(str(fila)) > 2:
@@ -1400,8 +1436,9 @@ def alta_nicho(idu, ret):
         fallecido = input("Si se encuentra ocupado coloque los datos del fallecido de lo contrario presione enter: ")
         if fallecido == "":
             ocupado = 0
-            fallecido = None
+            fallecido = 'NULL'
         else:
+            fallecido = reemplazar_comilla(fallecido)
             ocupado = 1
         cod_nicho = f"{str(panteon).rjust(2, '0')}{str(piso).rjust(2, '0')}{str(fila).rjust(2, '0')}{str(nicho).rjust(4, '0')}"
         print()
@@ -1413,16 +1450,16 @@ def alta_nicho(idu, ret):
                 msj = "S"
                 print()
                 print("Agregando nicho. Aguarde un momento.")
-                query = f"INSERT INTO nichos VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
-                parameters = (cod_nicho, panteon, str(piso).rjust(2, '0'), str(fila).rjust(2, '0'), str(nicho).rjust(4, '0'), cat_nicho, ocupado, fallecido)
+                parameters = str((cod_nicho, panteon, str(piso).rjust(2, '0'), str(fila).rjust(2, '0'), str(nicho).rjust(4, '0'), cat_nicho, ocupado, fallecido))
+                query = f"INSERT INTO nichos VALUES {parameters}"
                 try:
-                    run_query(query, parameters)
+                    run_query(query)
                     print()
                     print("Nicho agregado exitosamente.")
                     print()
                     if ret == 1:
                         return cod_nicho
-                except sql.IntegrityError:
+                except sql.errors.UniqueViolation:
                     print()
                     print("         ERROR. El nicho ya se encuentra cargado en el sistema. No se realizaron cambios en el registro.")
                     if ret == 0:
@@ -1700,13 +1737,13 @@ def agregar_categoria(idu):
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             return
         print()
-        query = f"INSERT INTO cat_nichos VALUES (NULL, ?, ?, ?)"
-        parameters = (categoria, float(val_mant_bic), float(val_mant_nob))
+        parameters = str((categoria, float(val_mant_bic), float(val_mant_nob)))
+        query = f"INSERT INTO cat_nichos (categoria, valor_mant_bicon, valor_mant_nob) VALUES {parameters}"
         try:
-            run_query(query, parameters)
+            run_query(query)
             print("Categoría agregada exitosamente. Recuerde agregar los precios de compra.")
             print()
-        except sql.IntegrityError:
+        except sql.errors.UniqueViolation:
             print("         ERROR. Ya existe una categoría con ese nombre. No se realizaron cambios en el registro.")
             print()
         except:
@@ -1840,16 +1877,16 @@ def alta_cobrador(idu):
         print()
         msj = ""
         while msj != "S" and msj != "N":
+            nuevo_cobrador = reemplazar_comilla(nuevo_cobrador)
             msj = str(input(f"¿Seguro que quiere dar de alta el cobrador <{nuevo_cobrador}>? (S/N): "))
             if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
                 msj = "S"
                 print()
                 print("Agregando cobrador. Aguarde un momento.")
-                query = "INSERT INTO cobradores VALUES (?, ?)"
-                parameters = (None, nuevo_cobrador)
+                query = f"INSERT INTO cobradores (cobrador) VALUES ('{nuevo_cobrador}')"
                 try:
-                    run_query(query, parameters)
-                except sql.IntegrityError:
+                    run_query(query)
+                except sql.errors.UniqueViolation:
                     print()
                     print("         ERROR. Ya existe un cobrador con ese nombre. No se realizaron cambios en el registro.")
                     print()
@@ -2138,6 +2175,7 @@ def alta_precio(idu):       # INAHABILITADO
         print("*** Alta de precios de venta ***")
         print() 
         nombre = input("Indique el nombre del precio: [ Piso/s - Categoría (fila/s) ] " ).title()
+        nombre = reemplazar_comilla(nombre)
         print()
         try:
             precio = int(input("Indique el precio de compra en un pago: $ "))
@@ -2151,9 +2189,9 @@ def alta_precio(idu):       # INAHABILITADO
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             return
         print("Registrando nuevo precio...")
-        query = "INSERT INTO precios_venta VALUES (NULL, ?, ?, 1, 1)"
-        parameters = (nombre, precio)
-        run_query(query, parameters)
+        parameters = str((nombre, precio, 1, 1))
+        query = f"INSERT INTO precios_venta (nombre, precio, anticipo, cuotas) VALUES {parameters}"
+        run_query(query)
         print("Calculando anticipo y cuotas...")
         id_precio, nomb_pr, pr_ft, pr_ant, pr_cuot = ult_reg('precios_venta')
         cambio_precio_venta_manual(id_precio, precio)
@@ -2389,6 +2427,7 @@ def alta_mail(idu):
         print("*** Agregar una cuenta de mail ***")
         print()
         nueva_etiq = input("Ingrese un nombre para la nueva cuenta de mail: ").lower()
+        nueva_etiq = reemplazar_comilla(nueva_etiq)
         print()
         if nueva_etiq == "":
             print("         ERROR. El campo no puede quedar vacío.")
@@ -2397,32 +2436,51 @@ def alta_mail(idu):
         print()
         if nuevo_mail == "":
             print("         ERROR. El campo no puede quedar vacío.")
+            print()
+            return
+        if type(nuevo_mail) == str and "'" in nuevo_mail:
+            print("         ERROR. No se pueden utilizar comillas simples (').")
+            print()
             return
         nuevo_server = input("Ingrese el servidor SMTP: ").lower()
         print()
         if nuevo_server == "":
             print("         ERROR. El campo no puede quedar vacío.")
+            print()
+            return
+        if type(nuevo_server) == str and "'" in nuevo_server:
+            print("         ERROR. No se pueden utilizar comillas simples (').")
+            print()
             return
         nuevo_usuario = input("Ingrese el usuario SMTP: ").lower()
         print()
         if nuevo_usuario == "":
             print("         ERROR. El campo no puede quedar vacío.")
+            print()
             return
-        nuevo_pw = getpass.getpass("Ingrese la contraseña del email: ")
+        if type(nuevo_usuario) == str and "'" in nuevo_usuario:
+            print("         ERROR. No se pueden utilizar comillas simples (').")
+            print()
+            return
+        nuevo_pw = getpass("Ingrese la contraseña del email: ")
         print()
         if nuevo_pw == "":
             print("         ERROR. El campo no puede quedar vacío.")
             return
-        nuevo_pw_conf = getpass.getpass("Vuelva a ingresar la contraseña: ")
+        if type(nuevo_pw) == str and "'" in nuevo_pw:
+            print("         ERROR. No se pueden utilizar comillas simples (').")
+            print()
+            return
+        nuevo_pw_conf = getpass("Vuelva a ingresar la contraseña: ")
         print()
         if nuevo_pw == nuevo_pw_conf:
-            query = "INSERT INTO mail VALUES (NULL, ?, ?, ?, ?, ?)"
-            parameters = (nueva_etiq, nuevo_mail, nuevo_server, nuevo_usuario, nuevo_pw)
+            parameters = str((nueva_etiq, nuevo_mail, nuevo_server, nuevo_usuario, nuevo_pw))
+            query = f"INSERT INTO mail (etiqueta, mail, smtp_server, smtp_user, smtp_pass) VALUES {parameters}"
             try:
-                run_query(query, parameters)
+                run_query(query)
                 print("Cuenta de email agregada exitosamente.")
                 print()
-            except sql.IntegrityError:
+            except sql.errors.UniqueViolation:
                 print("         ERROR. La cuenta que está intentando ingresar ya existe en la base de datos.")
                 print()
             except:
@@ -2591,9 +2649,9 @@ def editar_mail(idu):                                                           
                     input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                     return
                 print()
-                nuevo_pw = str(getpass.getpass("Ingrese la nueva contraseña: "))
+                nuevo_pw = str(getpass("Ingrese la nueva contraseña: "))
                 print()
-                conf_pw = str(getpass.getpass("Ingrese nuevamente la nueva contraseña: "))
+                conf_pw = str(getpass("Ingrese nuevamente la nueva contraseña: "))
                 print()
                 if nuevo_pw == conf_pw:
                     edit_registro('mail', 'smtp_pass', nuevo_pw, id_mail)
@@ -2650,6 +2708,90 @@ def eliminar_mail(idu):
                 print("")
                 print("         ERROR. Debe indicar S para eliminar la cuenta o N para cancelar.")
                 print("")
+
+
+def mant_restaurar_admin():
+    conn = sql.connect(database)
+    telefono = input("Teléfono: ")
+    cursor = conn.cursor()
+    instruccion = f"UPDATE usuarios SET nombre = 'Manuel', apellido = 'Ferrero', telefono = '{telefono}', domicilio = 'ADMIN', user_name = 'ferman', pass = '155606038', privilegios = 5, activo = 1 WHERE id = 1"
+    cursor.execute(instruccion)
+    conn.commit()
+    conn.close()
+    print("Cuenta ADMIN restaurada exitosamente.")
+    print()
+    getpass("Presione enter para salir...")
+    print()
+
+
+def mant_database():
+    loop = -1
+    while loop == -1:
+        loop = host = input("Host: ").lower()
+        print()
+        host = revisar_host(host)
+        if host == 'error':
+            print("         ERROR. Ingrese una dirección de host válida.")
+            print()
+            loop = -1
+    dbname = input("Database: ")
+    print()
+    user = input("User: ")
+    print()
+    password = ""
+    while password == "":
+        password = getpass("Password: ")
+        print()
+        pw_conf = getpass("Repetir password: ")
+        print()
+        if password != pw_conf:
+            print("         ERROR. Las contraseñas no coinciden. Vuelva a intentarlo.")
+            print()
+            password = ""        
+    loop = -1
+    while loop == -1:
+        try:
+            loop = port = int(input("Port: "))
+            print()
+        except ValueError:
+            print("         ERROR. El dato solicitado debe ser de tipo numérico.")
+            print()
+            loop= -1
+    conexion = f"host={host} dbname={dbname} user={user} password={password} port={port}"
+    archivo = open(arch_ini, 'w')
+    archivo.write(conexion)
+    archivo.close()
+    print("Ruta a base de datos actualizada exitosamente.")
+    print()
+    getpass("Presione enter para salir...")
+    print()
+
+
+def revisar_host(host):
+    counter = 0
+    if type(host) != str:
+        return 'error'
+    if host == 'localhost':
+        return 'localhost'
+    for i in host:
+        if i == '.':
+            counter += 1
+    if counter != 3:
+        return 'error'
+    ip_s1, ip_s2, ip_s3, ip_s4 = host.split(sep='.')
+    try:
+        if int(ip_s1) < 0 or int(ip_s1) > 255:
+            return 'error'
+        if int(ip_s2) < 0 or int(ip_s2) > 255:
+            return 'error'
+        if int(ip_s3) < 0 or int(ip_s3) > 255:
+            return 'error'
+        if int(ip_s4) < 0 or int(ip_s4) > 255:
+            return 'error'
+        host = f"{int(ip_s1)}.{int(ip_s2)}.{int(ip_s3)}.{int(ip_s4)}"
+    except ValueError:
+        return 'error'
+    return host
 
 
 def cerrar_consola():           ################# ¿¿¿¿¿¿¿¿¿¿¿¿????????????

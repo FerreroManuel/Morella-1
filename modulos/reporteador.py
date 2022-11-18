@@ -1,14 +1,19 @@
 print("\n\nCargando las funciones necesarias para ejectuar el módulo. Por favor aguarde... \n\n")
 import funciones_mantenimiento as mant
 import reporter as rep
-import sqlite3 as sql
-import getpass
+import psycopg2 as sql
+from getpass import getpass
 import os
 
-os.system('TITLE Morella v1.1.0.2205- MF! Soluciones informáticas')
+os.system('TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas')
 os.system('color 80')   # Colores del módulo (Negro sobre gris)
 
-database = "../databases/bicon.db"
+def obtener_database():
+    arch = open("../databases/database.ini", "r")
+    db = arch.readline()
+    arch.close()
+    return db
+database = obtener_database()
 
 #######################################################################################################################################################
 ###################################################################### FUNCIONES ######################################################################
@@ -19,9 +24,11 @@ def iniciar_sesion():
     user = input("Usuario: ").lower()
     try:
         i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_user(user)
+        if i_d == 0 and nom == 0 and ape == 0:
+            return 0, 0, 0, 0, 0, 0, 0, 0, 0
         if act == 1:
             counter = 0
-            pw = getpass.getpass("Contraseña: ")
+            pw = getpass("Contraseña: ")
             while pw != pas:
                 print("Contraseña incorrecta")
                 print()
@@ -34,22 +41,22 @@ def iniciar_sesion():
                     return i_d, nom, ape, tel, dom, use, pas, pri, act
                 print("")
                 print
-                pw = getpass.getpass("Contraseña: ")
+                pw = getpass("Contraseña: ")
             if pw == pas:
                 print()
                 print(f"Bienvenido/a {nom}, que tengas un buen día.")
                 print()
                 while pw == "0000":
-                    pw_new = str(getpass.getpass("Ingrese la nueva contraseña: "))
+                    pw_new = str(getpass("Ingrese la nueva contraseña: "))
                     while len(pw_new) < 4:
                         print("La contraseña debe ser de 4 dígitos o más.")
-                        pw_new = str(getpass.getpass("Ingrese la nueva contraseña: "))
+                        pw_new = str(getpass("Ingrese la nueva contraseña: "))
                         print()
                     while pw_new == "0000":
                         print("La contraseña no puede ser 0000.")
-                        pw_new = str(getpass.getpass("Ingrese la nueva contraseña: "))
+                        pw_new = str(getpass("Ingrese la nueva contraseña: "))
                         print()
-                    pw_conf = str(getpass.getpass("Repita la nueva contraseña: "))
+                    pw_conf = str(getpass("Repita la nueva contraseña: "))
                     print()
                     if pw_new == pw_conf:
                         mant.edit_registro('usuarios', 'pass', str(pw_new), i_d)
@@ -93,9 +100,17 @@ def iniciar_sesion():
 
 
 def buscar_usuario_por_user(user):
-    conn = sql.connect(database)
+    try:
+        conn = sql.connect(database)
+    except sql.OperationalError:
+        print()
+        print("         ERROR. La base de datos no responde. Asegurese de estar conectado a la red y que el servidor se encuentre encendido.")
+        print()
+        print("         Si es así y el problema persiste, comuníquese con el administrador del sistema.")
+        print()
+        return 0, 0, 0, 0, 0, 0, 0, 0, 0
     cursor = conn.cursor()
-    instruccion = f"SELECT * FROM usuarios WHERE user = '{user}'"
+    instruccion = f"SELECT * FROM usuarios WHERE user_name = '{user}'"
     cursor.execute(instruccion)
     datos = cursor.fetchone()
     conn.commit()
@@ -359,7 +374,7 @@ def cerrar_consola():           ################# ¿¿¿¿¿¿¿¿¿¿¿¿??????
 #######################################################################################################################################################
 
 try:
-    print("Morella v1.1.0.2205- MF! Soluciones informáticas.")
+    print("Morella v1.2.0.2205 - MF! Soluciones informáticas.")
     print("")
     print("")
     print("   #############################################")
@@ -377,8 +392,17 @@ try:
         print("")
         idu, nom, ape, tel, dom, use, pas, pri, act = iniciar_sesion()
 
-
-
+    if idu == 0:
+        mantenimiento = getpass("Presione enter para salir...")        
+        print()
+        if mantenimiento == "admin":
+            try:
+                mant.mant_database()
+            except:
+                mant.log_error()
+                print("")
+                getpass("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    
     if idu > 0:
         if pri >= 1:
             ########## MOSTRANDO EL MENÚ DE USUARIO ###########
@@ -387,7 +411,7 @@ try:
         else:
             print("         ERROR. No posee los privilegios necesarios para realizar esta operación. Comuníquese con un admnistrador.")
             print("")
-            input("Presione enter para continuar...")
+            getpass("Presione enter para continuar...")
             print("")
 
     ########## CERRANDO CONSOLA ##########

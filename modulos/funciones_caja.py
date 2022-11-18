@@ -1,19 +1,21 @@
 import funciones_mantenimiento as mant
-from funciones_ventas import obtener_cobradores
 import reporter as rep
-import sqlite3 as sql
+import psycopg2 as sql
 import os
 from colorama import init, Fore, Back
 from datetime import datetime
-import getpass
+from getpass import getpass
 
-os.system('TITLE Morella v1.1.0.2205 - MF! Soluciones informáticas')
+os.system('TITLE Morella v1.2.0.2205 - MF! Soluciones informáticas')
 os.system('color 0E')   # Colores del módulo (Amarillo sobre negro)
 os.system('mode con: cols=160 lines=9999')
 
-database = "../databases/bicon.db"
-caja_anterior = ("../databases/caja_anterior.mf")
-counter = "../databases/contador.mf"
+def obtener_database():
+    arch = open("../databases/database.ini", "r")
+    db = arch.readline()
+    arch.close()
+    return db
+database = obtener_database()
 
 
 def iniciar_sesion():
@@ -21,9 +23,11 @@ def iniciar_sesion():
     user = input("Usuario: ").lower()
     try:
         i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_user(user)
+        if i_d == 0 and nom == 0 and ape == 0:
+            return 0, 0, 0, 0, 0, 0, 0, 0, 0
         if act == 1:
             counter = 0
-            pw = getpass.getpass("Contraseña: ")
+            pw = getpass("Contraseña: ")
             while pw != pas:
                 print("Contraseña incorrecta")
                 print()
@@ -36,22 +40,22 @@ def iniciar_sesion():
                     return i_d, nom, ape, tel, dom, use, pas, pri, act
                 print("")
                 print
-                pw = getpass.getpass("Contraseña: ")
+                pw = getpass("Contraseña: ")
             if pw == pas:
                 print()
                 print(f"Bienvenido/a {nom}, que tengas un buen día.")
                 print()
                 while pw == "0000":
-                    pw_new = str(getpass.getpass("Ingrese la nueva contraseña: "))
+                    pw_new = str(getpass("Ingrese la nueva contraseña: "))
                     while len(pw_new) < 4:
                         print("La contraseña debe ser de 4 dígitos o más.")
-                        pw_new = str(getpass.getpass("Ingrese la nueva contraseña: "))
+                        pw_new = str(getpass("Ingrese la nueva contraseña: "))
                         print()
                     while pw_new == "0000":
                         print("La contraseña no puede ser 0000.")
-                        pw_new = str(getpass.getpass("Ingrese la nueva contraseña: "))
+                        pw_new = str(getpass("Ingrese la nueva contraseña: "))
                         print()
-                    pw_conf = str(getpass.getpass("Repita la nueva contraseña: "))
+                    pw_conf = str(getpass("Repita la nueva contraseña: "))
                     print()
                     if pw_new == pw_conf:
                         mant.edit_registro('usuarios', 'pass', str(pw_new), i_d)
@@ -95,9 +99,18 @@ def iniciar_sesion():
 
 
 def buscar_usuario_por_user(user):
-    conn = sql.connect(database)
+    try:
+        conn = sql.connect(database)
+    except sql.OperationalError:
+        mant.log_error()
+        print()
+        print("         ERROR. La base de datos no responde. Asegurese de estar conectado a la red y que el servidor se encuentre encendido.")
+        print()
+        print("         Si es así y el problema persiste, comuníquese con el administrador del sistema.")
+        print()
+        return 0, 0, 0, 0, 0, 0, 0, 0, 0
     cursor = conn.cursor()
-    instruccion = f"SELECT * FROM usuarios WHERE user = '{user}'"
+    instruccion = f"SELECT * FROM usuarios WHERE user_name = '{user}'"
     cursor.execute(instruccion)
     datos = cursor.fetchone()
     conn.commit()
@@ -119,60 +132,79 @@ def buscar_usuario_por_id(idu):
 
 
 def obtener_saldo_inicial():
-    archivo = open(caja_anterior, "r")
-    saldo_inicial = float(archivo.readline())
-    archivo.close()
-    return saldo_inicial
+    conn = sql.connect(database)
+    cursor = conn.cursor()
+    instruccion = f"SELECT saldo FROM saldo_caja ORDER BY nro_caja DESC LIMIT 1"
+    cursor.execute(instruccion)
+    datos = cursor.fetchone()
+    conn.commit()
+    conn.close()
+    return datos[0]
+
+
+def obtener_contador():
+    conn = sql.connect(database)
+    cursor = conn.cursor()
+    instruccion = f"SELECT nro_caja FROM saldo_caja ORDER BY nro_caja DESC LIMIT 1"
+    cursor.execute(instruccion)
+    datos = cursor.fetchone()
+    conn.commit()
+    conn.close()
+    return datos[0]+1
+
+
+def obtener_cobradores():
+    conn = sql.connect(database)
+    cursor = conn.cursor()
+    instruccion = f"SELECT * FROM cobradores ORDER BY id"
+    cursor.execute(instruccion)
+    datos = cursor.fetchall()
+    conn.commit()
+    conn.close()
+    return datos
 
 
 def iniciar_caja():
-    if os.path.isfile(caja_anterior):
-        archivo = open(caja_anterior, "r")
-        saldo_inicial = float(archivo.readline())
-        archivo.close()
-        fecha = obtener_fecha()
+    saldo_inicial = obtener_saldo_inicial()
+    fecha = obtener_fecha()
+    if saldo_inicial >= 0:
         print(f"Fecha: {fecha}")
         print("")
         print(f"Número de caja: {str(obtener_contador()).rjust(6, '0')}")
         print("")
         print(f"El saldo inicial es $ {saldo_inicial:.2f}")
         print("")
-
-    elif not os.path.isfile(caja_anterior):
-        saldo_inicial = 0
-        while saldo_inicial == 0:
-            print("")
-            print(" *** ERROR. No ha sido posible leer el saldo final de la caja anterior.*** ")
-            print("")
+    else:
+        print("")
+        print(" *** ERROR. No ha sido posible leer el saldo final de la caja anterior.*** ")
+        print("")
+        loop = -1
+        while loop == -1:
             try:
-                saldo_inicial = float(input("Por favor ingrese el saldo actual de la caja: $ "))
-                archivo = open(caja_anterior, "w")
-                archivo.write(str(saldo_inicial))
-                archivo.close()
+                loop = saldo_inicial = float(input("Por favor ingrese el saldo actual de la caja: $ "))
+                print()
+                conn = sql.connect(database)
+                cursor = conn.cursor()
+                instruccion = f"UPDATE saldo_caja SET saldo = {saldo_inicial} WHERE saldo = -1"
+                cursor.execute(instruccion)
+                conn.commit()
+                conn.close()
+                print()
+                print(f"Fecha: {fecha}")
+                print("")
+                print(f"Número de caja: {str(obtener_contador()).rjust(6, '0')}")
                 print("")
                 print(f"El saldo inicial es $ {saldo_inicial:.2f}")
                 print("")
             except ValueError:
                 print(" *** ERROR. EL MONTO DEBE SER NUMÉRICO ***")
-                print("")
-                saldo_inicial = float(input("Por favor ingrese el saldo actual de la caja: $ "))
-                archivo = open(caja_anterior, "w")
-                archivo.write(str(saldo_inicial))
-                archivo.close()
-                print("")
-                print(f"El saldo inicial es $ {saldo_inicial:.2f}")
-                print("")
+                print()
+                loop = -1
             except:
                 mant.log_error()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 print()
-                saldo_inicial = float(input("Por favor ingrese el saldo actual de la caja: $ "))
-                archivo = open(caja_anterior, "w")
-                archivo.write(str(saldo_inicial))
-                archivo.close()
-                print("")
-                print(f"El saldo inicial es $ {saldo_inicial:.2f}")
-                print("")
+                loop = -1
     return saldo_inicial
 
 
@@ -208,6 +240,17 @@ def obtener_categ_ing():
     return categ_ing
 
 
+# def obtener_categ_ing():
+#     conn = sql.connect(database)
+#     cursor = conn.cursor()
+#     instruccion = f"SELECT categoria FROM categorias_ingresos ORDER BY id"
+#     cursor.execute(instruccion)
+#     datos = cursor.fetchall()
+#     conn.commit()
+#     conn.close()
+#     return datos
+
+
 def obtener_categ_egr():
     archivo = open("../databases/categ_egr.mf", 'r', encoding='Utf-8')
     categ_egr = []
@@ -215,6 +258,17 @@ def obtener_categ_egr():
         categ_egr.append(i.rstrip())
     archivo.close()
     return categ_egr
+
+
+# def obtener_categ_egr():
+#     conn = sql.connect(database)
+#     cursor = conn.cursor()
+#     instruccion = f"SELECT categoria FROM categorias_egresos ORDER BY id"
+#     cursor.execute(instruccion)
+#     datos = cursor.fetchall()
+#     conn.commit()
+#     conn.close()
+#     return datos
 
 
 def obtener_cobrador():
@@ -280,26 +334,6 @@ def eliminar_comisiones(rendicion):
     conn.close()
 
 
-def obtener_contador():
-    archivo = open(counter, "r")
-    contador = int(archivo.readline())
-    archivo.close()
-    return contador
-
-
-def actualizar_contador(contador):
-    nuevo = contador + 1
-    archivo = open(counter, "w")
-    archivo.write(f'{nuevo}')
-    archivo.close()
-
-
-def actualizar_saldo_inicial(saldo_final):
-    archivo = open(caja_anterior, "w")
-    archivo.write(f'{saldo_final}')
-    archivo.close()
-
-
 def es_cerrada(id):
     conn = sql.connect(database)
     cursor = conn.cursor()
@@ -337,10 +371,10 @@ def añadir_panteon(nuevo_panteon):
     añadir_categ_ing(f'Mantenimiento {nuevo_panteon}')
 
 
-def run_query(query, parameters = ()):
+def run_query(query):
     conn = sql.connect(database)
     cursor = conn.cursor()
-    cursor.execute(query, parameters)
+    cursor.execute(query)
     conn.commit()
     conn.close()
 
@@ -373,7 +407,7 @@ def total_ing_por_cob(cobrador, mes, año):
     for i in categ:
         conn = sql.connect(database)
         cursor = conn.cursor()
-        cursor.execute(f"SELECT * FROM caja WHERE descripcion = '{cobrador}' AND categoria = '{i}' AND mes='{mes}' AND año='{año}'")
+        cursor.execute(f"SELECT * FROM caja WHERE descripcion = '{cobrador}' AND categoria = '{i}' AND mes='{mes}' AND año='{año}' ORDER BY id")
         datos = cursor.fetchall()
         conn.close()
         subtotal = 0
@@ -389,7 +423,7 @@ def total_egr_por_cob(cobrador, mes, año):
     total = 0
     conn = sql.connect(database)
     cursor = conn.cursor()
-    cursor.execute(f"SELECT * FROM caja WHERE descripcion = '{cobrador}' AND categoria = 'A rendir' AND mes='{mes}' AND año='{año}'")
+    cursor.execute(f"SELECT * FROM caja WHERE descripcion = '{cobrador}' AND categoria = 'A rendir' AND mes='{mes}' AND año='{año}' ORDER BY id")
     datos = cursor.fetchall()
     conn.close()
     total = 0
@@ -503,7 +537,6 @@ def reg_gastos_of(idu):
     dia = obtener_dia()
     mes = obtener_mes()
     año = obtener_año()
-    query = f"INSERT INTO caja VALUES (NULL, ?, ?, ?, '', ?, ?, ?, ?, ?, '0', ?)"
     while oficina != 0:
         oficina = menu_oficinas()
         if oficina == 1:    # Gastos oficina Córdoba 2915
@@ -531,9 +564,16 @@ def reg_gastos_of(idu):
                 return
             observacion = input("Observaciones: ")
             print("")
-            parameters = (categoria, descripcion, transaccion, egreso, observacion, dia, mes, año, idu)
+            if "'" in descripcion:
+                descripcion = descripcion.replace("'", "´")
+            if "'" in transaccion:
+                transaccion = transaccion.replace("'", "´")
+            if "'" in observacion:
+                observacion = observacion.replace("'", "´")
+            parameters = str((categoria, descripcion, transaccion, egreso, observacion, dia, mes, año, idu))
+            query = f"INSERT INTO caja (categoria, descripcion, transaccion, egreso, observacion, dia, mes, año, id_user) VALUES {parameters}"
             try:
-                run_query(query, parameters)
+                run_query(query)
             except:
                 mant.log_error()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
@@ -567,9 +607,16 @@ def reg_gastos_of(idu):
                 return
             observacion = input("Observaciones: ")
             print("")
-            parameters = (categoria, descripcion, transaccion, egreso, observacion, dia, mes, año, idu)
+            if "'" in descripcion:
+                descripcion = descripcion.replace("'", "´")
+            if "'" in transaccion:
+                transaccion = transaccion.replace("'", "´")
+            if "'" in observacion:
+                observacion = observacion.replace("'", "´")
+            parameters = str((categoria, descripcion, transaccion, egreso, observacion, dia, mes, año, idu))
+            query = f"INSERT INTO caja (categoria, descripcion, transaccion, egreso, observacion, dia, mes, año, id_user) VALUES {parameters}"
             try:
-                run_query(query, parameters)
+                run_query(query)
             except:
                 mant.log_error()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
@@ -603,9 +650,16 @@ def reg_gastos_of(idu):
                 return
             observacion = input("Observaciones: ")
             print("")
-            parameters = (categoria, descripcion, transaccion, egreso, observacion, dia, mes, año, idu)
+            if "'" in descripcion:
+                descripcion = descripcion.replace("'", "´")
+            if "'" in transaccion:
+                transaccion = transaccion.replace("'", "´")
+            if "'" in observacion:
+                observacion = observacion.replace("'", "´")
+            parameters = str((categoria, descripcion, transaccion, egreso, observacion, dia, mes, año, idu))
+            query = f"INSERT INTO caja (categoria, descripcion, transaccion, egreso, observacion, dia, mes, año, id_user) VALUES {parameters}"
             try:
-                run_query(query, parameters)
+                run_query(query)
             except:
                 mant.log_error()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
@@ -639,9 +693,16 @@ def reg_gastos_of(idu):
                 return
             observacion = input("Observaciones: ")
             print("")
-            parameters = (categoria, descripcion, transaccion, egreso, observacion, dia, mes, año, idu)
+            if "'" in descripcion:
+                descripcion = descripcion.replace("'", "´")
+            if "'" in transaccion:
+                transaccion = transaccion.replace("'", "´")
+            if "'" in observacion:
+                observacion = observacion.replace("'", "´")
+            parameters = str((categoria, descripcion, transaccion, egreso, observacion, dia, mes, año, idu))
+            query = f"INSERT INTO caja (categoria, descripcion, transaccion, egreso, observacion, dia, mes, año, id_user) VALUES {parameters}"
             try:
-                run_query(query, parameters)
+                run_query(query)
             except:
                 mant.log_error()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
@@ -686,10 +747,16 @@ def reg_pago_alquiler(idu):
         return
     observacion = input("Observaciones: ")
     print("")
-    query = f"INSERT INTO caja VALUES (NULL, ?, ?, ?, '', ?, ?, ?, ?, ?, '0', ?)"
-    parameters = (categoria, descripcion, transaccion, egreso, observacion, dia, mes, año, idu)
+    if "'" in descripcion:
+        descripcion = descripcion.replace("'", "´")
+    if "'" in transaccion:
+        transaccion = transaccion.replace("'", "´")
+    if "'" in observacion:
+        observacion = observacion.replace("'", "´")
+    parameters = str((categoria, descripcion, transaccion, egreso, observacion, dia, mes, año, idu))
+    query = f"INSERT INTO caja (categoria, descripcion, transaccion, egreso, observacion, dia, mes, año, id_user) VALUES {parameters}"
     try:
-        run_query(query, parameters)
+        run_query(query)
     except:
         mant.log_error()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
@@ -732,12 +799,18 @@ def reg_pago_sueldo(idu):
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         print()
         return
-    query = f"INSERT INTO caja VALUES (NULL, ?, ?, ?, '', ?, ?, ?, ?, ?, '0', ?)"
     observacion = input("Observaciones: ")
     print("")
-    parameters = (categoria, descripcion, transaccion, egreso, observacion, dia, mes, año, idu)
+    if "'" in descripcion:
+        descripcion = descripcion.replace("'", "´")
+    if "'" in transaccion:
+        transaccion = transaccion.replace("'", "´")
+    if "'" in observacion:
+        observacion = observacion.replace("'", "´")
+    parameters = str((categoria, descripcion, transaccion, egreso, observacion, dia, mes, año, idu))
+    query = f"INSERT INTO caja (categoria, descripcion, transaccion, egreso, observacion, dia, mes, año, id_user) VALUES {parameters}"
     try:
-        run_query(query, parameters)
+        run_query(query)
     except:
         mant.log_error()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
@@ -770,9 +843,11 @@ def reg_pago_comision(idu):
         dia = obtener_dia()
         mes = obtener_mes()
         año = obtener_año()
-        query = f"INSERT INTO caja VALUES (NULL, ?, ?, ?, '', ?, ?, ?, ?, ?, '0', ?)"
-        parameters = (categoria, cobrador, rendicion, total_com, observacion, dia, mes, año, idu)
-        run_query(query, parameters)
+        if "'" in observacion:
+            observacion = observacion.replace("'", "´")
+        parameters = str((categoria, cobrador, rendicion, total_com, observacion, dia, mes, año, idu))
+        query = f"INSERT INTO caja (categoria, descripcion, transaccion, egreso, observacion, dia, mes, año, id_user) VALUES {parameters}"
+        run_query(query)
         ult_reg_list = ult_reg()
         print("Se registró: ", ult_reg_list[1], " - ", ult_reg_list[2], " - ","$", ult_reg_list[5], " - ", ult_reg_list[6], " - " "NÚMERO DE REGISTRO: ", f"{ult_reg_list[0]}".rjust(8, '0'))
         print("")
@@ -827,9 +902,15 @@ def reg_alivio(idu):
         return
     observacion = input("Observaciones: ")
     print("")
-    query = f"INSERT INTO caja VALUES (NULL, ?, ?, ?, '', ?, ?, ?, ?, ?, '0', ?)"
-    parameters = (categoria, descripcion, transaccion, egreso, observacion, dia, mes, año, idu)
-    run_query(query, parameters)
+    if "'" in descripcion:
+        descripcion = descripcion.replace("'", "´")
+    if "'" in transaccion:
+        transaccion = transaccion.replace("'", "´")
+    if "'" in observacion:
+        observacion = observacion.replace("'", "´")
+    parameters = str((categoria, descripcion, transaccion, egreso, observacion, dia, mes, año, idu))
+    query = f"INSERT INTO caja (categoria, descripcion, transaccion, egreso, observacion, dia, mes, año, id_user) VALUES {parameters}"
+    run_query(query)
     ult_reg_list = ult_reg()
     print("Se registró: ", ult_reg_list[1], " - ", ult_reg_list[2], " - ","$", ult_reg_list[5], " - ", ult_reg_list[6], " - " "NÚMERO DE REGISTRO: ", f"{ult_reg_list[0]}".rjust(8, '0'))
     return
@@ -869,9 +950,15 @@ def reg_ingreso_extraordinario(idu):
         return
     observacion = input("Observaciones: ")
     print("")
-    query = f"INSERT INTO caja VALUES (NULL, ?, ?, ?, ?, '', ?, ?, ?, ?, '0', ?)"
-    parameters = (categoria, descripcion, transaccion, ingreso, observacion, dia, mes, año, idu)
-    run_query(query, parameters)
+    if "'" in descripcion:
+        descripcion = descripcion.replace("'", "´")
+    if "'" in transaccion:
+        transaccion = transaccion.replace("'", "´")
+    if "'" in observacion:
+        observacion = observacion.replace("'", "´")
+    parameters = str((categoria, descripcion, transaccion, ingreso, observacion, dia, mes, año, idu))
+    query = f"INSERT INTO caja (categoria, descripcion, transaccion, ingreso, observacion, dia, mes, año, id_user) VALUES {parameters}"
+    run_query(query)
     ult_reg_list = ult_reg()
     print("Se registró: ", ult_reg_list[1], " - ", ult_reg_list[2], " - ","$", ult_reg_list[4], " - ", ult_reg_list[6], " - " "NÚMERO DE REGISTRO: ", f"{ult_reg_list[0]}".rjust(8, '0'))
     return
@@ -970,13 +1057,19 @@ def a_rendir(idu):
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         print()
         return
-    query = f"INSERT INTO caja VALUES (NULL, ?, ?, ?, '', ?, ?, ?, ?, ?, '0', ?)"
     observacion = input("Observaciones: ")
     print("")
     descripcion = obtener_nom_cobrador(cobrador)
-    parameters = (categoria, descripcion, transaccion, egreso, observacion, dia, mes, año, idu)
+    if "'" in descripcion:
+        descripcion = descripcion.replace("'", "´")
+    if "'" in transaccion:
+        transaccion = transaccion.replace("'", "´")
+    if "'" in observacion:
+        observacion = observacion.replace("'", "´")
+    parameters = str((categoria, descripcion, transaccion, egreso, observacion, dia, mes, año, idu))
+    query = f"INSERT INTO caja (categoria, descripcion, transaccion, egreso, observacion, dia, mes, año, id_user) VALUES {parameters}"
     try:
-        run_query(query, parameters)
+        run_query(query)
     except:
         mant.log_error()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
@@ -1044,13 +1137,19 @@ def rend_adeudada(idu):
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         print()
         return
-    query = f"INSERT INTO caja VALUES (NULL, ?, ?, ?, ?, '', ?, ?, ?, ?, '0', ?)"
     observacion = input("Observaciones: ")
     print("")
     descripcion = obtener_nom_cobrador(cobrador)
-    parameters = (categoria, descripcion, transaccion, ingreso, observacion, dia, mes, año, idu)
+    if "'" in descripcion:
+        descripcion = descripcion.replace("'", "´")
+    if "'" in transaccion:
+        transaccion = transaccion.replace("'", "´")
+    if "'" in observacion:
+        observacion = observacion.replace("'", "´")
+    parameters = str((categoria, descripcion, transaccion, ingreso, observacion, dia, mes, año, idu))
+    query = f"INSERT INTO caja (categoria, descripcion, transaccion, ingreso, observacion, dia, mes, año, id_user) VALUES {parameters}"
     try:
-        run_query(query, parameters)
+        run_query(query)
     except:
         mant.log_error()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
@@ -1111,17 +1210,21 @@ def ver_registros():
     año = obtener_año()
     conn = sql.connect(database)
     cursor = conn.cursor()
-    instruccion = f"SELECT * FROM caja WHERE dia = '{dia}' AND mes = '{mes}' AND año = '{año}'"
+    instruccion = f"SELECT * FROM caja WHERE dia = '{dia}' AND mes = '{mes}' AND año = '{año}' ORDER BY id"
     cursor.execute(instruccion)
     datos = cursor.fetchall()
     conn.commit()
     print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
-    print("{:<9} {:<28} {:<28} {:<10} {:<15} {:<15} {:<30} {:<10} {:<6}".format('    ID   ','CATEGORÍA', 'DESCRIPCIÓN', 'TRANSACCIÓN', 'INGRESO', 'EGRESO','OBSERVACIONES', '  FECHA', 'USER'))
+    print("{:<9} {:<27} {:<27} {:<11} {:<15} {:<15} {:<30} {:<10} {:<6}".format('    ID   ','CATEGORÍA', 'DESCRIPCIÓN', 'TRANSACCIÓN', 'INGRESO', 'EGRESO','OBSERVACIONES', '  FECHA', 'USER'))
     print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
     for x in datos:
         i_d, cat, des, tra, ing, egr, obs, dia, mes, año, cer, use = x
         idu, nom, ape, tel, dom, user, pas, pri, act = buscar_usuario_por_id(use)
-        print("{:<9} {:<28} {:<28} {:<10} {:<15} {:<15} {:<30} {:<10} {:<6}".format(f"{i_d}".rjust(8, '0'), cat[0:28], des[0:28], f"{tra}"[0:10], ing, egr, obs[0:30], f'{dia}/{mes}/{año}', user))
+        if ing == None:
+            ing = ''
+        if egr == None:
+            egr = ''
+        print("{:<9} {:<27} {:<27} {:<11} {:<15} {:<15} {:<30} {:<10} {:<6}".format(f"{i_d}".rjust(8, '0'), f"{cat[:27]}", f"{des[:27]}", f"{tra}"[:11], f"{ing}", f"{egr}", f"{obs[:30]}", f"{dia}/{mes}/{año}", f"{user}"))
     conn.close()
     print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
     print("")
@@ -1178,7 +1281,7 @@ def menu_buscar():                                                              
             par1 = "categoria"
             inp = input("Indique categoría o parte de ella: ")
             par2 = f"%{inp}%"
-            buscar_registro(par1, par2)
+            buscar_registro_like(par1, par2)
             print("")
         elif opcion == 3:   # Buscar por descripción
             print("")
@@ -1186,13 +1289,13 @@ def menu_buscar():                                                              
             inp = input("Indique descripción o parte de ella: ")
             par2 = f"%{inp}%"
             print("")
-            buscar_registro(par1, par2)
+            buscar_registro_like(par1, par2)
         elif opcion == 4:   # Buscar por transacción
             print("")
             par1 = "transaccion"
             par2 = input("Indique número de transacción: ")
             print("")
-            buscar_registro(par1, par2)
+            buscar_registro_like(par1, par2)
         elif opcion == 5:   # Buscar por ingreso
             try:
                 print("")
@@ -1227,7 +1330,7 @@ def menu_buscar():                                                              
             inp = input("Indique observación o parte de ella: ")
             par2 = f"%{inp}%"
             print("")
-            buscar_registro(par1, par2)
+            buscar_registro_like(par1, par2)
         elif opcion == 8:   # Buscar por fecha
             print("")
             menu_buscar_fecha()
@@ -1236,10 +1339,12 @@ def menu_buscar():                                                              
 
 
 def buscar_registro(par1, par2):
+    if type(par2) == str and "'" in par2:
+        par2 = par2.replace("'", "´")
     try:
         conn = sql.connect(database)
         cursor = conn.cursor()
-        instruccion = f"SELECT * FROM caja WHERE {par1} like '{par2}'"
+        instruccion = f"SELECT * FROM caja WHERE {par1} = '{par2}' ORDER BY id"
         cursor.execute(instruccion)
         datos = cursor.fetchall()
         conn.commit()
@@ -1247,12 +1352,46 @@ def buscar_registro(par1, par2):
         print("         ERROR. Se ha encontrado un caracter no permitido en la busqueda.")
         return
     print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
-    print("{:<9} {:<28} {:<28} {:<10} {:<15} {:<15} {:<30} {:<10} {:<6}".format('    ID   ','CATEGORÍA','DESCRIPCIÓN', 'TRANSACCIÓN', 'INGRESO', 'EGRESO','OBSERVACIONES', '  FECHA', 'USER'))
+    print("{:<9} {:<27} {:<27} {:<11} {:<15} {:<15} {:<30} {:<10} {:<6}".format('    ID   ','CATEGORÍA','DESCRIPCIÓN', 'TRANSACCIÓN', 'INGRESO', 'EGRESO','OBSERVACIONES', '  FECHA', 'USER'))
     print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
     for x in datos:
         i_d, cat, des, tra, ing, egr, obs, dia, mes, año, cer, use = x
         idu, nom, ape, tel, dom, user, pas, pri, act = buscar_usuario_por_id(use)
-        print("{:<9} {:<28} {:<28} {:<10} {:<15} {:<15} {:<30} {:<10} {:<6}".format(f"{i_d}".rjust(8, '0'), cat[0:28], des[0:28], f"{tra}"[0:10], ing, egr, obs[0:30], f'{dia}/{mes}/{año}', user))
+        if ing == None:
+            ing = ''
+        if egr == None:
+            egr = ''
+        print("{:<9} {:<27} {:<27} {:<11} {:<15} {:<15} {:<30} {:<10} {:<6}".format(f"{i_d}".rjust(8, '0'), cat[:27], des[:27], f"{tra}"[:10], ing, egr, obs[:30], f'{dia}/{mes}/{año}', f'{user}'))
+    conn.close()
+    print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
+    print("")
+    input("Presione la tecla enter para continuar... ")
+
+
+def buscar_registro_like(par1, par2):
+    if type(par2) == str and "'" in par2:
+        par2 = par2.replace("'", "´")
+    try:
+        conn = sql.connect(database)
+        cursor = conn.cursor()
+        instruccion = f"SELECT * FROM caja WHERE {par1} ILIKE '{par2}' ORDER BY id"
+        cursor.execute(instruccion)
+        datos = cursor.fetchall()
+        conn.commit()
+    except sql.OperationalError:
+        print("         ERROR. Se ha encontrado un caracter no permitido en la busqueda.")
+        return
+    print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
+    print("{:<9} {:<27} {:<27} {:<11} {:<15} {:<15} {:<30} {:<10} {:<6}".format('    ID   ','CATEGORÍA','DESCRIPCIÓN', 'TRANSACCIÓN', 'INGRESO', 'EGRESO','OBSERVACIONES', '  FECHA', 'USER'))
+    print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
+    for x in datos:
+        i_d, cat, des, tra, ing, egr, obs, dia, mes, año, cer, use = x
+        idu, nom, ape, tel, dom, user, pas, pri, act = buscar_usuario_por_id(use)
+        if ing == None:
+            ing = ''
+        if egr == None:
+            egr = ''
+        print("{:<9} {:<27} {:<27} {:<11} {:<15} {:<15} {:<30} {:<10} {:<6}".format(f"{i_d}".rjust(8, '0'), cat[:27], des[:27], f"{tra}"[:10], ing, egr, obs[:30], f'{dia}/{mes}/{año}', f'{user}'))
     conn.close()
     print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
     print("")
@@ -1329,17 +1468,21 @@ def menu_buscar_fecha():                                                        
 def buscar_registro_fecha(dia, mes, año):
     conn = sql.connect(database)
     cursor = conn.cursor()
-    instruccion = f"SELECT * FROM caja WHERE dia = '{dia}' AND mes = '{mes}' AND año = '{año}'"
+    instruccion = f"SELECT * FROM caja WHERE dia = '{dia}' AND mes = '{mes}' AND año = '{año}' ORDER BY id"
     cursor.execute(instruccion)
     datos = cursor.fetchall()
     conn.commit()
     print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
-    print("{:<9} {:<28} {:<28} {:<10} {:<15} {:<15} {:<30} {:<10} {:<6}".format('    ID   ','CATEGORÍA','DESCRIPCIÓN', 'TRANSACCIÓN', 'INGRESO', 'EGRESO','OBSERVACIONES', '  FECHA', 'USER'))
+    print("{:<9} {:<27} {:<27} {:<11} {:<15} {:<15} {:<30} {:<10} {:<6}".format('    ID   ','CATEGORÍA','DESCRIPCIÓN', 'TRANSACCIÓN', 'INGRESO', 'EGRESO','OBSERVACIONES', '  FECHA', 'USER'))
     print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
     for x in datos:
         i_d, cat, des, tra, ing, egr, obs, dia, mes, año, cer, use = x
         idu, nom, ape, tel, dom, user, pas, pri, act = buscar_usuario_por_id(use)
-        print("{:<9} {:<28} {:<28} {:<10} {:<15} {:<15} {:<30} {:<10} {:<6}".format(f"{i_d}".rjust(8, '0'), cat[0:28], des[0:28], f"{tra}"[0:10], ing, egr, obs[0:30], f'{dia}/{mes}/{año}', user))
+        if ing == None:
+            ing = ''
+        if egr == None:
+            egr = ''
+        print("{:<9} {:<27} {:<27} {:<11} {:<15} {:<15} {:<30} {:<10} {:<6}".format(f"{i_d}".rjust(8, '0'), cat[:27], des[:27], f"{tra}"[:10], ing, egr, obs[:30], f'{dia}/{mes}/{año}', f'{user}'))
     conn.close()
     print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
     print("")
@@ -1349,17 +1492,21 @@ def buscar_registro_fecha(dia, mes, año):
 def buscar_registro_mes(mes, año):
     conn = sql.connect(database)
     cursor = conn.cursor()
-    instruccion = f"SELECT * FROM caja WHERE mes = '{mes}' AND año = '{año}'"
+    instruccion = f"SELECT * FROM caja WHERE mes = '{mes}' AND año = '{año}' ORDER BY id"
     cursor.execute(instruccion)
     datos = cursor.fetchall()
     conn.commit()
     print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
-    print("{:<9} {:<28} {:<28} {:<10} {:<15} {:<15} {:<30} {:<10} {:<6}".format('    ID   ','CATEGORÍA','DESCRIPCIÓN', 'TRANSACCIÓN', 'INGRESO', 'EGRESO','OBSERVACIONES', '  FECHA', 'USER'))
+    print("{:<9} {:<27} {:<27} {:<11} {:<15} {:<15} {:<30} {:<10} {:<6}".format('    ID   ','CATEGORÍA','DESCRIPCIÓN', 'TRANSACCIÓN', 'INGRESO', 'EGRESO','OBSERVACIONES', '  FECHA', 'USER'))
     print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
     for x in datos:
         i_d, cat, des, tra, ing, egr, obs, dia, mes, año, cer, use = x
         idu, nom, ape, tel, dom, user, pas, pri, act = buscar_usuario_por_id(use)
-        print("{:<9} {:<28} {:<28} {:<10} {:<15} {:<15} {:<30} {:<10} {:<6}".format(f"{i_d}".rjust(8, '0'), cat[0:28], des[0:28], f"{tra}"[0:10], ing, egr, obs[0:30], f'{dia}/{mes}/{año}', user))
+        if ing == None:
+            ing = ''
+        if egr == None:
+            egr = ''
+        print("{:<9} {:<27} {:<27} {:<11} {:<15} {:<15} {:<30} {:<10} {:<6}".format(f"{i_d}".rjust(8, '0'), cat[:27], des[:27], f"{tra}"[:10], ing, egr, obs[:30], f'{dia}/{mes}/{año}', f'{user}'))
     conn.close()
     print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
     print("")
@@ -1369,17 +1516,21 @@ def buscar_registro_mes(mes, año):
 def buscar_registro_año(año):
     conn = sql.connect(database)
     cursor = conn.cursor()
-    instruccion = f"SELECT * FROM caja WHERE año = '{año}'"
+    instruccion = f"SELECT * FROM caja WHERE año = '{año}' ORDER BY id"
     cursor.execute(instruccion)
     datos = cursor.fetchall()
     conn.commit()
     print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
-    print("{:<9} {:<28} {:<28} {:<10} {:<15} {:<15} {:<30} {:<10} {:<6}".format('    ID   ','CATEGORÍA','DESCRIPCIÓN', 'TRANSACCIÓN', 'INGRESO', 'EGRESO','OBSERVACIONES', '  FECHA', 'USER'))
+    print("{:<9} {:<27} {:<27} {:<11} {:<15} {:<15} {:<30} {:<10} {:<6}".format('    ID   ','CATEGORÍA','DESCRIPCIÓN', 'TRANSACCIÓN', 'INGRESO', 'EGRESO','OBSERVACIONES', '  FECHA', 'USER'))
     print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
     for x in datos:
         i_d, cat, des, tra, ing, egr, obs, dia, mes, año, cer, use = x
         idu, nom, ape, tel, dom, user, pas, pri, act = buscar_usuario_por_id(use)
-        print("{:<9} {:<28} {:<28} {:<10} {:<15} {:<15} {:<30} {:<10} {:<6}".format(f"{i_d}".rjust(8, '0'), cat[0:28], des[0:28], f"{tra}"[0:10], ing, egr, obs[0:30], f'{dia}/{mes}/{año}', user))
+        if ing == None:
+            ing = ''
+        if egr == None:
+            egr = ''
+        print("{:<9} {:<27} {:<27} {:<11} {:<15} {:<15} {:<30} {:<10} {:<6}".format(f"{i_d}".rjust(8, '0'), cat[:27], des[:27], f"{tra}"[:10], ing, egr, obs[:30], f'{dia}/{mes}/{año}', f'{user}'))
     conn.close()
     print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
     print("")
@@ -1518,9 +1669,11 @@ def modif_registro(idu):
 
 
 def edit_registro(id, parametro1, parametro2):
+    if type(parametro2) == str and "'" in parametro2:
+        parametro2 = parametro2.replace("'", "´")
     conn = sql.connect(database)
     cursor = conn.cursor()
-    instruccion = f"UPDATE caja SET '{parametro1}'='{parametro2}' WHERE id='{id}'"
+    instruccion = f"UPDATE caja SET {parametro1} = '{parametro2}' WHERE id = '{id}'"
     cursor.execute(instruccion)
     conn.commit()
     conn.close()
@@ -1529,33 +1682,51 @@ def edit_registro(id, parametro1, parametro2):
 def guardar_historial(id, idu):
     conn = sql.connect(database)
     cursor = conn.cursor()
-    instruccion = f"SELECT * FROM caja WHERE id = {id}"
+    instruccion = f"SELECT * FROM caja WHERE id = {id} ORDER BY id"
     cursor.execute(instruccion)
     datos = cursor.fetchone()
     conn.commit()
     conn.close()
     i_d, cat, des, tra, ing, egr, obs, dia, mes, año, cer, use = datos
     fyh = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
-    query = f"INSERT INTO historial_caja VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
-    parameters = (i_d, cat, des, tra, ing, egr, obs, idu, fyh)
-    run_query(query, parameters)
+    if "'" in des:
+        des = des.replace("'", "´")
+    if "'" in tra:
+        tra = tra.replace("'", "´")
+    if "'" in obs:
+        obs = obs.replace("'", "´")
+    if ing == None and egr != None:
+        parameters = str((i_d, cat, des, tra, egr, obs, idu, fyh))
+        query = f"INSERT INTO historial_caja (id, categoria, descripcion, transaccion, egreso, observacion, id_user_m, fecha_y_hora_m) VALUES {parameters}"
+    elif egr == None and ing != None:
+        parameters = str((i_d, cat, des, tra, ing, obs, idu, fyh))
+        query = f"INSERT INTO historial_caja (id, categoria, descripcion, transaccion, ingreso, observacion, id_user_m, fecha_y_hora_m) VALUES {parameters}"
+    elif ing != None and egr != None:
+        parameters = str((i_d, cat, des, tra, ing, egr, obs, idu, fyh))
+        query = f"INSERT INTO historial_caja (id, categoria, descripcion, transaccion, ingreso, egreso, observacion, id_user_m, fecha_y_hora_m) VALUES {parameters}"
+    run_query(query)
 
 
 def mostrar_registro(id):
     conn = sql.connect(database)
     cursor = conn.cursor()
-    instruccion = f"SELECT * FROM caja WHERE id = {id}"
+    instruccion = f"SELECT * FROM caja WHERE id = {id} ORDER BY id"
     cursor.execute(instruccion)
     datos = cursor.fetchall()
     conn.commit()
-    print("---------------------------------------------------------------------------------------------------------------------------------------------------------")
-    print("{:<9} {:<28} {:<28} {:<10} {:<15} {:<15} {:<30} {:<10} {:<6}".format('    ID   ','CATEGORÍA','DESCRIPCIÓN', 'TRANSACCIÓN', 'INGRESO', 'EGRESO','OBSERVACIONES', '  FECHA', 'USER'))
-    print("---------------------------------------------------------------------------------------------------------------------------------------------------------")
+    print("--------------------------------------------------------------------------------------------------------------------------------------------------------------")
+    print("{:<9} {:<27} {:<27} {:<11} {:<15} {:<15} {:<30} {:<10} {:<6}".format('    ID   ','CATEGORÍA','DESCRIPCIÓN', 'TRANSACCIÓN', 'INGRESO', 'EGRESO','OBSERVACIONES', '  FECHA', 'USER'))
+    print("--------------------------------------------------------------------------------------------------------------------------------------------------------------")
     for x in datos:
         i_d, cat, des, tra, ing, egr, obs, dia, mes, año, cer, use = x
-        print("{:<9} {:<28} {:<28} {:<10} {:<15} {:<15} {:<30} {:<10} {:<6}".format(f"{i_d}".rjust(8, '0'), cat[0:28], des[0:28], f"{tra}"[0:10], ing, egr, obs[0:30], f'{dia}/{mes}/{año}', use))
+        if ing == None:
+            ing = ''
+        if egr == None:
+            egr = ''
+        idu, nom, ape, tel, dom, user, pas, pri, act = buscar_usuario_por_id(use)
+        print("{:<9} {:<27} {:<27} {:<11} {:<15} {:<15} {:<30} {:<10} {:<6}".format(f"{i_d}".rjust(8, '0'), cat[:27], des[:27], f"{tra}"[:10], ing, egr, obs[:30], f'{dia}/{mes}/{año}', f'{user}'))
     conn.close()
-    print("---------------------------------------------------------------------------------------------------------------------------------------------------------")
+    print("--------------------------------------------------------------------------------------------------------------------------------------------------------------")
     print("")
 
 
@@ -1579,7 +1750,7 @@ def eliminar_registro(idu):
                         guardar_historial(id, idu)
                         conn = sql.connect(database)
                         cursor = conn.cursor()
-                        instruccion = f"UPDATE historial_caja SET observacion='[REGISTRO ELIMINADO]' WHERE id='{id}'"
+                        instruccion = f"UPDATE historial_caja SET observacion = '[REGISTRO ELIMINADO]' WHERE id = '{id}'"
                         cursor.execute(instruccion)
                         conn.commit()
                         conn.close()
@@ -1619,14 +1790,16 @@ def eliminar_registro(idu):
         print("")
         print("No se han realizado cambios en el registro.")
         print("")
-        input("Presione enter para continuar...")
+        getpass("Presione enter para continuar...")
         print("")
 
 
 def delete_row(parametro1, parametro2):
+    if type(parametro2) == str and "'" in parametro2:
+        parametro2 = parametro2.replace("'", "´")
     conn = sql.connect(database)
     cursor = conn.cursor()
-    instruccion = f"DELETE FROM caja WHERE {parametro1}='{parametro2}'"
+    instruccion = f"DELETE FROM caja WHERE {parametro1} = '{parametro2}'"
     cursor.execute(instruccion)
     conn.commit()
     conn.close()
@@ -1673,6 +1846,9 @@ def menu_caja_mensual():                                                        
                         print("         ERROR. Mes incorrecto.")
                         print("")
                 año = int(input("Ingrese el año: "))
+                print()
+                print("Generando reporte... Por favor aguarde...")
+                print()
                 rep.report_caja_mensual_det(mes, año)
             except:
                 mant.log_error()
@@ -1688,6 +1864,9 @@ def menu_caja_mensual():                                                        
                         print("         ERROR. Mes incorrecto.")
                         print("")
                 año = int(input("Ingrese el año: "))
+                print()
+                print("Generando reporte... Por favor aguarde...")
+                print()
                 rep.report_caja_mensual_comp(mes, año)
             except: 
                 mant.log_error()
@@ -1703,6 +1882,9 @@ def menu_caja_mensual():                                                        
                         print("         ERROR. Mes incorrecto.")
                         print("")
                 año = int(input("Ingrese el año: "))
+                print()
+                print("Generando reporte... Por favor aguarde...")
+                print()
                 rep.report_caja_mensual_por_cob(mes, año)
             except: 
                 mant.log_error()
@@ -1738,9 +1920,9 @@ def reg_cobros_federacion(idu):
     dia = obtener_dia()
     mes = obtener_mes()
     año = obtener_año()
-    query_ing = f"INSERT INTO caja VALUES (NULL, ?, ?, ?, ?, '', ?, ?, ?, ?, '0', ?)"
-    parameters_ing = (categoria_ing, descripcion_ing, transaccion_ing, ingreso, observacion_ing, dia, mes, año, idu)
-    run_query(query_ing, parameters_ing)
+    parameters_ing = str((categoria_ing, descripcion_ing, transaccion_ing, ingreso, observacion_ing, dia, mes, año, idu))
+    query_ing = f"INSERT INTO caja (categoria, descripcion, transaccion, ingreso, observacion, dia, mes, año, id_user) VALUES {parameters_ing}"
+    run_query(query_ing)
     ult_reg_list = ult_reg()
     print("Se registró: ", ult_reg_list[1], " - ", ult_reg_list[2], " - ","$", ult_reg_list[4], " - ", ult_reg_list[6], " - " "NÚMERO DE REGISTRO: ", f"{ult_reg_list[0]}".rjust(8, '0'))
     print("")
@@ -1749,9 +1931,9 @@ def reg_cobros_federacion(idu):
     transaccion_egr = "FED"
     egreso = ingreso
     observacion_egr = ""
-    query_egr = f"INSERT INTO caja VALUES (NULL, ?, ?, ?, '', ?, ?, ?, ?, ?, '0', ?)"
     parameters_egr = (categoria_egr, descripcion_egr, transaccion_egr, egreso, observacion_egr, dia, mes, año, idu)
-    run_query(query_egr, parameters_egr)
+    query_egr = f"INSERT INTO caja (categoria, descripcion, transaccion, egreso, observacion, dia, mes, año, id_user) VALUES {parameters_egr}"
+    run_query(query_egr)
     ult_reg_list = ult_reg()
     print("Se registró: ", ult_reg_list[1], " - ", ult_reg_list[2], " - ","$", ult_reg_list[5], " - ", ult_reg_list[6], " - " "NÚMERO DE REGISTRO: ", f"{ult_reg_list[0]}".rjust(8, '0'))
     print("")
@@ -1762,6 +1944,7 @@ def cierre_caja():
     saldo_final = 0
     contador = obtener_contador()
     fecha = obtener_fecha()
+    fyh = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     
     print("********** Cierre de caja **********")
     print("")
@@ -1769,45 +1952,33 @@ def cierre_caja():
     print()
     print(f"Número de cierre: {str(contador).rjust(6, '0')}")
     print("")
-    try:
-        saldo_final = float(input("Por favor ingrese el saldo de caja: $ "))
-    except ValueError:
-        init()
-        print(Fore.RED+Back.YELLOW+"""
-#################################################
-#################################################
-##                                             ##
-##--------------------ERROR--------------------##
-##                                             ##
-##         EL MONTO DEBE SER NUMÉRICO          ##
-##                                             ##
-##       NO SE REGISTRÓ EL CIERRE DE CAJA      ##
-##             VUELVA A INTENTARLO             ##
-##                                             ##
-#################################################
-#################################################
-"""+Back.BLACK+Fore.LIGHTYELLOW_EX)
-        opcion = -1
-        return menu()
-    except:
-        mant.log_error()
-        init()
-        print(Fore.RED+Back.YELLOW+"""
-#################################################
-#################################################
-##                                             ##
-##--------------------ERROR--------------------##
-##                                             ##
-##       COMUNÍQUESE CON EL ADMINISTRADOR      ##
-##                                             ##
-##       NO SE REGISTRÓ EL CIERRE DE CAJA      ##
-##             VUELVA A INTENTARLO             ##
-##                                             ##
-#################################################
-#################################################
-"""+Back.BLACK+Fore.LIGHTYELLOW_EX)
-        opcion = -1
-        return menu()
+    loop = -1
+    while loop == -1:
+        try:
+            loop = saldo_final = float(input("Por favor ingrese el saldo de caja: $ "))
+            print()
+        except ValueError:
+            print("         ERROR. El dato solicitado debe ser de tipo numérico.")
+            loop = -1
+            return menu()
+        except:
+            mant.log_error()
+            print(Fore.RED+Back.YELLOW+"""
+            #################################################
+            #################################################
+            ##                                             ##
+            ##--------------------ERROR--------------------##
+            ##                                             ##
+            ##       COMUNÍQUESE CON EL ADMINISTRADOR      ##
+            ##                                             ##
+            ##       NO SE REGISTRÓ EL CIERRE DE CAJA      ##
+            ##                                             ##
+            #################################################
+            #################################################
+    """+Back.BLACK+Fore.LIGHTYELLOW_EX)
+            print()
+            getpass("Presione enter para cerrar el módulo...")
+            return
     try:
         print("")
         print(" ***** REALIZANDO ACCIONES DE CAJA. POR FAVOR NO CIERRE EL SISTEMA NI APAGUE EL EQUIPO *****")
@@ -1826,14 +1997,16 @@ def cierre_caja():
         conn.commit()
         conn.close()
         
-        ##### ACTULIZANDO EL CONTADOR #####
-        actualizar_contador(contador)
-        print("Contador actualizado [OK]")
-        print("")
+        ##### GUARDANDO SALDO DE CAJA #####
+        conn = sql.connect(database)
+        cursor = conn.cursor()
+        parameters = str((saldo_final, fyh))
+        instruccion = f"INSERT INTO saldo_caja (saldo, fecha_y_hora_cierre) VALUES {parameters}"
+        cursor.execute(instruccion)
+        conn.commit()
+        conn.close()
 
-        ##### GUARDANDO CAJA INICIAL PRÓXIMA #####
-        actualizar_saldo_inicial(saldo_final)
-        print("Número de caja actualizado [OK]")
+        print("Saldo de caja actualizado [OK]")
     except:
         mant.log_error()
         print()
