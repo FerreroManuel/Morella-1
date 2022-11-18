@@ -1237,7 +1237,7 @@ def recibos(facturacion, id_cobrador, recibos):
                     debe += abs(c_f)
                 debe += q_rec_impagos - 1
                 if debe:
-                    pdf.cell(93, 4, f'----------- ATENCIÓN: El asociado adeuda {abs(c_f)} cuotas. ----------', 1, 1, 'C')
+                    pdf.cell(93, 4, f'----------- ATENCIÓN: El asociado adeuda {debe} cuotas. ----------', 1, 1, 'C')
                     # Margen
                     pdf.cell(190, 13, ' ', 0, 1, 'L')
                 else:
