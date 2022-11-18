@@ -1153,7 +1153,7 @@ def menu_cobradores():
 def buscar_operaciones(facturacion, id_cobrador):
     conn = sql.connect(database)
     cursor = conn.cursor()
-    instruccion = f"SELECT * FROM operaciones WHERE facturacion = '{facturacion}' AND cobrador = '{id_cobrador}' AND moroso = '0' ORDER BY ruta"
+    instruccion = f"SELECT * FROM operaciones WHERE facturacion = '{facturacion}' AND cobrador = '{id_cobrador}' ORDER BY ruta"
     cursor.execute(instruccion)
     recibos = cursor.fetchall()
     conn.commit()
@@ -1455,6 +1455,7 @@ def set_moroso(id_op):
     conn = sql.connect(database)
     cursor = conn.cursor()
     instruccion = f"UPDATE operaciones SET moroso = '{1}', cobrador = '{5}' WHERE id = {id_op}"
+    # instruccion = f"UPDATE operaciones SET moroso = '{1}' WHERE id = {id_op}"
     cursor.execute(instruccion)
     conn.commit()
     conn.close()
@@ -1472,7 +1473,7 @@ def obtener_valor_doc(id_op):
     return val_cuota
 
 
-def cerrar_consola():           ################# ¿¿¿¿¿¿¿¿¿¿¿¿????????????
+def cerrar_consola():
     print("")
     print("")
     print("")

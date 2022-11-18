@@ -22,7 +22,6 @@ try:
 except ImportError:
     pass
 
-
 class Ventana(QMainWindow):
     _op_cobol_ingr = ''
     _op_morella_ingr = ''
@@ -299,7 +298,6 @@ class Ventana(QMainWindow):
                 aviso_ok = QMessageBox(self)
                 aviso_ok.setWindowTitle('Pago registrado correctamente')
                 aviso_ok.setText('La última fecha de pago fue actualizada satisfactoriamente.')
-                # aviso_ok.setIcon(QMessageBox.Information)
                 aviso_ok.setIconPixmap(QPixmap("../docs/ok.png"))
                 aviso_ok.exec()
             else:

@@ -1,5 +1,4 @@
 # REPORTER CREADO POR MANUEL FERRERO PARA EL SISTEMA [MORELLA] DE [MF! SOLUCIONES]
-# Version 1.2.0.2205
 
 
 ############ INICIO DE IMPORTACIONES ############
@@ -221,7 +220,7 @@ def report_caja_diaria(s_final):
             self.cell(0, 10, 'Página ' + str(self.page_no()) + ' de {nb}', 0, 0, 'C')
             # Firma
             self.set_font('Arial', 'I', 8)
-            self.cell(-10, 10, 'Reporte generado en *MORELLA v1.2* by ', 0, 0, 'R')
+            self.cell(-10, 10, f'Reporte generado en *MORELLA v{mant.SHORT_VERSION}* by ', 0, 0, 'R')
             self.image('../docs/mf_logo.jpg', 190, 274, 8)
 
     # Instantiation of inherited class
@@ -482,7 +481,7 @@ def report_caja_mensual_det(mes, año):
             self.cell(0, 10, 'Página ' + str(self.page_no()) + ' de {nb}', 0, 0, 'C')
             # Firma
             self.set_font('Arial', 'I', 8)
-            self.cell(-10, 10, 'Reporte generado en *MORELLA v1.2* by ', 0, 0, 'R')
+            self.cell(-10, 10, f'Reporte generado en *MORELLA v{mant.SHORT_VERSION}* by ', 0, 0, 'R')
             self.image('../docs/mf_logo.jpg', 190, 274, 8)
 
     # Instantiation of inherited class
@@ -708,7 +707,7 @@ def report_caja_mensual_comp(mes, año):
             #self.set_font('Arial', 'BIU', 8)
             #self.cell(-15, 10, 'MF!', 0, 0, 'R')
             self.set_font('Arial', 'I', 8)
-            self.cell(-10, 10, 'Reporte generado en *MORELLA v1.2* by ', 0, 0, 'R')
+            self.cell(-10, 10, f'Reporte generado en *MORELLA v{mant.SHORT_VERSION}* by ', 0, 0, 'R')
             self.image('../docs/mf_logo.jpg', 190, 274, 8)
 
     # Instantiation of inherited class
@@ -911,7 +910,7 @@ def report_caja_mensual_por_cob(mes, año):
             self.cell(0, 10, 'Página ' + str(self.page_no()) + ' de {nb}', 0, 0, 'C')
             # Firma
             self.set_font('Arial', 'I', 8)
-            self.cell(-10, 10, 'Reporte generado en *MORELLA v1.2* by ', 0, 0, 'R')
+            self.cell(-10, 10, f'Reporte generado en *MORELLA v{mant.SHORT_VERSION}* by ', 0, 0, 'R')
             self.image('../docs/mf_logo.jpg', 190, 274, 8)
 
     # Instantiation of inherited class
@@ -953,7 +952,6 @@ def recibos(facturacion, id_cobrador):
     ############ INICIO DE VARIABLES INDEPENDIENTES ############
     recibos = rend.buscar_operaciones(facturacion, id_cobrador)
     periodo_actual = rend.obtener_periodo()
-    # periodo_anterior = rend.obtener_periodo_anterior(periodo_actual)
     dia = datetime.now().strftime('%d')
     mes = datetime.now().strftime('%m')
     año = datetime.now().strftime('%Y')
@@ -964,8 +962,7 @@ def recibos(facturacion, id_cobrador):
 
         
     ############ INICIO DE FUNCIONES ############
-    def days_between(d1, d2):
-        return abs(d2-d1).days
+    
 
     ############ FIN DE FUNCIONES ############
 
@@ -1004,10 +1001,7 @@ def recibos(facturacion, id_cobrador):
         pant = rend.obtener_panteon(pan)
         nco = rend.obtener_nom_cobrador(cob)
         val_mant = 0
-        fup_sep = str(fup).split("/")
-        fup_date = date(year = int(fup_sep[1]), month = int(fup_sep[0]), day = 1)
-        hoy = datetime.now().date()
-        cuenta = int(days_between(hoy, fup_date)/730)
+        ultimo_pago = f'{ult}{u_a}'
         if nom_alt != None:
             nom = f"[{nom_alt}]"
         if dom_alt != None:
@@ -1017,7 +1011,7 @@ def recibos(facturacion, id_cobrador):
         elif fac == 'nob':
             val_mant = val_mant_nob
         if act == 1:
-            if not ult == periodo_actual and u_a == año and c_f > 0:
+            if ultimo_pago != f'{periodo_actual}{año}' and c_f > 0:
                 añovar = 0
                 if periodo_actual == "Enero - Febrero":
                     añovar = f"{int(datetime.now().strftime('%Y'))+1}"
@@ -1025,7 +1019,7 @@ def recibos(facturacion, id_cobrador):
                     añovar = datetime.now().strftime('%Y')
                 c_f = c_f - 1
                 rend.ingresar_cobro_auto(periodo_actual, id_o, añovar, fecha, c_f)
-            elif not ult == periodo_actual and u_a == año and c_f == 0 and u_r != f"{mes}-{año2c}":
+            elif ultimo_pago != f'{periodo_actual}{año}' and c_f == 0 and u_r != f"{mes}-{año2c}":
                 # Ingresando recibo en la base de datos
                 añovar = 0
                 if periodo_actual == "Enero - Febrero":
@@ -1269,54 +1263,20 @@ def recibos(facturacion, id_cobrador):
                     pdf.cell(190, 13, ' ', 0, 1, 'L')
                 # Progreso
                 print(".", end = "")
-        # Envío de recordatorio vía mail     <---------------------------------- Buscar alternativa, demora mucho.
-        # if mail != None and cob != 6 and mor == 0:
-        #     try:
-        #         email.recordatorio_cobrador(nro, periodo_actual, cod, pan, nco)
-        #     except S|MTPAuthenticationError:
-        #         pass
-        #      except gaierror:
-        #          pass
-        #     except:
-        #        mant.log_error()
-        #        print("")
-        #        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
-        #        print()
-        #        return
-        # Revisión estado de mora
-        if cuenta > 0 and mor == 0:
-            rend.set_moroso(id_o)
-            # Generar reporte de estado de cuenta
-            report_estado_cta_mail(nro, nom, dni, dom, te_1, te_2, mail, c_p, loc, act)
-            # Envío de aviso de mora vía mail
-            try:
-                email.aviso_de_mora(nro)
-            except SMTPAuthenticationError:
-                pass
-            except gaierror:
-                pass
-            except:
-                mant.log_error()
-                print("")
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
-                print()
-                return
     print("\n")
     try:
         if not os.path.isdir(f'../reports/recibos/{nco}'):
             os.mkdir(f'../reports/recibos/{nco}')
-        if not os.path.isdir(f'../reports/recibos/{nco}/{pant}'):
-            os.mkdir(f'../reports/recibos/{nco}/{pant}')
-        pdf.output(f'../reports/recibos/{nco}/{pant}/recibos_{año}-{mes}-{dia}.pdf', 'F')
+        pdf.output(f'../reports/recibos/{nco}/recibos_{año}-{mes}-{dia}.pdf', 'F')
 
         ############ ABRIR REPORT ############
 
         print("Abriendo reporte. Cierre el archivo para continuar...")
-        ruta = f'../reports/recibos/{nco}/{pant}/'
+        ruta = f'../reports/recibos/{nco}/'
         arch = f'recibos_{año}-{mes}-{dia}.pdf'
         os.chdir(ruta)
         os.system(arch)
-        ruta = '../../../../modulos/'
+        ruta = '../../../modulos/'
         os.chdir(ruta)
     except UnboundLocalError:
         print("")
@@ -1359,7 +1319,8 @@ def listado_recibos(facturacion, id_cobrador):
 
         
     ############ INICIO DE FUNCIONES ############
-        
+    def days_between(d1, d2):
+        return abs(d2-d1).days
 
     ############ FIN DE FUNCIONES ############
 
@@ -1410,7 +1371,7 @@ def listado_recibos(facturacion, id_cobrador):
             self.cell(0, 10, 'Página ' + str(self.page_no()) + ' de {nb}', 0, 0, 'C')
             # Firma
             self.set_font('Arial', 'I', 8)
-            self.cell(-10, 10, 'Reporte generado en *MORELLA v1.2* by ', 0, 0, 'R')
+            self.cell(-10, 10, f'Reporte generado en *MORELLA v{mant.SHORT_VERSION}* by ', 0, 0, 'R')
             self.image('../docs/mf_logo.jpg', 190, 274, 8)
 
     # Instantiation of inherited class
@@ -1423,7 +1384,11 @@ def listado_recibos(facturacion, id_cobrador):
         cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
         nro, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = rend.obtener_datos_socio(soc)
         id_c, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
-        panteon = rend.obtener_panteon(pan)
+        fup_sep = str(fup).split("/")
+        fup_date = date(year = int(fup_sep[1]), month = int(fup_sep[0]), day = 1)
+        hoy = datetime.now().date()
+        cuenta = int(days_between(hoy, fup_date)/730)
+        ultimo_pago = f'{ult}{u_a}'
         val_mant = 0
         if nom_alt != None:
             nom = f"[{nom_alt}]"
@@ -1434,7 +1399,8 @@ def listado_recibos(facturacion, id_cobrador):
         elif fac == 'nob':
             val_mant = val_mant_nob
         if act == 1:
-            if not ult == periodo_actual and u_a == año and c_f == 0 and u_r != f"{mes}-{año2c}":
+            # if not ult == periodo_actual and u_a == año and c_f == 0 and u_r != f"{mes}-{año2c}":
+            if ultimo_pago != f'{periodo_actual}{año}' and c_f == 0 and u_r != f"{mes}-{año2c}":
                 counter = counter + 1
                 if ult == periodo_anterior and u_a == año:
                     pdf.set_font('Arial', '', 10)
@@ -1477,7 +1443,39 @@ def listado_recibos(facturacion, id_cobrador):
                     pdf.cell(20, 5, f'{val_mant:.2f}', 0, 1, 'R')
                     imp_acu = imp_acu + float(val_mant)  
                 # Evitar duplicado de recibos
-                rend.evitar_duplicado(mes, año2c, id_o)      
+                rend.evitar_duplicado(mes, año2c, id_o)
+                # Envío de recordatorio vía mail     <---------------------------------- Buscar alternativa, demora mucho.
+                # if mail != None and cob != 6 and mor == 0:
+                #     try:
+                #         email.recordatorio_cobrador(nro, periodo_actual, cod, pan, nco)
+                    # except SMTPAuthenticationError:
+                #         pass
+                #      except gaierror:
+                #          pass
+                #     except:
+                #        mant.log_error()
+                #        print("")
+                #        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                #        print()
+                #        return
+                # Revisión estado de mora
+                if cuenta > 0 and mor == 0:
+                    rend.set_moroso(id_o)
+                    # Generar reporte de estado de cuenta
+                    report_estado_cta_mail(nro, nom, dni, dom, te_1, te_2, mail, c_p, loc, act)
+                    # Envío de aviso de mora vía mail
+                    try:
+                        email.aviso_de_mora(nro)
+                    except SMTPAuthenticationError:
+                        pass
+                    except gaierror:
+                        pass
+                    except:
+                        mant.log_error()
+                        print("")
+                        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                        print()
+                        return
     pdf.ln(2)
     pdf.cell(91, 5, '', 0, 0, 'L')
     pdf.cell(33, 5, 'Cantidad de recibos:', 'LTB', 0, 'L')
@@ -1486,16 +1484,16 @@ def listado_recibos(facturacion, id_cobrador):
     pdf.cell(33, 5, 'Importe acumulado:', 'LTB', 0, 'L')
     pdf.cell(23, 5, f'$ {imp_acu:.2f}', 'RTB', 0, 'R')
     try:
-        pdf.output(f'../reports/recibos/{nco}/{panteon}/listado_recibos_{año}-{mes}-{dia}.pdf', 'F')
+        pdf.output(f'../reports/recibos/{nco}/listado_recibos_{año}-{mes}-{dia}.pdf', 'F')
 
     ############ ABRIR REPORT ############
 
         print("Abriendo reporte. Cierre el archivo para continuar...")
-        ruta = f'../reports/recibos/{nco}/{panteon}/'
+        ruta = f'../reports/recibos/{nco}/'
         arch = f'listado_recibos_{año}-{mes}-{dia}.pdf'
         os.chdir(ruta)
         os.system(arch)
-        ruta = '../../../../modulos/'
+        ruta = '../../../modulos/'
         os.chdir(ruta)
     except UnboundLocalError:
         print("")
@@ -1840,7 +1838,7 @@ def listado_recibos_deb_aut(facturacion):
             self.cell(0, 10, 'Página ' + str(self.page_no()) + ' de {nb}', 0, 0, 'C')
             # Firma
             self.set_font('Arial', 'I', 8)
-            self.cell(-10, 10, 'Reporte generado en *MORELLA v1.2* by ', 0, 0, 'R')
+            self.cell(-10, 10, f'Reporte generado en *MORELLA v{mant.SHORT_VERSION}* by ', 0, 0, 'R')
             self.image('../docs/mf_logo.jpg', 190, 274, 8)
 
     # Instantiation of inherited class
@@ -1957,6 +1955,8 @@ def listado_recibos_deb_aut(facturacion):
         print()
         return
     try:
+        if not os.path.isdir(f'../reports/recibos/{nco}'):
+            os.mkdir(f'../reports/recibos/{nco}')
         if not os.path.isfile(f'../reports/recibos/{nco}/listado_recibos_{año}-{mes}-{dia}.pdf'):
             pdf.output(f'../reports/recibos/{nco}/listado_recibos_{año}-{mes}-{dia}.pdf', 'F')
         else:
@@ -2435,7 +2435,7 @@ def listado_recibos_documentos(lista_recibos):
             self.cell(0, 10, 'Página ' + str(self.page_no()) + ' de {nb}', 0, 0, 'C')
             # Firma
             self.set_font('Arial', 'I', 8)
-            self.cell(-10, 10, 'Reporte generado en *MORELLA v1.2* by ', 0, 0, 'R')
+            self.cell(-10, 10, f'Reporte generado en *MORELLA v{mant.SHORT_VERSION}* by ', 0, 0, 'R')
             self.image('../docs/mf_logo.jpg', 190, 274, 8)
 
     # Instantiation of inherited class
@@ -3005,7 +3005,7 @@ def report_estado_cta(nro_socio, nombre, dni, fec_alta, domicilio, te_1, te_2, m
             self.cell(0, 10, 'Página ' + str(self.page_no()) + ' de {nb}', 0, 0, 'C')
             # Firma
             self.set_font('Arial', 'I', 8)
-            self.cell(-10, 10, 'Reporte generado en *MORELLA v1.2* by ', 0, 0, 'R')
+            self.cell(-10, 10, f'Reporte generado en *MORELLA v{mant.SHORT_VERSION}* by ', 0, 0, 'R')
             self.image('../docs/mf_logo.jpg', 190, 274, 8)
 
     # Instantiation of inherited class
@@ -3206,7 +3206,7 @@ def report_estado_cta_mail(nro_socio, nombre, dni, domicilio, te_1, te_2, mail, 
             self.cell(0, 10, 'Página ' + str(self.page_no()) + ' de {nb}', 0, 0, 'C')
             # Firma
             self.set_font('Arial', 'I', 8)
-            self.cell(-10, 10, 'Reporte generado en *MORELLA v1.2* by ', 0, 0, 'R')
+            self.cell(-10, 10, f'Reporte generado en *MORELLA v{mant.SHORT_VERSION}* by ', 0, 0, 'R')
             self.image('../docs/mf_logo.jpg', 190, 274, 8)
 
     # Instantiation of inherited class
@@ -3379,7 +3379,7 @@ def report_morosos_det():
             self.cell(0, 10, 'Página ' + str(self.page_no()) + ' de {nb}', 0, 0, 'C')
             # Firma
             self.set_font('Arial', 'I', 8)
-            self.cell(-10, 10, 'Reporte generado en *MORELLA v1.2* by ', 0, 0, 'R')
+            self.cell(-10, 10, f'Reporte generado en *MORELLA v{mant.SHORT_VERSION}* by ', 0, 0, 'R')
             self.image('../docs/mf_logo.jpg', 190, 274, 8)
 
     # Instantiation of inherited class
@@ -3630,7 +3630,7 @@ def report_morosos_comp():
             self.cell(0, 10, 'Página ' + str(self.page_no()) + ' de {nb}', 0, 0, 'C')
             # Firma
             self.set_font('Arial', 'I', 8)
-            self.cell(-10, 10, 'Reporte generado en *MORELLA v1.2* by ', 0, 0, 'R')
+            self.cell(-10, 10, f'Reporte generado en *MORELLA v{mant.SHORT_VERSION}* by ', 0, 0, 'R')
             self.image('../docs/mf_logo.jpg', 190, 274, 8)
 
     # Instantiation of inherited class
@@ -4001,7 +4001,7 @@ def report_cobradores():
             self.cell(0, 10, 'Página ' + str(self.page_no()) + ' de {nb}', 0, 0, 'C')
             # Firma
             self.set_font('Arial', 'I', 8)
-            self.cell(-10, 10, 'Reporte generado en *MORELLA v1.2* by ', 0, 0, 'R')
+            self.cell(-10, 10, f'Reporte generado en *MORELLA v{mant.SHORT_VERSION}* by ', 0, 0, 'R')
             self.image('../docs/mf_logo.jpg', 190, 274, 8)
 
     # Instantiation of inherited class
@@ -4105,7 +4105,7 @@ def report_panteones():
             self.cell(0, 10, 'Página ' + str(self.page_no()) + ' de {nb}', 0, 0, 'C')
             # Firma
             self.set_font('Arial', 'I', 8)
-            self.cell(-10, 10, 'Reporte generado en *MORELLA v1.2* by ', 0, 0, 'R')
+            self.cell(-10, 10, f'Reporte generado en *MORELLA v{mant.SHORT_VERSION}* by ', 0, 0, 'R')
             self.image('../docs/mf_logo.jpg', 190, 274, 8)
 
     # Instantiation of inherited class

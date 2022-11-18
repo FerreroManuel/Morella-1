@@ -1,4 +1,5 @@
-VERSION = '1.2.1.2208'
+VERSION = '1.2.2.2209'
+SHORT_VERSION = VERSION[:3]
 
 import funciones_rendiciones as rend
 import funciones_cuentas as ctas
@@ -353,9 +354,9 @@ def cambio_precio_mant_porcentaje(porcentaje):
     for i in datos:
         i_d, cat, val_mant_bic, val_mant_nob = i
         n_vmb = val_mant_bic*pcnt
-        n_vmb_t = float(truncate(n_vmb, -1))
+        n_vmb_t = float(truncate(n_vmb, -2))
         n_vmn = val_mant_nob*pcnt
-        n_vmn_t = float(truncate(n_vmn, -1))
+        n_vmn_t = float(truncate(n_vmn, -2))
         conn = sql.connect(database)
         cursor = conn.cursor()
         instruccion = f"UPDATE cat_nichos SET valor_mant_bicon = {n_vmb_t}, valor_mant_nob = {n_vmn_t} WHERE id = {i_d}"
