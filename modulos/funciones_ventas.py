@@ -455,6 +455,7 @@ def venta_nicho(idu):
             return
         print()
         id_op, soc, nic, fac, cob, tar, rut, ult, u_a, fec, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = rend.obtener_datos_op(id_op)
+        n_so, nom_socio, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = ctas.obtener_datos_socio(id_socio)
         cod_nic, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
         i_d, nom_precio, pre, ant, cuo = obtener_precio_venta(cat, pis, fil)
         # msj = ""
