@@ -688,7 +688,7 @@ def obtener_op_morosos():
     return datos
 
 
-def buscar_op_morosos():                    
+def buscar_op_morosos():
     datos = obtener_op_morosos()
     print("OPERACIONES MOROSAS:")
     print("-".rjust(157, '-'))
@@ -764,7 +764,6 @@ def buscar_estado_cta(nro_socio):
             if not op_cob:
                 op_cob = " "
             print("{:<13} {:<11} {:<20} {:<20} {:<10} {:<33} {:<33} {:<8}".format(f'{i_d}'.rjust(7, '0'), f'{nic}'.rjust(10, '0'), f'$ {deuda:.2f}', cob, f'   {mor}', nom_alt[0:33], dom_alt[0:33], str(op_cob).rjust(8, ' ')))
-        print("")
     if len(solicitudes) != 0:
         print("-----------------------------------------------------------------------------------------------------------------------------------------------------------")
         print("SOLICITUDES PREVENIR:")
@@ -776,21 +775,25 @@ def buscar_estado_cta(nro_socio):
         print("-----------------------------------------------------------------------------------------------------------------------------------------------------------")
         print(f"TOTAL DEUDA ASOCIADO: $ {deuda_total:.2f}-----".rjust(155, '-'))
         print("")
-    
-    while msj == '':
-        msj = input("¿Desea generar un reporte? (S/N) ")
-        if msj == 'S' or msj == 's' or msj == 'Si' or msj == 'SI' or msj == 'sI' or msj == 'si':
-            print("")
-            print("Generando reporte...")
-            print("")
-            rep.report_estado_cta(nro_socio, nom, dni, fac, dom, te_1, te_2, mail, c_p, loc, act)
-        elif msj == 'N' or msj == 'n' or msj == 'No' or msj == 'NO' or msj == 'nO' or msj == 'no':
-            print("")
-        else:
-            print("")
-            print("Debe ingresar S para confirmar o N para cancelar.")
-            print("")
-            msj = ''
+    if len(operaciones) == 0 and len(solicitudes) == 0:
+        print()
+        print("EL ASOCIADO NO POSEE OPERACIONES O SOLICITUDES A SU NOMBRE...")
+        print()
+    else:
+        while msj == '':
+            msj = input("¿Desea generar un reporte? (S/N) ")
+            if msj == 'S' or msj == 's' or msj == 'Si' or msj == 'SI' or msj == 'sI' or msj == 'si':
+                print("")
+                print("Generando reporte...")
+                print("")
+                rep.report_estado_cta(nro_socio, nom, dni, fac, dom, te_1, te_2, mail, c_p, loc, act)   # Cuando se active prevenir, tener en cuenta los argumentos
+            elif msj == 'N' or msj == 'n' or msj == 'No' or msj == 'NO' or msj == 'nO' or msj == 'no':
+                print("")
+            else:
+                print("")
+                print("Debe ingresar S para confirmar o N para cancelar.")
+                print("")
+                msj = ''
 
 
 def obtener_datos_socio(nro_socio):
