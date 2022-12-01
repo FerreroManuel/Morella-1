@@ -3047,7 +3047,10 @@ def report_estado_cta(nro_socio, nombre, dni, facturacion, domicilio, te_1, te_2
         pdf.set_font('Arial', 'B', 10)
         pdf.cell(34, 5, 'Última cuota paga: ', 0, 0, 'L')
         pdf.set_font('Arial', '', 10)
-        pdf.cell(50, 5, f'{ult} - {u_a}', 0, 0, 'L')
+        if ult == 'Diciembre - Enero':
+            pdf.cell(50, 5, f'{ult} - {u_a}/{int(str(u_a)[-2:])+1}', 0, 0, 'L')
+        else:
+            pdf.cell(50, 5, f'{ult} - {u_a}', 0, 0, 'L')
         pdf.set_font('Arial', 'B', 10)
         pdf.cell(19, 5, 'Cobrador: ', 0, 0, 'L')
         pdf.set_font('Arial', '', 10)
@@ -3119,7 +3122,10 @@ def report_estado_cta(nro_socio, nombre, dni, facturacion, domicilio, te_1, te_2
             pdf.cell(1, 5, '', 0, 0, 'L')
             pdf.cell(11, 5, f'{ctas.buscar_nicho_por_op(ope)}'.rjust(10, '0'), 0, 0, 'L')
             pdf.cell(12, 5, '', 0, 0, 'L')
-            pdf.cell(49, 5, f'{per} - {año}', 0, 0, 'L')
+            if per == 'Diciembre - Enero':
+                pdf.cell(49, 5, f'{per} - {año}{int(str(año)[-2:])+1}', 0, 0, 'L')
+            else:
+                pdf.cell(49, 5, f'{per} - {año}', 0, 0, 'L')
             pdf.cell(1, 5, '', 0, 0, 'L')
             pdf.cell(2, 5, '$', 0, 0, 'R')
             pdf.cell(23, 5, f'{float(val):.2f}', 0, 1, 'R')
@@ -3268,7 +3274,10 @@ def report_estado_cta_mail(nro_socio, nombre, dni, facturacion, domicilio, te_1,
         pdf.set_font('Arial', 'B', 10)
         pdf.cell(34, 5, 'Última cuota paga: ', 0, 0, 'L')
         pdf.set_font('Arial', '', 10)
-        pdf.cell(50, 5, f'{ult} - {u_a}', 0, 0, 'L')
+        if ult == 'Diciembre - Enero':
+            pdf.cell(50, 5, f'{ult} - {u_a}/{int(str(u_a)[-2:])+1}', 0, 0, 'L')
+        else:
+            pdf.cell(50, 5, f'{ult} - {u_a}', 0, 0, 'L')
         pdf.set_font('Arial', 'B', 10)
         pdf.cell(19, 5, 'Cobrador: ', 0, 0, 'L')
         pdf.set_font('Arial', '', 10)
@@ -3340,7 +3349,10 @@ def report_estado_cta_mail(nro_socio, nombre, dni, facturacion, domicilio, te_1,
             pdf.cell(1, 5, '', 0, 0, 'L')
             pdf.cell(11, 5, f'{ctas.buscar_nicho_por_op(ope)}'.rjust(10, '0'), 0, 0, 'L')
             pdf.cell(12, 5, '', 0, 0, 'L')
-            pdf.cell(49, 5, f'{per} - {año}', 0, 0, 'L')
+            if per == 'Diciembre - Enero':
+                pdf.cell(49, 5, f'{per} - {año}{int(str(año)[-2:])+1}', 0, 0, 'L')
+            else:
+                pdf.cell(49, 5, f'{per} - {año}', 0, 0, 'L')
             pdf.cell(1, 5, '', 0, 0, 'L')
             pdf.cell(2, 5, '$', 0, 0, 'R')
             pdf.cell(23, 5, f'{float(val):.2f}', 0, 1, 'R')
@@ -4292,7 +4304,10 @@ def report_ult_recibo(cobrador: int, facturacion: str):
         nro_soc, nombre, nombre_alt, nro_rec, periodo, año, val_mant_bic, val_mant_nob = recibo
         if nombre_alt:
             nombre = nombre_alt
-        periodo_recibo = f"{periodo} {año}"
+        if periodo == 'Diciembre - Enero':
+            periodo_recibo = f"{periodo} {año}/{int(str(año)[-2:])+1}"
+        else:
+            periodo_recibo = f"{periodo} {año}"
         if facturacion == 'bicon':
             importe = val_mant_bic
         elif facturacion == 'nob':
