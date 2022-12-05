@@ -975,22 +975,22 @@ def recibos(facturacion, id_cobrador, recibos):
     for rec in recibos:
         # Variables individuales
         id_o, soc, nic, fac, cob, tar, rut, ult, u_a, fup, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = rec
-        cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
         nro, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = rend.obtener_datos_socio(soc)
-        id_c, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
-        pant = rend.obtener_panteon(pan)
-        nco = rend.obtener_nom_cobrador(cob)
-        val_mant = 0
-        ultimo_pago = f'{ult}{u_a}'
-        if nom_alt != None:
-            nom = f"[{nom_alt}]"
-        if dom_alt != None:
-            dom = f"[{dom_alt}]"
-        if fac == 'bicon':
-            val_mant = val_mant_bic
-        elif fac == 'nob':
-            val_mant = val_mant_nob
         if act == 1:
+            cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
+            id_c, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
+            pant = rend.obtener_panteon(pan)
+            nco = rend.obtener_nom_cobrador(cob)
+            val_mant = 0
+            ultimo_pago = f'{ult}{u_a}'
+            if nom_alt != None:
+                nom = f"[{nom_alt}]"
+            if dom_alt != None:
+                dom = f"[{dom_alt}]"
+            if fac == 'bicon':
+                val_mant = val_mant_bic
+            elif fac == 'nob':
+                val_mant = val_mant_nob
             if ultimo_pago != f'{periodo_actual}{año}' and c_f > 0:
                 añovar = 0
                 if periodo_actual == "Enero - Febrero":
@@ -1362,24 +1362,24 @@ def listado_recibos(facturacion, id_cobrador, recibos):
     pdf.add_page()
     for rec in recibos:
         id_o, soc, nic, fac, cob, tar, rut, ult, u_a, fup, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = rec
-        cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
         nro, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = rend.obtener_datos_socio(soc)
-        id_c, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
-        fup_sep = str(fup).split("/")
-        fup_date = date(year = int(fup_sep[1]), month = int(fup_sep[0]), day = 1)
-        hoy = datetime.now().date()
-        cuenta = int(days_between(hoy, fup_date)/730)
-        ultimo_pago = f'{ult}{u_a}'
-        val_mant = 0
-        if nom_alt != None:
-            nom = f"[{nom_alt}]"
-        if dom_alt != None:
-            dom = f"[{dom_alt}]"
-        if fac == 'bicon':
-            val_mant = val_mant_bic
-        elif fac == 'nob':
-            val_mant = val_mant_nob
         if act == 1:
+            cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
+            id_c, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
+            fup_sep = str(fup).split("/")
+            fup_date = date(year = int(fup_sep[1]), month = int(fup_sep[0]), day = 1)
+            hoy = datetime.now().date()
+            cuenta = int(days_between(hoy, fup_date)/730)
+            ultimo_pago = f'{ult}{u_a}'
+            val_mant = 0
+            if nom_alt != None:
+                nom = f"[{nom_alt}]"
+            if dom_alt != None:
+                dom = f"[{dom_alt}]"
+            if fac == 'bicon':
+                val_mant = val_mant_bic
+            elif fac == 'nob':
+                val_mant = val_mant_nob
             if ultimo_pago != f'{periodo_actual}{año}' and c_f <= 0 and u_r != f"{mes}-{año2c}":
                 counter = counter + 1
                 q_rec_impagos = len(rend.obtener_recibos_impagos_op(id_o))
