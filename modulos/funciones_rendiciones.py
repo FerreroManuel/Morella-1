@@ -1190,7 +1190,7 @@ def menu_cobradores():
 def buscar_operaciones(facturacion, id_cobrador):
     conn = sql.connect(database)
     cursor = conn.cursor()
-    instruccion = f"SELECT * FROM operaciones WHERE facturacion = '{facturacion}' AND cobrador = '{id_cobrador}' ORDER BY ruta"
+    instruccion = f"SELECT * FROM operaciones WHERE facturacion = '{facturacion}' AND cobrador = '{id_cobrador}' AND paga = 1 ORDER BY ruta"
     cursor.execute(instruccion)
     recibos = cursor.fetchall()
     conn.commit()
