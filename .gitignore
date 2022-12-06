@@ -1,7 +1,10 @@
 # Archivo que contiene la información sobre el acceso a la base de datos
 database.ini
+database_prueba.ini
 
 # Archivos no relacionados al funcionamiento del sistema
+*.txt
+
 -Planificación
 
 databases/*.sql
