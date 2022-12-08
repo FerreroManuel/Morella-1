@@ -14,6 +14,7 @@ import psycopg2.errors
 from openpyxl import Workbook
 from smtplib import SMTPAuthenticationError
 from socket import gaierror
+from pprint import pprint
 
 ############ FIN DE IMPORTACIONES ############
 
@@ -53,6 +54,7 @@ def report_caja_diaria(s_final):
     saldo_final = s_final
     categ_ing = caja.obtener_categ_ing()
     categ_egr = caja.obtener_categ_egr()
+    errores = {}
 
     ############ FIN DE VARIABLES INDEPENDIENTES ############
     
@@ -285,6 +287,7 @@ def report_caja_mensual_det(mes, año):
     total_egr = 0
     categ_ing = caja.obtener_categ_ing()
     categ_egr = caja.obtener_categ_egr()
+    errores = {}
 
     ############ FIN DE VARIABLES INDEPENDIENTES ############
     
@@ -529,6 +532,7 @@ def report_caja_mensual_comp(mes, año):
     total_egr = 0
     categ_ing = caja.obtener_categ_ing()
     categ_egr = caja.obtener_categ_egr()
+    errores = {}
 
     ############ FIN DE VARIABLES INDEPENDIENTES ############
     
@@ -745,6 +749,7 @@ def report_caja_mensual_por_cob(mes, año):
     año = f'{año}'.rjust(3, '0').rjust(4, '2')
     cobradores = caja.obtener_cobrador()
     counter = 0
+    errores = {}
 
     ############ FIN DE VARIABLES INDEPENDIENTES ############
     
@@ -937,6 +942,7 @@ def recibos(facturacion, id_cobrador, recibos):
     año2c = datetime.now().strftime('%y')
     fecha = f"{mes}/{año}"
     counter = 0
+    errores = {}
 
     ############ FIN DE VARIABLES INDEPENDIENTES ############
 
@@ -1252,6 +1258,13 @@ def recibos(facturacion, id_cobrador, recibos):
 
         ############ ABRIR REPORT ############
 
+        if errores:
+            print()
+            print()
+            print('ATENCIÓN! Durante la emisión de recibos se produjeron los siguientes errores:')
+            pprint(errores)
+            print()
+            print()
         print("Abriendo recibos...")
         ruta = f'../reports/recibos/{nco}/'
         arch = f'recibos_{año}-{mes}-{dia}.pdf'
@@ -1295,6 +1308,7 @@ def listado_recibos(facturacion, id_cobrador, recibos):
     imp_acu = float(0)
     nco = rend.obtener_nom_cobrador(id_cobrador)
     counter = 0
+    errores = {}
 
     ############ FIN DE VARIABLES INDEPENDIENTES ############
 
@@ -1497,7 +1511,8 @@ def recibos_deb_aut(facturacion, recibos):
     año = datetime.now().strftime('%Y')
     año2c = datetime.now().strftime('%y')
     fecha = f"{mes}/{año}"
-    counter = 0    
+    counter = 0
+    errores = {}
 
     ############ FIN DE VARIABLES INDEPENDIENTES ############
 
@@ -1714,6 +1729,7 @@ def listado_recibos_deb_aut(facturacion, recibos):
     val_total = 0
     nro_comercio_fiserv = "25476675"
     filler = " "
+    errores = {}
 
     ############ FIN DE VARIABLES INDEPENDIENTES ############
 
@@ -1975,6 +1991,7 @@ def recibos_documentos():
     año = datetime.now().strftime('%Y')
     año2c = datetime.now().strftime('%y')
     lista_recibos = []
+    errores = {}
 
     ############ FIN DE VARIABLES INDEPENDIENTES ############
 
@@ -2341,6 +2358,7 @@ def listado_recibos_documentos(lista_recibos):
     hora = datetime.now().strftime('%H:%M')
     imp_acu = float(0)
     counter = 0
+    errores = {}
 
     ############ FIN DE VARIABLES INDEPENDIENTES ############
 
@@ -2520,6 +2538,7 @@ def reimpresion_recibo(ndr):
     id_c, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
     pant = rend.obtener_panteon(pan)
     nco = rend.obtener_nom_cobrador(cob)
+    errores = {}
     if nom_alt != None:
         nom = f"[{nom_alt}]"
     if dom_alt != None:
@@ -2788,6 +2807,7 @@ def recibo_adelanto(ndr, cobrador, periodo_h, año_h, valor_total):
     id_c, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
     panteon = rend.obtener_panteon(pan)
     nco = rend.obtener_nom_cobrador(cobrador)
+    errores = {}
     if nom_alt != None:
         nom = f"[{nom_alt}]"
     if dom_alt != None:
@@ -2952,6 +2972,7 @@ def report_estado_cta(nro_socio, nombre, dni, facturacion, domicilio, te_1, te_2
     ############ INICIO DE VARIABLES INDEPENDIENTES ############
     fecha = caja.obtener_fecha()
     hora = datetime.now().strftime('%H:%M')
+    errores = {}
     if act == 1:
         estado = 'ACTIVO'
     elif act == 0:
@@ -3182,6 +3203,7 @@ def report_estado_cta_mail(nro_socio, nombre, dni, facturacion, domicilio, te_1,
     ############ INICIO DE VARIABLES INDEPENDIENTES ############
     fecha = caja.obtener_fecha()
     hora = datetime.now().strftime('%H:%M')
+    errores = {}
     if act == 1:
         estado = 'ACTIVO'
     elif act == 0:
@@ -3401,6 +3423,7 @@ def report_morosos_det():
     lista_morosos = []
     deuda_total_morosos = 0
     counter = 0
+    errores = {}
 
     ############ FIN DE VARIABLES INDEPENDIENTES ############
 
@@ -3609,6 +3632,7 @@ def report_morosos_comp():
     lista_morosos = []
     deuda_total_morosos = 0
     counter = 0
+    errores = {}
 
     ############ FIN DE VARIABLES INDEPENDIENTES ############
 
@@ -3770,6 +3794,7 @@ def report_excel_socios():
     ############ INICIO DE VARIABLES INDEPENDIENTES ############
     fecha = datetime.today().strftime("%Y-%m-%d")
     counter = 0
+    errores = {}
 
     ############ FIN DE VARIABLES INDEPENDIENTES ############
 
@@ -3852,6 +3877,7 @@ def report_excel_modif_caja():
     ############ INICIO DE VARIABLES INDEPENDIENTES ############
     fecha = datetime.today().strftime("%Y-%m-%d")
     counter = 0
+    errores = {}
 
     ############ FIN DE VARIABLES INDEPENDIENTES ############
 
@@ -3930,6 +3956,7 @@ def report_deb_aut(mes, año):
     ############ INICIO DE VARIABLES INDEPENDIENTES ############
     fecha_hoy = datetime.today().strftime("%Y-%m-%d")
     counter = 0
+    errores = {}
 
     ############ FIN DE VARIABLES INDEPENDIENTES ############
 
@@ -4012,6 +4039,7 @@ def report_cobradores():
     fecha = caja.obtener_fecha()
     hora = datetime.now().strftime('%H:%M')
     counter = 0
+    errores = {}
 
     ############ FIN DE VARIABLES INDEPENDIENTES ############
 
@@ -4116,6 +4144,7 @@ def report_panteones():
     fecha = caja.obtener_fecha()
     hora = datetime.now().strftime('%H:%M')
     counter = 0
+    errores = {}
 
     ############ FIN DE VARIABLES INDEPENDIENTES ############
 
@@ -4226,6 +4255,7 @@ def report_ult_recibo(cobrador: int, facturacion: str):
     """
     ############ INICIO DE VARIABLES INDEPENDIENTES ############
     counter = 0
+    errores = {}
     n_cob = rend.obtener_nom_cobrador(cobrador)
     title = f"Últimos recibos de {n_cob}"
     if len(title) > 31:
