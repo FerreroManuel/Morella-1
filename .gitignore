@@ -34,6 +34,7 @@ PRIVILEGIOS.docx
 prueba.html
 QRCode.png
 setup.py
+setup_py2exe.py
 
 # Logs
 *.log
@@ -43,8 +44,9 @@ __pycache__
 *.py[cod] 
 *$py.class
 
-# Distribution / packaging 
+# Distribution / packaging
 .Python build/ 
+build/
 develop-eggs/ 
 dist/ 
 downloads/ 
