@@ -1,5 +1,6 @@
-VERSION = '1.3.3.2210'
+VERSION = '1.3.4.2212'
 SHORT_VERSION = VERSION[:3]
+TYPE_VERSION = 'RC'
 
 import funciones_rendiciones as rend
 import funciones_cuentas as ctas

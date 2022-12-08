@@ -1506,8 +1506,17 @@ def ver_operacion():
     #     print()
     #     return
     id_soc, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = ctas.obtener_datos_socio(nro_soc)
-    cod_nicho, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(cod_nic)
-    panteon = rend.obtener_panteon(pan)
+    try:
+        cod_nicho, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(cod_nic)
+        panteon = rend.obtener_panteon(pan)
+    except UnboundLocalError:
+        cod_nic = 'n/d'
+    except:
+        mant.log_error()
+        print("")
+        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        print()
+        return
     if paga == 1:
         pag = ''
     elif paga == 0:
@@ -1571,10 +1580,12 @@ def ver_operacion():
     if dom_alt != None:
         print(f"    DOMICILIO ALTERNATIVO: {dom_alt}")
         print()
-    print()
-    print()
-    print(f"    NICHO: {cod_nic}    PANTEÓN: {panteon}  PISO: {str(pis).rjust(2, '0')}  FILA: {str(fil).rjust(2, '0')}  NICHO: {str(num).rjust(4, '0')}")
-    print()    
+    if cod_nic != 'n/d':
+        print(f"    NICHO: {cod_nic}    PANTEÓN: {panteon}  PISO: {str(pis).rjust(2, '0')}  FILA: {str(fil).rjust(2, '0')}  NICHO: {str(num).rjust(4, '0')}")
+        print()
+    else:
+        print(f"    NICHO: La operación no tiene nicho asociado")
+        print()
     print(f"    COBRADOR: {cobrador}    -   RUTA: {rut}")
     print()
     # if dat_comp != None:

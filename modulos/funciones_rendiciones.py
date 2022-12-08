@@ -218,7 +218,22 @@ def ingresar_cobro(idu):
                 print()
                 return
         id_op, soc, nic, fac, cob, tar, rut, ult, u_a, fec, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = obtener_datos_op(ope)
-        cod, pan, pis, fil, num, cat, ocu, fall = obtener_datos_nicho(nic)
+        try:
+            cod, pan, pis, fil, num, cat, ocu, fall = obtener_datos_nicho(nic)
+        except UnboundLocalError:
+            print("         ERROR. La operación no tiene nicho asociado.")
+            print()
+            return
+        except sql.errors.SyntaxError:
+            print("         ERROR. La operación no tiene nicho asociado.")
+            print()
+            return
+        except:
+            mant.log_error()
+            print("")
+            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            print()
+            return
         id_cat, cat, val_mant_bic, val_mant_nob = obtener_categoria(cat)
         if fac == 'bicon':
             val = val_mant_bic
@@ -663,7 +678,22 @@ def ingresar_adelantos(idu):
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         print()
         return
-    cod, pan, pis, fil, num, cat, ocu, fall = obtener_datos_nicho(nic)
+    try:
+        cod, pan, pis, fil, num, cat, ocu, fall = obtener_datos_nicho(nic)
+    except UnboundLocalError:
+        print("         ERROR. La operación no tiene nicho asociado.")
+        print()
+        return
+    except sql.errors.SyntaxError:
+        print("         ERROR. La operación no tiene nicho asociado.")
+        print()
+        return
+    except:
+        mant.log_error()
+        print("")
+        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        print()
+        return
     i_d, cat, val_mant_bic, val_mant_nob = obtener_categoria(cat)
     rec_impagos = obtener_recibos_impagos_op(oper)
     docs_imp = 0
@@ -902,7 +932,22 @@ def registrar_debito_automatico(idu):
             print()
             return
         id_op, soc, nic, fac, cob, tar, rut, ult, u_a, fec, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = obtener_datos_op(ope)
-        cod, pan, pis, fil, num, cat, ocu, fall = obtener_datos_nicho(nic)
+        try:
+            cod, pan, pis, fil, num, cat, ocu, fall = obtener_datos_nicho(nic)
+        except UnboundLocalError:
+            print("         ERROR. La operación no tiene nicho asociado.")
+            print()
+            return
+        except sql.errors.SyntaxError:
+            print("         ERROR. La operación no tiene nicho asociado.")
+            print()
+            return
+        except:
+            mant.log_error()
+            print("")
+            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            print()
+            return
         id_cat, cat, val_mant_bic, val_mant_nob = obtener_categoria(cat)
         if fac == 'bicon':
             val = val_mant_bic

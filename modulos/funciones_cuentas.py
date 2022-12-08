@@ -763,6 +763,8 @@ def buscar_estado_cta(nro_socio):
                 dom_alt = " "
             if not op_cob:
                 op_cob = " "
+            if nic == None:
+                nic = '----------'
             print("{:<13} {:<11} {:<20} {:<20} {:<10} {:<33} {:<33} {:<8}".format(f'{i_d}'.rjust(7, '0'), f'{nic}'.rjust(10, '0'), f'$ {deuda:.2f}', cob, f'   {mor}', nom_alt[0:33], dom_alt[0:33], str(op_cob).rjust(8, ' ')))
     if len(solicitudes) != 0:
         print("-----------------------------------------------------------------------------------------------------------------------------------------------------------")
@@ -819,7 +821,16 @@ def deuda_por_op(id_operacion):
     for d in datos:
         nro, ope, per, año, pag = d
         i_d, soc, nic, fac, cob, tar, rut, ult, u_a, fec, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = rend.obtener_datos_op(ope)
-        cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
+        try:
+            cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
+        except UnboundLocalError:
+            return deuda + deuda_vieja_por_op(id_operacion)
+        except:
+            mant.log_error()
+            print("")
+            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            print()
+            return
         i_d, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
         if fac == 'bicon':
             val = val_mant_bic
@@ -833,7 +844,16 @@ def deuda_por_op(id_operacion):
 
 def deuda_vieja_por_op(id_operacion):
     i_d, soc, nic, fac, cob, tar, rut, ult, u_a, fec, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = rend.obtener_datos_op(id_operacion)
-    cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
+    try:
+        cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
+    except UnboundLocalError:
+        return 0
+    except:
+        mant.log_error()
+        print("")
+        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        print()
+        return
     i_d, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
     if fac == 'bicon':
         val = val_mant_bic

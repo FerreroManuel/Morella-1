@@ -257,6 +257,13 @@ def report_caja_diaria(s_final):
 
     ############ ABRIR REPORT ############
 
+    if errores:
+        print('\n\n\n\n')
+        print('     ATENCIÓN! Durante la emisión del reporte se produjeron los siguientes errores:')
+        print()
+        pprint(errores)
+        print('\n\n\n\n')
+
     print("Abriendo reporte. Luego de cerrarlo presione enter para continuar...")
     ruta = f'../reports/caja/diaria'
     arch = f'caja_diaria-{str(contador).rjust(6, "0")}.pdf'
@@ -503,6 +510,13 @@ def report_caja_mensual_det(mes, año):
 
     ############ ABRIR REPORT ############
 
+    if errores:
+        print('\n\n\n\n')
+        print('     ATENCIÓN! Durante la emisión del reporte se produjeron los siguientes errores:')
+        print()
+        pprint(errores)
+        print('\n\n\n\n')
+
     print("Abriendo reporte. Cierre el archivo para continuar...")
     ruta = f'../reports/caja/mensual/detallada/'
     arch = f'caja_{str.lower(string_mes)}-{año}.pdf'
@@ -721,6 +735,13 @@ def report_caja_mensual_comp(mes, año):
 
     ############ ABRIR REPORT ############
 
+    if errores:
+        print('\n\n\n\n')
+        print('     ATENCIÓN! Durante la emisión del reporte se produjeron los siguientes errores:')
+        print()
+        pprint(errores)
+        print('\n\n\n\n')
+
     print("Abriendo reporte. Cierre el archivo para continuar...")
     ruta = f'../reports/caja/mensual/comprimida/'
     arch = f'caja_{str.lower(string_mes)}-{año}-COMP.pdf'
@@ -915,6 +936,13 @@ def report_caja_mensual_por_cob(mes, año):
 
     ############ ABRIR REPORT ############
 
+    if errores:
+        print('\n\n\n\n')
+        print('     ATENCIÓN! Durante la emisión del reporte se produjeron los siguientes errores:')
+        print()
+        pprint(errores)
+        print('\n\n\n\n')
+
     print("Abriendo reporte. Cierre el archivo para continuar...")
     ruta = f'../reports/caja/mensual/por_cobrador/'
     arch = f'caja_{str.lower(string_mes)}-{año}-por_cobrador.pdf'
@@ -983,7 +1011,14 @@ def recibos(facturacion, id_cobrador, recibos):
         id_o, soc, nic, fac, cob, tar, rut, ult, u_a, fup, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = rec
         nro, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = rend.obtener_datos_socio(soc)
         if act == 1:
-            cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
+            try:
+                cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
+            except UnboundLocalError:
+                if 'Operaciones sin nicho' not in errores:
+                    errores['Operaciones sin nicho'] = [str(id_o).rjust(7, '0')]
+                else:
+                    errores['Operaciones sin nicho'].append(str(id_o).rjust(7, '0'))
+                continue
             id_c, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
             pant = rend.obtener_panteon(pan)
             nco = rend.obtener_nom_cobrador(cob)
@@ -1259,12 +1294,12 @@ def recibos(facturacion, id_cobrador, recibos):
         ############ ABRIR REPORT ############
 
         if errores:
+            print('\n\n\n\n')
+            print('     ATENCIÓN! Durante la emisión de los recibos se produjeron los siguientes errores:')
             print()
-            print()
-            print('ATENCIÓN! Durante la emisión de recibos se produjeron los siguientes errores:')
             pprint(errores)
-            print()
-            print()
+            print('\n\n\n\n')
+
         print("Abriendo recibos...")
         ruta = f'../reports/recibos/{nco}/'
         arch = f'recibos_{año}-{mes}-{dia}.pdf'
@@ -1378,7 +1413,10 @@ def listado_recibos(facturacion, id_cobrador, recibos):
         id_o, soc, nic, fac, cob, tar, rut, ult, u_a, fup, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = rec
         nro, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = rend.obtener_datos_socio(soc)
         if act == 1:
-            cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
+            try:
+                cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
+            except UnboundLocalError:
+                continue
             id_c, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
             fup_sep = str(fup).split("/")
             fup_date = date(year = int(fup_sep[1]), month = int(fup_sep[0]), day = 1)
@@ -1476,6 +1514,13 @@ def listado_recibos(facturacion, id_cobrador, recibos):
 
     ############ ABRIR REPORT ############
 
+        if errores:
+            print('\n\n\n\n')
+            print('     ATENCIÓN! Durante la emisión del listado se produjeron los siguientes errores:')
+            print()
+            pprint(errores)
+            print('\n\n\n\n')
+            
         print("Abriendo Listado...")
         ruta = f'../reports/recibos/{nco}/'
         arch = f'listado_recibos_{año}-{mes}-{dia}.pdf'
@@ -1534,7 +1579,14 @@ def recibos_deb_aut(facturacion, recibos):
         pdf.add_page()
         # Variables individuales
         id_o, soc, nic, fac, cob, tar, rut, ult, u_a, fup, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = rec
-        cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
+        try:
+            cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
+        except UnboundLocalError:
+            if 'Operaciones sin nicho' not in errores:
+                errores['Operaciones sin nicho'] = [str(id_o).rjust(7, '0')]
+            else:
+                errores['Operaciones sin nicho'].append(str(id_o).rjust(7, '0'))
+            continue
         nro, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = rend.obtener_datos_socio(soc)
         id_c, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
         t01, t02, t03, t04 = rend.split_nro_tarjeta(tar)
@@ -1678,6 +1730,14 @@ def recibos_deb_aut(facturacion, recibos):
                     pdf.cell(17, 5, f'$ {val_mant:.2f}', 'RTB', 1, 'C')
                     pdf.ln(2)
         try:
+
+            if errores:
+                print('\n\n\n\n')
+                print('     ATENCIÓN! Durante la emisión de los recibos se produjeron los siguientes errores:')
+                print()
+                pprint(errores)
+                print('\n\n\n\n')
+
             num_soc = f'{nro}'.rjust(6, '0')
             num_rec = f'{ndr}'.rjust(7, '0')
             if not os.path.isdir(f'../reports/recibos/{nco}'):
@@ -1835,7 +1895,10 @@ def listado_recibos_deb_aut(facturacion, recibos):
     for rec in recibos:
         # Variables individuales
         id_o, soc, nic, fac, cob, tar, rut, ult, u_a, fup, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = rec
-        cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
+        try:
+            cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
+        except UnboundLocalError:
+            continue
         nro, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = rend.obtener_datos_socio(soc)
         t01, t02, t03, t04 = rend.split_nro_tarjeta(tar)
         id_c, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
@@ -1953,6 +2016,13 @@ def listado_recibos_deb_aut(facturacion, recibos):
         
     ############ ABRIR REPORT ############
 
+        if errores:
+            print('\n\n\n\n')
+            print('     ATENCIÓN! Durante la emisión del listado se produjeron los siguientes errores:')
+            print()
+            pprint(errores)
+            print('\n\n\n\n')
+
         print("Abriendo reporte. Cierre el archivo para continuar...")
         ruta = f'../reports/recibos/{nco}/'
         arch = f'listado_recibos_{año}-{mes}-{dia}.pdf'
@@ -2046,7 +2116,14 @@ def recibos_documentos():
                 id_o, soc, nic, fac, cob, tar, rut, ult, u_a, fup, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = ctas.buscar_op_nro_operacion(id_op, 1)
                 if cob == id_cob:
                     # Variables individuales
-                    cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
+                    try:
+                        cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
+                    except UnboundLocalError:
+                        if 'Operaciones sin nicho' not in errores:
+                            errores['Operaciones sin nicho'] = [str(id_o).rjust(7, '0')]
+                        else:
+                            errores['Operaciones sin nicho'].append(str(id_o).rjust(7, '0'))
+                        continue
                     nro, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = rend.obtener_datos_socio(soc)
                     id_c, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
                     pant = rend.obtener_panteon(pan)
@@ -2317,6 +2394,13 @@ def recibos_documentos():
 
         ############ ABRIR REPORT ############
 
+        if errores:
+            print('\n\n\n\n')
+            print('     ATENCIÓN! Durante la emisión de los recibos se produjeron los siguientes errores:')
+            print()
+            pprint(errores)
+            print('\n\n\n\n')
+
         print("Abriendo reporte. Cierre el archivo para continuar...")
         ruta = f'../reports/recibos/documentos'
         arch = f'recibos_{año}-{mes}-{dia}.pdf'
@@ -2463,7 +2547,10 @@ def listado_recibos_documentos(lista_recibos):
         nro, ope, per, año, pag = rend.obtener_datos_recibo(rec)
         id_op, cant_cuotas, val_cuota, ult_rec = buscar_documento(ope)
         id_o, soc, nic, fac, cob, tar, rut, ult, u_a, fup, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = rend.obtener_datos_op(ope)
-        cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
+        try:
+            cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
+        except UnboundLocalError:
+            continue
         nro, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = rend.obtener_datos_socio(soc)
         panteon = rend.obtener_panteon(pan)
         val_mant = 0
@@ -2502,6 +2589,13 @@ def listado_recibos_documentos(lista_recibos):
 
     ############ ABRIR REPORT ############
 
+        if errores:
+            print('\n\n\n\n')
+            print('     ATENCIÓN! Durante la emisión del listado se produjeron los siguientes errores:')
+            print()
+            pprint(errores)
+            print('\n\n\n\n')
+
         print("Abriendo reporte. Cierre el archivo para continuar...")
         ruta = f'../reports/recibos/documentos/'
         arch = f'listado_recibos_{año}-{mes}-{dia}.pdf'
@@ -2533,7 +2627,13 @@ def reimpresion_recibo(ndr):
     ############ INICIO DE VARIABLES INDEPENDIENTES ############
     ndr, ope, per, año, pag = rend.obtener_datos_recibo(ndr)
     id_o, soc, nic, fac, cob, tar, rut, ult, u_a, fup, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = rend.obtener_datos_op(ope)
-    cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
+    try:
+        cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
+    except UnboundLocalError:
+        print("")
+        print("         ERROR. La operación no tiene nicho asociado.")
+        print("")
+        return
     nro, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = rend.obtener_datos_socio(soc)
     id_c, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
     pant = rend.obtener_panteon(pan)
@@ -2770,7 +2870,14 @@ def reimpresion_recibo(ndr):
 
         ############ ABRIR REPORT ############
 
-        print("Abriendo reporte. Cierre el archivo para continuar...")
+        if errores:
+            print('\n\n\n\n')
+            print('     ATENCIÓN! Durante la reimpresión del recibo se produjeron los siguientes errores:')
+            print()
+            pprint(errores)
+            print('\n\n\n\n')
+
+        print("Abriendo recibo. Cierre el archivo para continuar...")
         ruta = f'../reports/temp/'
         arch = f'recibo_{str(ndr).rjust(7, "0")}.pdf'
         os.chdir(ruta)
@@ -2802,7 +2909,13 @@ def recibo_adelanto(ndr, cobrador, periodo_h, año_h, valor_total):
     ############ INICIO DE VARIABLES INDEPENDIENTES ############
     ndr, ope, per, año, pag = rend.obtener_datos_recibo(ndr)
     id_o, soc, nic, fac, cob, tar, rut, ult, u_a, fup, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = rend.obtener_datos_op(ope)
-    cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
+    try:
+        cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
+    except UnboundLocalError:
+        print("")
+        print("         ERROR. La operación no tiene nicho asociado.")
+        print("")
+        return
     nro, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = rend.obtener_datos_socio(soc)
     id_c, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
     panteon = rend.obtener_panteon(pan)
@@ -2940,7 +3053,14 @@ def recibo_adelanto(ndr, cobrador, periodo_h, año_h, valor_total):
 
         ############ ABRIR REPORT ############
 
-        print("Abriendo reporte. Cierre el archivo para continuar...")
+        if errores:
+            print('\n\n\n\n')
+            print('     ATENCIÓN! Durante la emisión del recibo se produjeron los siguientes errores:')
+            print()
+            pprint(errores)
+            print('\n\n\n\n')
+
+        print("Abriendo recibo. Cierre el archivo para continuar...")
         ruta = f'../reports/temp/'
         arch = f'recibo_{str(ndr).rjust(7, "0")}.pdf'
         os.chdir(ruta)
@@ -3129,8 +3249,15 @@ def report_estado_cta(nro_socio, nombre, dni, facturacion, domicilio, te_1, te_2
         for r in recibos:
             nro, ope, per, año, pag = r
             nic = ctas.buscar_nicho_por_op(ope)
-            cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
-            id_cat, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
+            try:
+                cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
+                id_cat, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
+            except UnboundLocalError:
+                if 'Operaciones sin nicho' not in errores:
+                    errores['Operaciones sin nicho'] = [str(id_op).rjust(7, '0')]
+                else:
+                    errores['Operaciones sin nicho'].append(str(id_op).rjust(7, '0'))
+                continue
             if fac == 'bicon':
                 val = val_mant_bic
             elif fac == 'nob':
@@ -3179,6 +3306,14 @@ def report_estado_cta(nro_socio, nombre, dni, facturacion, domicilio, te_1, te_2
         
 
     ############ ABRIR REPORT ############
+
+    if errores:
+        print('\n\n\n\n')
+        print('     ATENCIÓN! Durante la emisión del reporte se produjeron los siguientes errores:')
+        print()
+        pprint(errores)
+        print('\n\n\n\n')
+            
 
     print("Abriendo reporte. Cierre el archivo para continuar...")
     print("")
@@ -3357,8 +3492,15 @@ def report_estado_cta_mail(nro_socio, nombre, dni, facturacion, domicilio, te_1,
         for r in recibos:
             nro, ope, per, año, pag = r
             nic = ctas.buscar_nicho_por_op(ope)
-            cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
-            id_cat, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
+            try:
+                cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
+                id_cat, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
+            except UnboundLocalError:
+                if 'Operaciones sin nicho' not in errores:
+                    errores['Operaciones sin nicho'] = [str(id_op).rjust(7, '0')]
+                else:
+                    errores['Operaciones sin nicho'].append(str(id_op).rjust(7, '0'))
+                continue
             if fac == 'bicon':
                 val = val_mant_bic
             elif fac == 'nob':
@@ -3403,6 +3545,14 @@ def report_estado_cta_mail(nro_socio, nombre, dni, facturacion, domicilio, te_1,
     pdf.cell(0, 5, f'{float(ctas.deuda_por_socio(nro_socio)):.2f}', 0, 1, 'L')
     
     # Export
+
+    if errores:
+        print('\n\n\n\n')
+        print('     ATENCIÓN! Durante la emisión del reporte se produjeron los siguientes errores:')
+        print()
+        pprint(errores)
+        print('\n\n\n\n')
+
     pdf.output(f'../reports/temp/estado_cta_mail.pdf', 'F')
         
             ######################################## FIN DE REPORT ############################################
@@ -3556,8 +3706,15 @@ def report_morosos_det():
             for r in recibos:
                 nro_rec, ope, per, año, pag = r
                 nic = ctas.buscar_nicho_por_op(ope)
-                cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
-                id_cat, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
+                try:
+                    cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
+                    id_cat, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
+                except UnboundLocalError:
+                    if 'Operaciones sin nicho' not in errores:
+                        errores['Operaciones sin nicho'] = [str(id_op).rjust(7, '0')]
+                    else:
+                        errores['Operaciones sin nicho'].append(str(id_op).rjust(7, '0'))
+                    continue
                 if fac == 'bicon':
                     val = val_mant_bic
                 elif fac == 'nob':
@@ -3602,6 +3759,13 @@ def report_morosos_det():
         
 
     ############ ABRIR REPORT ############
+
+    if errores:
+        print('\n\n\n\n')
+        print('     ATENCIÓN! Durante la emisión del reporte se produjeron los siguientes errores:')
+        print()
+        pprint(errores)
+        print('\n\n\n\n')
 
     print("Abriendo reporte. Cierre el archivo para continuar...")
     print("")
@@ -3769,6 +3933,13 @@ def report_morosos_comp():
 
     ############ ABRIR REPORT ############
 
+    if errores:
+        print('\n\n\n\n')
+        print('     ATENCIÓN! Durante la emisión del reporte se produjeron los siguientes errores:')
+        print()
+        pprint(errores)
+        print('\n\n\n\n')
+
     print("Abriendo reporte. Cierre el archivo para continuar...")
     print("")
     ruta = f'../reports/temp'
@@ -3843,7 +4014,16 @@ def report_excel_socios():
         wb.save(f"../reports/excel/listado_socios-{fecha}.xlsx")
         print("")
         print("Archivo creado exitosamente.")
+
         ############ ABRIR REPORT ############
+
+        if errores:
+            print('\n\n\n\n')
+            print('     ATENCIÓN! Durante la emisión del reporte se produjeron los siguientes errores:')
+            print()
+            pprint(errores)
+            print('\n\n\n\n')
+
         print("Abriendo reporte. Cierre el archivo para continuar...")
         print("")
         ruta = f'../reports/excel'
@@ -3922,7 +4102,16 @@ def report_excel_modif_caja():
         wb.save(f"../reports/excel/modificaciones_de_caja-{fecha}.xlsx")
         print("")
         print("Archivo creado exitosamente.")
+
         ############ ABRIR REPORT ############
+
+        if errores:
+            print('\n\n\n\n')
+            print('     ATENCIÓN! Durante la emisión del reporte se produjeron los siguientes errores:')
+            print()
+            pprint(errores)
+            print('\n\n\n\n')
+
         print("Abriendo reporte. Cierre el archivo para continuar...")
         print("")
         ruta = f'../reports/excel'
@@ -4003,7 +4192,16 @@ def report_deb_aut(mes, año):
         wb.save(f"../reports/excel/listado_socios-{fecha_hoy}.xlsx")
         print("")
         print("Archivo creado exitosamente.")
+
         ############ ABRIR REPORT ############
+
+        if errores:
+            print('\n\n\n\n')
+            print('     ATENCIÓN! Durante la emisión del reporte se produjeron los siguientes errores:')
+            print()
+            pprint(errores)
+            print('\n\n\n\n')
+
         print("Abriendo reporte. Cierre el archivo para continuar...")
         print("")
         ruta = f'../reports/excel'
@@ -4118,6 +4316,13 @@ def report_cobradores():
 
     ############ ABRIR REPORT ############
 
+    if errores:
+        print('\n\n\n\n')
+        print('     ATENCIÓN! Durante la emisión del reporte se produjeron los siguientes errores:')
+        print()
+        pprint(errores)
+        print('\n\n\n\n')
+
     print("Abriendo reporte. Cierre el archivo para continuar...")
     print("")
     ruta = f'../reports/temp'
@@ -4222,6 +4427,13 @@ def report_panteones():
         
 
     ############ ABRIR REPORT ############
+
+    if errores:
+        print('\n\n\n\n')
+        print('     ATENCIÓN! Durante la emisión del reporte se produjeron los siguientes errores:')
+        print()
+        pprint(errores)
+        print('\n\n\n\n')
 
     print("Abriendo reporte. Cierre el archivo para continuar...")
     print("")
@@ -4356,7 +4568,16 @@ def report_ult_recibo(cobrador: int, facturacion: str):
         wb.save(f"../reports/excel/ultimos_recibos_{n_cob}.xlsx")
         print("")
         print("Archivo creado exitosamente.")
+
         ############ ABRIR REPORT ############
+
+        if errores:
+            print('\n\n\n\n')
+            print('     ATENCIÓN! Durante la emisión del reporte se produjeron los siguientes errores:')
+            print()
+            pprint(errores)
+            print('\n\n\n\n')
+
         print("Abriendo reporte. Cierre el archivo para continuar...")
         print("")
         ruta = f'../reports/excel'
