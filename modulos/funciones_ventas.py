@@ -1962,6 +1962,12 @@ def cambiar_nicho(idu, id_op):
             if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
                 msj = "S"
                 mant.edit_registro('operaciones', 'nicho', cod_nicho, id_op)
+                cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(cod_nicho)
+                if pan == 6 or pan == 7:
+                    facturacion = 'nob'
+                else:
+                    facturacion = 'bicon'
+                mant.edit_registro('operaciones', 'facturacion', facturacion, id_op)
                 print("Nicho modificado exitosamente.")
                 print()
                 pass
