@@ -425,10 +425,10 @@ def ingresar_cobro(idu):
                             msj = ''
 
 
-def ingresar_cobro_auto(ope, c_f):
+def ingresar_cobro_auto(ope, c_f, u_r):
     conn = sql.connect(database)
     cursor = conn.cursor()
-    instruccion = f"UPDATE operaciones SET cuotas_favor = '{c_f}' WHERE id = '{ope}'"
+    instruccion = f"UPDATE operaciones SET cuotas_favor = '{c_f}', ult_rec = '{u_r}' WHERE id = '{ope}'"
     cursor.execute(instruccion)
     conn.commit()
     conn.close()

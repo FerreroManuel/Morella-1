@@ -1032,14 +1032,14 @@ def recibos(facturacion, id_cobrador, recibos):
                 val_mant = val_mant_bic
             elif fac == 'nob':
                 val_mant = val_mant_nob
-            if ultimo_pago != f'{periodo_actual}{año}' and c_f > 0:
+            if ultimo_pago != f'{periodo_actual}{año}' and c_f > 0 and u_r != f"{mes}-{año2c}":
                 añovar = 0
                 if periodo_actual == "Enero - Febrero":
                     añovar = f"{int(datetime.now().strftime('%Y'))+1}"
                 else:
                     añovar = datetime.now().strftime('%Y')
                 c_f -= 1
-                rend.ingresar_cobro_auto(id_o, c_f)
+                rend.ingresar_cobro_auto(id_o, c_f, f"{mes}-{año2c}")
             elif ultimo_pago != f'{periodo_actual}{año}' and c_f <= 0 and u_r != f"{mes}-{año2c}":
                 # Ingresando recibo en la base de datos
                 añovar = 0
