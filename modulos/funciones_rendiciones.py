@@ -772,7 +772,6 @@ def ingresar_adelantos(idu):
             mant.edit_registro('operaciones', 'ult_pago', periodo_hasta, oper)
             mant.edit_registro('operaciones', 'ult_año', año_hasta, oper)
             mant.edit_registro('operaciones', 'fecha_ult_pago', f"{mes_hasta}/{año_hasta}", oper)
-            mant.edit_registro('operaciones', 'ult_rec', f"{mes_hasta}-{año_hasta[2:4]}", oper)
             fec_hoy = datetime.now().date()
             fup_date = date(year = int(año_hasta), month = int(mes_hasta), day = 1)
             cuenta = int(days_between(fup_date, fec_hoy)/730)
