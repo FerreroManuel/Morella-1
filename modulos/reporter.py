@@ -2091,7 +2091,7 @@ def recibos_documentos():
         return documentos
 
     def obtener_añovar(mes, año):
-        añovar = año
+        añovar = int(año)
         if mes == '12':
             añovar += 1
         return añovar
