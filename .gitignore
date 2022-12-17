@@ -10,6 +10,7 @@ database_prueba.ini
 databases/*.sql
 databases/*.db
 databases/*.csv
+databases/*.xlsx
 
 databases - copia/
 
