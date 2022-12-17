@@ -1289,7 +1289,12 @@ def recibos(facturacion, id_cobrador, recibos):
     try:
         if not os.path.isdir(f'../reports/recibos/{nco}'):
             os.mkdir(f'../reports/recibos/{nco}')
-        pdf.output(f'../reports/recibos/{nco}/recibos_{año}-{mes}-{dia}.pdf', 'F')
+        output_counter = 0
+        output_name = f"recibos_{año}-{mes}-{dia}.pdf"
+        while os.path.isfile(f'../reports/recibos/{nco}/{output_name}'):
+            output_counter += 1
+            output_name = f"recibos_{año}-{mes}-{dia}_({output_counter}).pdf"
+        pdf.output(f'../reports/recibos/{nco}/{output_name}', 'F')
 
         ############ ABRIR REPORT ############
 
@@ -1302,7 +1307,7 @@ def recibos(facturacion, id_cobrador, recibos):
 
         print("Abriendo recibos...")
         ruta = f'../reports/recibos/{nco}/'
-        arch = f'recibos_{año}-{mes}-{dia}.pdf'
+        arch = output_name.replace('(', '^(')
         os.chdir(ruta)
         os.system(arch)
         ruta = '../../../modulos/'
@@ -1510,7 +1515,12 @@ def listado_recibos(facturacion, id_cobrador, recibos):
     try:
         if not os.path.isdir(f'../reports/recibos/{nco}'):
             os.mkdir(f'../reports/recibos/{nco}')
-        pdf.output(f'../reports/recibos/{nco}/listado_recibos_{año}-{mes}-{dia}.pdf', 'F')
+        output_counter = 0
+        output_name = f"listado_recibos_{año}-{mes}-{dia}.pdf"
+        while os.path.isfile(f'../reports/recibos/{nco}/{output_name}'):
+            output_counter += 1
+            output_name = f'listado_recibos_{año}-{mes}-{dia}_({output_counter}).pdf'
+        pdf.output(f'../reports/recibos/{nco}/{output_name}', 'F')
 
     ############ ABRIR REPORT ############
 
@@ -1523,7 +1533,7 @@ def listado_recibos(facturacion, id_cobrador, recibos):
             
         print("Abriendo Listado...")
         ruta = f'../reports/recibos/{nco}/'
-        arch = f'listado_recibos_{año}-{mes}-{dia}.pdf'
+        arch = output_name.replace('(', '^(')
         os.chdir(ruta)
         os.system(arch)
         ruta = '../../../modulos/'
@@ -2390,7 +2400,12 @@ def recibos_documentos():
     try:
         if not os.path.isdir(f'../reports/recibos/documentos'):
             os.mkdir(f'../reports/recibos/documentos')
-        pdf.output(f'../reports/recibos/documentos/recibos_{año}-{mes}-{dia}.pdf', 'F')
+        output_counter = 0
+        output_name = f'recibos_{año}-{mes}-{dia}.pdf'
+        while os.path.isfile(f'../reports/recibos/documentos/{output_name}'):
+            output_counter += 1
+            output_name = f'recibos_{año}-{mes}-{dia}_({output_counter}).pdf'
+        pdf.output(f'../reports/recibos/documentos/{output_name}', 'F')
 
         ############ ABRIR REPORT ############
 
@@ -2403,7 +2418,7 @@ def recibos_documentos():
 
         print("Abriendo reporte. Cierre el archivo para continuar...")
         ruta = f'../reports/recibos/documentos'
-        arch = f'recibos_{año}-{mes}-{dia}.pdf'
+        arch = output_name.replace('(', '^(')
         os.chdir(ruta)
         os.system(arch)
         ruta = '../../../modulos/'
@@ -2585,7 +2600,14 @@ def listado_recibos_documentos(lista_recibos):
     pdf.cell(33, 5, 'Importe acumulado:', 'LTB', 0, 'L')
     pdf.cell(23, 5, f'$ {imp_acu:.2f}', 'RTB', 0, 'R')
     try:
-        pdf.output(f'../reports/recibos/documentos/listado_recibos_{año}-{mes}-{dia}.pdf', 'F')
+        if not os.path.isdir(f'../reports/recibos/documentos'):
+            os.mkdir(f'../reports/recibos/documentos')
+        output_counter = 0
+        output_name = f'listado_recibos_{año}-{mes}-{dia}.pdf'
+        while os.path.isfile(f'../reports/recibos/documentos/{output_name}'):
+            output_counter += 1
+            output_name = f'listado_recibos_{año}-{mes}-{dia}_({output_counter}).pdf'
+        pdf.output(f'../reports/recibos/documentos/{output_name}', 'F')
 
     ############ ABRIR REPORT ############
 
@@ -2598,7 +2620,7 @@ def listado_recibos_documentos(lista_recibos):
 
         print("Abriendo reporte. Cierre el archivo para continuar...")
         ruta = f'../reports/recibos/documentos/'
-        arch = f'listado_recibos_{año}-{mes}-{dia}.pdf'
+        arch = output_name.replace('(', '^(')
         os.chdir(ruta)
         os.system(arch)
         ruta = '../../../modulos/'
