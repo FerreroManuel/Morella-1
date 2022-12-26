@@ -42,9 +42,9 @@ Esta herramienta no requiere de usuario y contraseña y está planificada su obs
 
 ## Base de datos
 La base de datos se encuentra en un servidor de PostgreSQL alojado en Ubuntu.
-Mediante la utilización de bash y cronejobs se realiza automáticamente un respaldo diario de la base de datos, éstos se guardan en una carpeta sincronizada a la nube mediante el servicio de Dropbox. 
+Mediante la utilización de `bash` y `cronejob` se realizan automáticamente dos respaldos diarios de la base de datos, éstos se guardan en una carpeta sincronizada a la nube mediante el servicio de Dropbox. 
 
-Para ahorrar espacio sólo se almacenan 15 respaldos, luego, cada vez que se crea uno nuevo, se elimina el más antiguo. 
+Para ahorrar espacio sólo se almacenan 30 respaldos, luego, cada vez que se crea uno nuevo, se elimina el más antiguo. 
 
 También es posible realizar un respaldo de forma manual a través de un ícono en el menú de aplicaciones de Ubuntu, al cual puede accederse a través de RDP.
 
