@@ -365,27 +365,53 @@ def cambio_precio_mant_manual(id_cat, nuevo_val_mant_bic, nuevo_val_mant_nob):
     conn.close()
 
 
-def cambio_precio_mant_porcentaje(porcentaje):
+def cambio_precio_mant_porcentaje(facturacion: str, porcentaje: int):
+    """Recupera desde la BD los precios actuales de mantenimiento correspondientes al tipo
+    de facturación indicada y los actualiza aumentándolos, de forma redondeada en valores
+    múltiplos de 100, según el porcentaje indicado.
+
+    :param facturacion: Tipo de facturación a aumentar (puede ser 'todas', 'bicon' o 'nob')
+    :type facturacion: str
+
+    :param porcentaje: Porcentaje a aumentar
+    :type porcentaje: int
+    """
+
     pcnt = 1+(porcentaje/100)
-    conn = sql.connect(database)
-    cursor = conn.cursor()
-    instruccion = f"SELECT * FROM cat_nichos ORDER BY id"
-    cursor.execute(instruccion)
-    datos = cursor.fetchall()
-    conn.commit()
-    conn.close()
+
+    # Recuperación de precios actuales
+    with sql.connect(database) as conn:
+        cursor = conn.cursor()
+        instruccion = f"SELECT * FROM cat_nichos ORDER BY id"
+        cursor.execute(instruccion)
+        datos = cursor.fetchall()
+
+    # Actualización de precios
     for i in datos:
         i_d, cat, val_mant_bic, val_mant_nob = i
-        n_vmb = val_mant_bic*pcnt
-        n_vmb_t = float(truncate(n_vmb, -2))
-        n_vmn = val_mant_nob*pcnt
-        n_vmn_t = float(truncate(n_vmn, -2))
-        conn = sql.connect(database)
-        cursor = conn.cursor()
-        instruccion = f"UPDATE cat_nichos SET valor_mant_bicon = {n_vmb_t}, valor_mant_nob = {n_vmn_t} WHERE id = {i_d}"
-        cursor.execute(instruccion)
-        conn.commit()
-        conn.close()
+
+        # Cálculo precio BICON
+        if facturacion == 'todas' or facturacion == 'bicon':
+            n_vmb = val_mant_bic * pcnt
+            n_vmb_t = float(truncate(n_vmb, -2))
+
+        # Cálculo precio NOB
+        if facturacion == 'todas' or facturacion == 'nob':
+            n_vmn = val_mant_nob * pcnt
+            n_vmn_t = float(truncate(n_vmn, -2))
+
+        # Definición de la consulta SQL según facturación seleccionada
+        if facturacion == 'todas':
+            instruccion = f"UPDATE cat_nichos SET valor_mant_bicon = {n_vmb_t}, valor_mant_nob = {n_vmn_t} WHERE id = {i_d}"
+        elif facturacion == 'bicon':
+            instruccion = f"UPDATE cat_nichos SET valor_mant_bicon = {n_vmb_t} WHERE id = {i_d}"
+        elif facturacion == 'nob':
+            instruccion = f"UPDATE cat_nichos SET valor_mant_nob = {n_vmn_t} WHERE id = {i_d}"
+
+        # Registro de nuevos precios
+        with sql.connect(database) as conn:
+            cursor = conn.cursor()
+            cursor.execute(instruccion)
 
 
 def edit_registro(tabla, parametro1, parametro2, id):
@@ -2368,7 +2394,15 @@ def editar_precios_mant_manual(idu):
         return
 
 
-def editar_precios_mant_porcent(idu):
+def editar_precios_mant_porcent(idu: int):
+    """Permite al usuario actualizar los precios de mantenimiento a partir de un porcentaje. El usuario
+    puede elegir hacerlo sólo para una distribución de facturación o para todos los precios a la vez.
+
+    Nivel de privilegios mínimo: 2
+
+    :param idu: ID de usuario
+    :type idu: int
+    """
     i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_id(idu)
     print()
     if pri < 2:
@@ -2378,6 +2412,40 @@ def editar_precios_mant_porcent(idu):
     elif pri >= 2:
         print("*** Actualizar precios de mantenimiento por porcentaje ***")
         print()
+        print("")
+        print("Elija una distribución:")
+        print("")
+        print("   1. Bicon")
+        print("   2. NOB")
+        print("   3. Todas")
+        print("   0. Volver")
+        print("")
+        opcion = -1
+        while opcion == -1:
+            try:
+                opcion = int(input("Ingrese una opción: "))
+                if opcion < 0 or opcion > 3:
+                    print("")
+                    print("Opción incorrecta.")
+                    print("")
+                    opcion = -1
+                elif opcion == 1:
+                    facturacion = 'bicon'
+                elif opcion == 2:
+                    facturacion = 'nob'
+                elif opcion == 3:
+                    facturacion = 'todas'
+                elif opcion == 0:
+                    return
+            except ValueError: 
+                print("Opción incorrecta.")
+                opcion = -1
+            except:
+                log_error()
+                print("")
+                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                print()
+                opcion = -1
         try:
             porcentaje = int(input("Indique el porcentaje de aumento a realizar: "))
             print()
@@ -2392,7 +2460,7 @@ def editar_precios_mant_porcent(idu):
             return
         print("Actualizando precios. No interrumpa el proceso ni apague el sistema...")
         print()
-        cambio_precio_mant_porcentaje(porcentaje)
+        cambio_precio_mant_porcentaje(facturacion, porcentaje)
         print("Lista de precios actualizada exitosamente.")
         print()
         
