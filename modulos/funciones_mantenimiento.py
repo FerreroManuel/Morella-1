@@ -2215,7 +2215,7 @@ def editar_precios_venta_porcent(idu: int):
             print("")
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             return
-        if porcentaje <= 0 or porcentaje:
+        if porcentaje <= 0:
             print("         ERROR. El porcentaje debe ser mayor a cero.")
             print()
             return
@@ -2469,7 +2469,7 @@ def editar_precios_mant_porcent(idu: int):
             print("")
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             return
-        if porcentaje <= 0 or porcentaje:
+        if porcentaje <= 0:
             print("         ERROR. El porcentaje debe ser mayor a cero.")
             print()
             return
