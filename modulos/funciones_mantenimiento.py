@@ -2186,7 +2186,14 @@ def editar_precios_venta_manual(idu):
         return
 
 
-def editar_precios_venta_porcent(idu):
+def editar_precios_venta_porcent(idu: int):
+    """Permite al usuario actualizar los precios de venta a partir de un porcentaje.
+
+    Nivel de privilegios mínimo: 2
+
+    :param idu: ID de usuario
+    :type idu: int
+    """
     i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_id(idu)
     print()
     if pri < 2:
@@ -2207,6 +2214,10 @@ def editar_precios_venta_porcent(idu):
             log_error()
             print("")
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            return
+        if porcentaje <= 0 or porcentaje:
+            print("         ERROR. El porcentaje debe ser mayor a cero.")
+            print()
             return
         print("Actualizando precios. No interrumpa el proceso ni apague el sistema...")
         print()
@@ -2457,6 +2468,10 @@ def editar_precios_mant_porcent(idu: int):
             log_error()
             print("")
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            return
+        if porcentaje <= 0 or porcentaje:
+            print("         ERROR. El porcentaje debe ser mayor a cero.")
+            print()
             return
         print("Actualizando precios. No interrumpa el proceso ni apague el sistema...")
         print()
