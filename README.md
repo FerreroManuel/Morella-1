@@ -61,12 +61,18 @@ La nomenclatura de las versiones sigue la siguiente semántica: _MAJOR.MINOR.PAT
 4. **DATE:** Mes y año de lanzamiento de la versión con formato AAMM
 
 ### Nomenclaturas de commit:
-La nomenclatura de los commit sigue la siguiente semántica: _Fix #AAMMDDNN_, donde:
+La nomenclatura de los commit sigue la siguiente semántica: 
 
-1. **AA:** Número de dos cifras correspondiente al año
-2. **MM:** Número de dos cifras correspondiente al mes
-3. **DD:** Número de dos cifras correspondiente al día
-4. **NN:** Número de dos cifras identificador del arreglo
+- Actualizaciones y mejoras: _Upd #AAMMDDNN_
+
+- Arreglos de errores y problemas: _Fix #AAMMDDNN_
+
+Donde:
+
+  1. **AA:** Número de dos cifras correspondiente al año
+  2. **MM:** Número de dos cifras correspondiente al mes
+  3. **DD:** Número de dos cifras correspondiente al día
+  4. **NN:** Número de dos cifras identificador del arreglo o actualización
 
 ### Notas sobre versionado
 *Hasta el 17/11/2022 se realizó versionado local en PC, luego se realizó la subida de cada versión disponible en un commit y se registró la versión en Git.
