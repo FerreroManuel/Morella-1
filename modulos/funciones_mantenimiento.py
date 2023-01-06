@@ -1480,7 +1480,7 @@ def modificar_usuario(idu: int):
                         print()
             
                     elif pri <= pri_m:
-                        print("         ERROR. Sólo pueden modificarse los dato de usuarios de niveles inferiores.")
+                        print("         ERROR. Sólo pueden modificarse los datos de usuarios de niveles inferiores.")
                         print()
                     usuario = str(input("Indique el usuario que desea modificar o presione enter para volver: "))
                     print()
