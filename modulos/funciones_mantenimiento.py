@@ -295,18 +295,21 @@ def delete_row(tabla: str, columna: str, valor: str|int|float|bool):
         cursor.execute(instruccion)
 
 
-def ult_reg(tabla: str) -> list:
+def ult_reg(tabla: str, columna: str) -> list:
     """Busca en la base de datos el último registro de una tabla específica
     y retorna sus valores en forma de lista.
 
     :param tabla: Tabla donde se buscará el último registro.
     :type tabla: str
 
+    :param columna: Columna que se utilizará para ordenar (generalmente ID)
+    :type columna: str
+
     :rtype: list
     """
     with sql.connect(database) as conn:
         cursor = conn.cursor()
-        cursor.execute(f"SELECT * FROM {tabla} ORDER BY id DESC LIMIT 1")
+        cursor.execute(f"SELECT * FROM {tabla} ORDER BY {columna} DESC LIMIT 1")
         ult_registro = cursor.fetchall()
 
     ult_reg_list = list(ult_registro[0])
@@ -636,7 +639,7 @@ def edit_registro(tabla: str, columna: str, nuevo_valor: str|int|float|bool, id:
         cursor.execute(instruccion)
 
 
-def set_null_registro(tabla: str, columna_null: str, columna: str, valor: str|int|float|bool):
+def set_null_registro(tabla: str, columna_null: str, columna_filtro: str, valor: str|int|float|bool):
     """Hace nulo el valor de una columna específica de un registro en particular,
     que cumpla una condición, en la base de datos.
 
@@ -646,15 +649,15 @@ def set_null_registro(tabla: str, columna_null: str, columna: str, valor: str|in
     :param columna_null: Columna donde se colocará valor nulo
     :type columna_null: str
 
-    :param columna: Columna donde se buscará el valor indicado
-    :type columna: str
+    :param columna_filtro: Columna donde se buscará el valor indicado
+    :type columna_filtro: str
     
     :param valor: Valor que se buscará en la columna indicada
     :type valor: str or int or float or bool
     """
     with sql.connect(database) as conn:
         cursor = conn.cursor()
-        instruccion = f"UPDATE {tabla} SET {columna_null} = NULL WHERE {columna} = '{valor}'"
+        instruccion = f"UPDATE {tabla} SET {columna_null} = NULL WHERE {columna_filtro} = '{valor}'"
         cursor.execute(instruccion)
 
 
@@ -3131,7 +3134,7 @@ def alta_precio(idu: int):       # OPCIÓN INAHABILITADA
             run_query(query)
         
             print("Calculando anticipo y cuotas...")
-            id_precio, nomb_pr, pr_ft, pr_ant, pr_cuot = ult_reg('precios_venta')
+            id_precio, nomb_pr, pr_ft, pr_ant, pr_cuot = ult_reg('precios_venta', 'id')
             cambio_precio_venta_manual(id_precio, precio)
         
             print()
