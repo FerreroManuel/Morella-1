@@ -1103,7 +1103,7 @@ def modificar_usuario(idu: int):
     la contraseña actual y sólo se podrá modificar la contraseña del usuario
     que está intentando realizar la acción, a excepción de aquellos usuarios
     de nivel 4 o superior, quienes podrán modificar la contraseña de otros
-    usuarios.
+    usuarios, siempre que éstos sean de nivel inferior al propio.
 
     Si al ingresar la contraseña actual se realizan tres intentos fallidos
     concecutivos el sistema bloqueará la cuenta del usuario y cerrará el
@@ -1425,6 +1425,11 @@ def modificar_usuario(idu: int):
                         return
                     print()
 
+                    if pri <= pri_m:
+                        print("         ERROR. Sólo pueden modificarse la contraseña de usuarios de niveles inferiores.")
+                        print()
+                        return
+
                     pw_new = str(getpass("Ingrese la nueva contraseña: "))
                     print()
 
@@ -1477,10 +1482,8 @@ def modificar_usuario(idu: int):
                     elif pri <= pri_m:
                         print("         ERROR. Sólo pueden modificarse los dato de usuarios de niveles inferiores.")
                         print()
-            
                     usuario = str(input("Indique el usuario que desea modificar o presione enter para volver: "))
                     print()
-            
                     if usuario == "":
                         return
             
