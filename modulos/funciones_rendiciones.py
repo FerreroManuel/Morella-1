@@ -18,127 +18,6 @@ os.system('color 09')   # Colores del módulo (Azul sobre negro)
 os.system('mode con: cols=160 lines=9999')
 
 
-def obtener_database():
-    if not os.path.isfile("../databases/database.ini"):
-        arch = open("../databases/database.ini", "w")
-        arch.close()
-    with open("../databases/database.ini", "r") as arch:
-        db = arch.readline()
-    return db
-database = obtener_database()
-
-
-def iniciar_sesion():
-    i_d = 0
-    user = input("Usuario: ").lower()
-    try:
-        i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_user(user)
-        if i_d == 0 and nom == 0 and ape == 0:
-            return 0, 0, 0, 0, 0, 0, 0, 0, 0
-        if act == 1:
-            counter = 0
-            pw = getpass("Contraseña: ")
-            while pw != pas:
-                print("Contraseña incorrecta")
-                print()
-                counter += 1
-                if counter == 3:
-                    mant.edit_registro('usuarios', 'activo', 2, i_d)
-                    print("Su usuario ha sido bloqueado por repetición de claves incorrectas. Comuníquese con un administrador.")
-                    i_d = -1
-                    nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
-                    return i_d, nom, ape, tel, dom, use, pas, pri, act
-                print("")
-                print
-                pw = getpass("Contraseña: ")
-            if pw == pas:
-                print()
-                print(f"Bienvenido/a {nom}, que tengas un buen día.")
-                print()
-                while pw == "0000":
-                    pw_new = str(getpass("Ingrese la nueva contraseña: "))
-                    while len(pw_new) < 4:
-                        print("La contraseña debe ser de 4 dígitos o más.")
-                        pw_new = str(getpass("Ingrese la nueva contraseña: "))
-                        print()
-                    while pw_new == "0000":
-                        print("La contraseña no puede ser 0000.")
-                        pw_new = str(getpass("Ingrese la nueva contraseña: "))
-                        print()
-                    pw_conf = str(getpass("Repita la nueva contraseña: "))
-                    print()
-                    if pw_new == pw_conf:
-                        mant.edit_registro('usuarios', 'pass', str(pw_new), i_d)
-                        print("Contraseña actualizada exitosamente.")
-                        print()
-                        return i_d, nom, ape, tel, dom, use, pw_new, pri, act
-                    else:
-                        pw = ""
-                return i_d, nom, ape, tel, dom, use, pas, pri, act
-        elif act == 2:
-            print("")
-            print("Su usuario se encuentra bloqueado. Comuníquese con un administrador.")
-            i_d = -1
-            nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
-            return i_d, nom, ape, tel, dom, use, pas, pri, act
-        else:
-            print("")
-            print("Usuario inactivo.")
-            i_d = -1
-            nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
-            return i_d, nom, ape, tel, dom, use, pas, pri, act
-    except TypeError:
-        print("")
-        print("Usuario inexistente.")
-        i_d = -1
-        nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
-        return i_d, nom, ape, tel, dom, use, pas, pri, act
-    except sql.OperationalError:
-        print("")
-        print("Usuario inexistente.")
-        i_d = -1
-        nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
-        return i_d, nom, ape, tel, dom, use, pas, pri, act
-    except:
-        mant.log_error()
-        print("")
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
-        i_d = -1
-        nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
-        return i_d, nom, ape, tel, dom, use, pas, pri, act
-
-
-def buscar_usuario_por_user(user):
-    try:
-        conn = sql.connect(database)
-    except sql.OperationalError:
-        mant.log_error()
-        print()
-        print("         ERROR. La base de datos no responde. Asegurese de estar conectado a la red y que el servidor se encuentre encendido.")
-        print()
-        print("         Si es así y el problema persiste, comuníquese con el administrador del sistema.")
-        print()
-        return 0, 0, 0, 0, 0, 0, 0, 0, 0
-    cursor = conn.cursor()
-    instruccion = f"SELECT * FROM usuarios WHERE user_name = '{user}'"
-    cursor.execute(instruccion)
-    datos = cursor.fetchone()
-    conn.commit()
-    conn.close()
-    i_d, nom, ape, tel, dom, use, pas, pri, act = datos
-    return i_d, nom, ape, tel, dom, use, pas, pri, act
-
-
-def buscar_usuario_por_id(idu):
-    conn = sql.connect(database)
-    cursor = conn.cursor()
-    instruccion = f"SELECT * FROM usuarios WHERE id = '{idu}'"
-    cursor.execute(instruccion)
-    datos = cursor.fetchone()
-    conn.commit()
-    conn.close()
-    i_d, nom, ape, tel, dom, use, pas, pri, act = datos
-    return i_d, nom, ape, tel, dom, use, pas, pri, act
 
 
 def opcion_menu():                                                                                  # OPCIÓN MENÚ PRINCIPAL
@@ -426,7 +305,7 @@ def ingresar_cobro(idu):
 
 
 def ingresar_cobro_auto(ope, c_f, u_r):
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"UPDATE operaciones SET cuotas_favor = '{c_f}', ult_rec = '{u_r}' WHERE id = '{ope}'"
     cursor.execute(instruccion)
@@ -435,7 +314,7 @@ def ingresar_cobro_auto(ope, c_f, u_r):
 
 
 def obtener_datos_op(ope):
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"SELECT * FROM operaciones WHERE id = {ope}"
     cursor.execute(instruccion)
@@ -519,7 +398,7 @@ def days_between(d1, d2):
 
 
 def set_pago(ndr):
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"UPDATE recibos SET pago = '1' WHERE nro_recibo = '{ndr}'"
     cursor.execute(instruccion)
@@ -530,7 +409,7 @@ def set_pago(ndr):
 def act_periodo(per, ope, año):
     mes = calcular_mes(per, 'str')
     fecha = f"{mes}/{año}"
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"UPDATE operaciones SET ult_pago = '{per}', ult_año = '{año}', fecha_ult_pago = '{fecha}' WHERE id = '{ope}'"
     cursor.execute(instruccion)
@@ -539,7 +418,7 @@ def act_periodo(per, ope, año):
 
 
 def obtener_datos_recibo(ndr):
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"SELECT * FROM recibos WHERE nro_recibo = '{ndr}'"
     cursor.execute(instruccion)
@@ -551,7 +430,7 @@ def obtener_datos_recibo(ndr):
 
 
 def run_query(query):
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     cursor.execute(query)
     conn.commit()
@@ -1111,7 +990,7 @@ def registrar_comision_mant(cobrador, rendicion, recibo, cobro):
     cobradores = [6, 7, 9, 13, 15]
     if cobrador not in cobradores:
         comision = float(cobro)*0.15
-        conn = sql.connect(database)
+        conn = sql.connect(mant.DATABASE)
         cursor = conn.cursor()
         instruccion = f"INSERT INTO comisiones VALUES ('{cobrador}', '{rendicion}', '{recibo}', '{cobro}', '{comision}')"
         cursor.execute(instruccion)
@@ -1124,7 +1003,7 @@ def registrar_comision_doc(cobrador, rendicion, recibo, cobro):
     cobradores = [6, 7, 9, 13, 15]
     if cobrador not in cobradores:
         comision = float(cobro)*0.075
-        conn = sql.connect(database)
+        conn = sql.connect(mant.DATABASE)
         cursor = conn.cursor()
         instruccion = f"INSERT INTO comisiones VALUES ('{cobrador}', '{rendicion}', '{recibo}', '{cobro}', '{comision}')"
         cursor.execute(instruccion)
@@ -1232,7 +1111,7 @@ def menu_cobradores():
 
 
 def buscar_operaciones(facturacion, id_cobrador):
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"SELECT * FROM operaciones WHERE facturacion = '{facturacion}' AND cobrador = '{id_cobrador}' AND paga = 1 ORDER BY ruta"
     cursor.execute(instruccion)
@@ -1243,7 +1122,7 @@ def buscar_operaciones(facturacion, id_cobrador):
 
 
 def obtener_ult_rec_de_op(id_op):
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     cursor.execute(f"SELECT nro_recibo FROM recibos WHERE operacion = {id_op} ORDER BY nro_recibo DESC LIMIT 1")
     ult_rec = cursor.fetchone()
@@ -1436,7 +1315,7 @@ def obtener_periodo_siguiente(periodo_actual):
 
 
 def obtener_datos_nicho(cod_nicho):
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"SELECT * FROM nichos WHERE codigo = '{cod_nicho}'"
     cursor.execute(instruccion)
@@ -1449,7 +1328,7 @@ def obtener_datos_nicho(cod_nicho):
 
 
 def obtener_datos_socio(nro_socio):
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"SELECT * FROM socios WHERE nro_socio = {nro_socio}"
     cursor.execute(instruccion)
@@ -1462,7 +1341,7 @@ def obtener_datos_socio(nro_socio):
 
 
 def obtener_nom_cobrador(id_cobrador):
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"SELECT * FROM cobradores WHERE id = '{id_cobrador}'"
     cursor.execute(instruccion)
@@ -1475,7 +1354,7 @@ def obtener_nom_cobrador(id_cobrador):
 
 
 def obtener_categoria(id_cat):
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"SELECT * FROM cat_nichos WHERE id = {id_cat}"
     cursor.execute(instruccion)
@@ -1487,7 +1366,7 @@ def obtener_categoria(id_cat):
 
 
 def obtener_panteon(id_pant):
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"SELECT * FROM panteones WHERE id = {id_pant}"
     cursor.execute(instruccion)
@@ -1499,7 +1378,7 @@ def obtener_panteon(id_pant):
 
 
 def obtener_nro_recibo():
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"SELECT * FROM recibos ORDER BY nro_recibo DESC LIMIT 1"
     cursor.execute(instruccion)
@@ -1511,7 +1390,7 @@ def obtener_nro_recibo():
 
 
 def evitar_duplicado(mes, año2c, id_op):
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"UPDATE operaciones SET ult_rec = '{mes}-{año2c}' WHERE id = '{id_op}'"
     cursor.execute(instruccion)
@@ -1520,7 +1399,7 @@ def evitar_duplicado(mes, año2c, id_op):
 
 
 def obtener_recibos_impagos_op(id_op):
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"SELECT * FROM recibos WHERE operacion = {id_op} AND pago = 0 ORDER BY nro_recibo ASC"
     cursor.execute(instruccion)
@@ -1531,7 +1410,7 @@ def obtener_recibos_impagos_op(id_op):
 
 
 def set_moroso(id_op):
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"UPDATE operaciones SET moroso = '{1}', cobrador = '{5}' WHERE id = {id_op}"
     cursor.execute(instruccion)
@@ -1540,7 +1419,7 @@ def set_moroso(id_op):
 
 
 def obtener_valor_doc(id_op):
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"SELECT * FROM documentos WHERE id_op = {id_op}"
     cursor.execute(instruccion)
@@ -1549,54 +1428,3 @@ def obtener_valor_doc(id_op):
     conn.close()
     id_op, cant_cuotas, val_cuota, ult_rec = documento
     return val_cuota
-
-
-def cerrar_consola():
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print(" -----------------------------")
-    print("| Ya puede cerrar la consola. |")
-    print(" -----------------------------")
-    print("")
-    print("")
-    print("")
-    print("")
-
-

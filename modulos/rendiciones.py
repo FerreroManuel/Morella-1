@@ -23,11 +23,11 @@ try:
     ########## INICIO DE SESIÓN ##########
     idu = -1
 
-    idu, nom, ape, tel, dom, use, pas, pri, act = func.iniciar_sesion()
+    idu, nom, ape, tel, dom, use, pas, pri, act = mant.iniciar_sesion()
 
     while idu < 0:
         print("")
-        idu, nom, ape, tel, dom, use, pas, pri, act = func.iniciar_sesion()
+        idu, nom, ape, tel, dom, use, pas, pri, act = mant.iniciar_sesion()
 
     if idu == 0:
         mantenimiento = func.getpass("Presione enter para salir...")        
@@ -45,7 +45,7 @@ try:
             func.menu(idu)
 
             ########## CERRANDO CONSOLA ##########
-            func.cerrar_consola()
+            mant.cerrar_consola()
         else:
             print("         ERROR. No posee los privilegios necesarios para realizar esta operación. Comuníquese con un admnistrador.")
             print("")

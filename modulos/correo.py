@@ -9,15 +9,9 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase 
 from email import encoders 
 
-def obtener_database():
-    arch = open("../databases/database.ini", "r")
-    db = arch.readline()
-    arch.close()
-    return db
-database = obtener_database()
 
 def obtener_mail(id):
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"SELECT * FROM mail WHERE id = '{id}'"
     cursor.execute(instruccion)

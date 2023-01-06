@@ -2,6 +2,9 @@ VERSION = '1.3.5.2212'
 SHORT_VERSION = VERSION[:3]
 TYPE_VERSION = 'RC'
 
+ARCH_INI = "../databases/database.ini"
+ARCH_LOG_ERROR = "../error.log"
+
 import funciones_rendiciones as rend
 import funciones_cuentas as ctas
 from traceback import format_exc
@@ -22,16 +25,15 @@ def obtener_database() -> str:
 
     :rtype: str
     """
-    if not os.path.isfile("../databases/database.ini"):
-        arch = open("../databases/database.ini", "w")
+    if not os.path.isfile(ARCH_INI):
+        arch = open(ARCH_INI, "w")
         arch.close()
-    with open("../databases/database.ini", "r") as arch:
+    with open(ARCH_INI, "r") as arch:
         db = arch.readline()
     return db
 
-database = obtener_database()
-arch_log_error = "../error.log"
-arch_ini = "../databases/database.ini"
+
+DATABASE = obtener_database()
 
 
 def iniciar_sesion() -> tuple:
@@ -179,7 +181,7 @@ def buscar_usuario_por_user(user: str) -> tuple:
     :rtype: tuple
     """
     try:
-        conn = sql.connect(database)
+        conn = sql.connect(DATABASE)
     except sql.OperationalError:
         log_error()
         print()
@@ -208,7 +210,7 @@ def buscar_usuario_por_id(idu: int) -> tuple:
 
     :rtype: tuple
     """
-    with sql.connect(database) as conn:
+    with sql.connect(DATABASE) as conn:
         cursor = conn.cursor()
         instruccion = f"SELECT * FROM usuarios WHERE id = '{idu}'"
         cursor.execute(instruccion)
@@ -224,7 +226,7 @@ def log_error():
     y lo vuelca en el Log de errores
     """
     exc = format_exc()
-    log_error = open(arch_log_error, 'a')
+    log_error = open(ARCH_LOG_ERROR, 'a')
     log_error.write(f"{datetime.now().strftime('%d/%m/%Y %H:%M:%S')}: \n")
     log_error.write(exc)
     log_error.write("\n_________________________________________________\n\n")
@@ -255,7 +257,7 @@ def run_query(query: str):
     :param query: Consulta SQL
     :type query: str
     """
-    with sql.connect(database) as conn:
+    with sql.connect(DATABASE) as conn:
         cursor = conn.cursor()
         cursor.execute(query)
 
@@ -269,7 +271,7 @@ def run_query_w_par(query: str, parameters:tuple = ()):
     :param parameters: Tupla que contiene los parámetros a pasar en la consulta
     :type parameters: tuple
     """
-    with sql.connect(database) as conn:
+    with sql.connect(DATABASE) as conn:
         cursor = conn.cursor()
         cursor.execute(query, parameters)
 
@@ -289,7 +291,7 @@ def delete_row(tabla: str, columna: str, valor: str|int|float|bool):
     """
     valor = reemplazar_comilla(valor)
 
-    with sql.connect(database) as conn:
+    with sql.connect(DATABASE) as conn:
         cursor = conn.cursor()
         instruccion = f"DELETE FROM {tabla} WHERE {columna} = '{valor}'"
         cursor.execute(instruccion)
@@ -307,7 +309,7 @@ def ult_reg(tabla: str, columna: str) -> list:
 
     :rtype: list
     """
-    with sql.connect(database) as conn:
+    with sql.connect(DATABASE) as conn:
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM {tabla} ORDER BY {columna} DESC LIMIT 1")
         ult_registro = cursor.fetchall()
@@ -325,7 +327,7 @@ def buscar_op_por_nicho(cod_nicho: str) -> list:
 
     :rtype: list
     """
-    with sql.connect(database) as conn:
+    with sql.connect(DATABASE) as conn:
         cursor = conn.cursor()
         instruccion = f"SELECT * FROM operaciones WHERE nicho = '{cod_nicho}'"
         cursor.execute(instruccion)
@@ -361,7 +363,7 @@ def mostrar_precios_venta(ret: bool = False):
     """
     counter = 0
 
-    with sql.connect(database) as conn:
+    with sql.connect(DATABASE) as conn:
         cursor = conn.cursor()
         instruccion = f"SELECT * FROM precios_venta ORDER BY id"
         cursor.execute(instruccion)
@@ -396,7 +398,7 @@ def mostrar_precios_mant(ret: bool = False):
     """
     counter = 0
 
-    with sql.connect(database) as conn:
+    with sql.connect(DATABASE) as conn:
         cursor = conn.cursor()
         instruccion = f"SELECT * FROM cat_nichos ORDER BY id"
         cursor.execute(instruccion)
@@ -431,7 +433,7 @@ def mostrar_cuentas_mail(ret: bool = False):
     """
     counter = 0
 
-    with sql.connect(database) as conn:
+    with sql.connect(DATABASE) as conn:
         cursor = conn.cursor()
         instruccion = f"SELECT * FROM mail ORDER BY id"
         cursor.execute(instruccion)
@@ -462,7 +464,7 @@ def buscar_mail(id: int) -> tuple:
     :param id: ID de la cuenta a buscar
     :type id: int
     """
-    with sql.connect(database) as conn:
+    with sql.connect(DATABASE) as conn:
         cursor = conn.cursor()
         instruccion = f"SELECT * FROM mail WHERE id = {id}"
         cursor.execute(instruccion)
@@ -500,7 +502,7 @@ def cambio_precio_venta_manual(id_precio: int, nuevo_valor: int):
     """
     anticipo, cuota_r = calcular_precio_venta_manual(nuevo_valor)
 
-    with sql.connect(database) as conn:
+    with sql.connect(DATABASE) as conn:
         cursor = conn.cursor()
         instruccion = f"UPDATE precios_venta SET precio = {nuevo_valor}, anticipo = {anticipo}, cuotas = {cuota_r} WHERE id = {id_precio}"
         cursor.execute(instruccion)
@@ -519,7 +521,7 @@ def cambio_precio_venta_porcentaje(porcentaje: int):
     pcnt = 1+(porcentaje/100)
 
     # Recuperación de precios actuales
-    with sql.connect(database) as conn:
+    with sql.connect(DATABASE) as conn:
         cursor = conn.cursor()
         instruccion = f"SELECT * FROM precios_venta ORDER BY id"
         cursor.execute(instruccion)
@@ -541,7 +543,7 @@ def cambio_precio_venta_porcentaje(porcentaje: int):
         n_cuo_r = float(truncate(n_cuo, -2))
 
         # Registro de nuevos precios
-        with sql.connect(database) as conn:
+        with sql.connect(DATABASE) as conn:
             cursor = conn.cursor()
             instruccion = f"UPDATE precios_venta SET precio = {n_pre_r}, anticipo = {n_ant}, cuotas = {n_cuo_r} WHERE id = {i_d}"
             cursor.execute(instruccion)
@@ -560,7 +562,7 @@ def cambio_precio_mant_manual(id_cat: int, nuevo_val_mant_bic: int, nuevo_val_ma
     :param nuevo_val_mant_nob: Nuevo precio de mantenimiento para NOB
     :type nuevo_val_mant_nob: int
     """
-    with sql.connect(database) as conn:
+    with sql.connect(DATABASE) as conn:
         cursor = conn.cursor()
         instruccion = f"UPDATE cat_nichos SET valor_mant_bicon = {nuevo_val_mant_bic}, valor_mant_nob = {nuevo_val_mant_nob} WHERE id = {id_cat}"
         cursor.execute(instruccion)
@@ -581,7 +583,7 @@ def cambio_precio_mant_porcentaje(facturacion: str, porcentaje: int):
     pcnt = 1+(porcentaje/100)
 
     # Recuperación de precios actuales
-    with sql.connect(database) as conn:
+    with sql.connect(DATABASE) as conn:
         cursor = conn.cursor()
         instruccion = f"SELECT * FROM cat_nichos ORDER BY id"
         cursor.execute(instruccion)
@@ -610,7 +612,7 @@ def cambio_precio_mant_porcentaje(facturacion: str, porcentaje: int):
             instruccion = f"UPDATE cat_nichos SET valor_mant_nob = {n_vmn_t} WHERE id = {i_d}"
 
         # Registro de nuevos precios
-        with sql.connect(database) as conn:
+        with sql.connect(DATABASE) as conn:
             cursor = conn.cursor()
             cursor.execute(instruccion)
 
@@ -633,7 +635,7 @@ def edit_registro(tabla: str, columna: str, nuevo_valor: str|int|float|bool, id:
     """
     nuevo_valor = reemplazar_comilla(nuevo_valor)
 
-    with sql.connect(database) as conn:
+    with sql.connect(DATABASE) as conn:
         cursor = conn.cursor()
         instruccion = f"UPDATE {tabla} SET {columna} = '{nuevo_valor}' WHERE id = '{id}'"
         cursor.execute(instruccion)
@@ -655,7 +657,7 @@ def set_null_registro(tabla: str, columna_null: str, columna_filtro: str, valor:
     :param valor: Valor que se buscará en la columna indicada
     :type valor: str or int or float or bool
     """
-    with sql.connect(database) as conn:
+    with sql.connect(DATABASE) as conn:
         cursor = conn.cursor()
         instruccion = f"UPDATE {tabla} SET {columna_null} = NULL WHERE {columna_filtro} = '{valor}'"
         cursor.execute(instruccion)
@@ -676,7 +678,7 @@ def edit_nicho(columna: str, nuevo_valor: str|int|float|bool, cod_nicho: str):
     """
     nuevo_valor = reemplazar_comilla(nuevo_valor)
 
-    with sql.connect(database) as conn:
+    with sql.connect(DATABASE) as conn:
         cursor = conn.cursor()
         instruccion = f"UPDATE nichos SET {columna} = '{nuevo_valor}' WHERE codigo = '{cod_nicho}'"
         cursor.execute(instruccion)
@@ -688,7 +690,7 @@ def obtener_panteones() -> list:
 
     :rtype: list
     """
-    with sql.connect(database) as conn:
+    with sql.connect(DATABASE) as conn:
         cursor = conn.cursor()
         instruccion = f"SELECT * FROM panteones ORDER BY id"
         cursor.execute(instruccion)
@@ -702,7 +704,7 @@ def obtener_cat_nichos() -> list:
 
     :rtype: list
     """
-    with sql.connect(database) as conn:
+    with sql.connect(DATABASE) as conn:
         cursor = conn.cursor()
         instruccion = f"SELECT * FROM cat_nichos ORDER BY id"
         cursor.execute(instruccion)
@@ -935,7 +937,7 @@ def mostrar_usuarios(idu: int):
         print()
 
     elif pri >= 3:
-        with sql.connect(database) as conn:
+        with sql.connect(DATABASE) as conn:
             cursor = conn.cursor()
             instruccion = f"SELECT * FROM usuarios ORDER BY user"
             cursor.execute(instruccion)
@@ -3884,7 +3886,7 @@ def mant_restaurar_admin():
     Esta función se encuentra dentro de un menú secreto al que sólo debe tener acceso el
     administrador.
     """
-    with sql.connect(database) as conn:
+    with sql.connect(DATABASE) as conn:
         telefono = input("Teléfono: ")
         cursor = conn.cursor()
         instruccion = f"UPDATE usuarios SET nombre = 'Manuel', apellido = 'Ferrero', telefono = '{telefono}', domicilio = 'ADMIN', user_name = 'ferman', pass = '155606038', privilegios = 5, activo = 1 WHERE id = 1"
@@ -4026,7 +4028,7 @@ def mant_database():
     
     conexion = f"host={host} dbname={dbname} user={user} password={password} port={port}"
     
-    with open(arch_ini, 'w') as archivo:
+    with open(ARCH_INI, 'w') as archivo:
         archivo.write(conexion)
     
     print("Ruta a base de datos actualizada exitosamente.")

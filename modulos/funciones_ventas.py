@@ -1,5 +1,5 @@
-import funciones_rendiciones as rend
 import funciones_mantenimiento as mant
+import funciones_rendiciones as rend
 import funciones_cuentas as ctas
 import psycopg2 as sql
 import psycopg2.errors
@@ -13,164 +13,9 @@ os.system('color 0B')   # Colores del módulo (Celeste sobre negro)
 os.system('mode con: cols=160 lines=9999')
 
 
-def obtener_database() -> str:
-    """Obtiene desde un archivo .ini la información necesaria para ingresar a la
-    base de datos y la retorna en forma de cadena.
-
-    :rtype: str
-    """
-    if not os.path.isfile("../databases/database.ini"):
-        arch = open("../databases/database.ini", "w")
-        arch.close()
-    with open("../databases/database.ini", "r") as arch:
-        db = arch.readline()
-    return db
-
-database = obtener_database()
 dia = datetime.now().strftime('%d')
 mes = datetime.now().strftime('%m')
 año = datetime.now().strftime('%Y')
-
-
-def iniciar_sesion() -> tuple:
-    """Permite al usuario ingresar al sistema a través de su usuario y contraseña.
-    - En caso que la contraseña sea 0000 se le solicitará ingresar una contraseña nueva.
-    - En caso de ingresar erroneamente la contraseña tres veces consecutivas se 
-    bloqueará el usuario.
-    - En caso de ingresar un usuario inactivo o bloqueado no se permitirá el ingreso.
-
-    Se retorna una tupla con los datos del usuario. En cualquiera de los casos en que
-    no se produzca un ingreso exitoso se retorna una tupla con cadenas vacías.
-
-    :rtype: tuple
-    """
-    i_d = 0
-    user = input("Usuario: ").lower()
-    try:
-        i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_user(user)
-        if i_d == 0 and nom == 0 and ape == 0:
-            return 0, 0, 0, 0, 0, 0, 0, 0, 0
-        if act == 1:
-            counter = 0
-            pw = getpass("Contraseña: ")
-            while pw != pas:
-                print("Contraseña incorrecta")
-                print()
-                counter += 1
-                if counter == 3:
-                    mant.edit_registro('usuarios', 'activo', 2, i_d)
-                    print("Su usuario ha sido bloqueado por repetición de claves incorrectas. Comuníquese con un administrador.")
-                    i_d = -1
-                    nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
-                    return i_d, nom, ape, tel, dom, use, pas, pri, act
-                print("")
-                print
-                pw = getpass("Contraseña: ")
-            if pw == pas:
-                print()
-                print(f"Bienvenido/a {nom}, que tengas un buen día.")
-                print()
-                while pw == "0000":
-                    pw_new = str(getpass("Ingrese la nueva contraseña: "))
-                    while len(pw_new) < 4:
-                        print("La contraseña debe ser de 4 dígitos o más.")
-                        pw_new = str(getpass("Ingrese la nueva contraseña: "))
-                        print()
-                    while pw_new == "0000":
-                        print("La contraseña no puede ser 0000.")
-                        pw_new = str(getpass("Ingrese la nueva contraseña: "))
-                        print()
-                    pw_conf = str(getpass("Repita la nueva contraseña: "))
-                    print()
-                    if pw_new == pw_conf:
-                        mant.edit_registro('usuarios', 'pass', str(pw_new), i_d)
-                        print("Contraseña actualizada exitosamente.")
-                        print()
-                        return i_d, nom, ape, tel, dom, use, pw_new, pri, act
-                    else:
-                        pw = ""
-                return i_d, nom, ape, tel, dom, use, pas, pri, act
-        elif act == 2:
-            print("")
-            print("Su usuario se encuentra bloqueado. Comuníquese con un administrador.")
-            i_d = -1
-            nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
-            return i_d, nom, ape, tel, dom, use, pas, pri, act
-        else:
-            print("")
-            print("Usuario inactivo.")
-            i_d = -1
-            nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
-            return i_d, nom, ape, tel, dom, use, pas, pri, act
-    except TypeError:
-        print("")
-        print("Usuario inexistente.")
-        i_d = -1
-        nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
-        return i_d, nom, ape, tel, dom, use, pas, pri, act
-    except sql.OperationalError:
-        print("")
-        print("Usuario inexistente.")
-        i_d = -1
-        nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
-        return i_d, nom, ape, tel, dom, use, pas, pri, act
-    except:
-        mant.log_error()
-        print("")
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
-        i_d = -1
-        nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
-        return i_d, nom, ape, tel, dom, use, pas, pri, act
-
-
-def buscar_usuario_por_user(user: str) -> tuple:
-    """Busca un usuario en la base de datos a partir del nombre de usuario
-    y retorna una tupla con todos los datos del mismo. En caso de no poder
-    conectarse con la BD, lo informa al usuario y retorna una tupla de nueve
-    ceros.
-
-    :param user: Nombre de usuario
-    :type user: str
-
-    :rtype: tuple
-    """
-    try:
-        conn = sql.connect(database)
-    except sql.OperationalError:
-        mant.log_error()
-        print()
-        print("         ERROR. La base de datos no responde. Asegurese de estar conectado a la red y que el servidor se encuentre encendido.")
-        print()
-        print("         Si es así y el problema persiste, comuníquese con el administrador del sistema.")
-        print()
-        return 0, 0, 0, 0, 0, 0, 0, 0, 0
-    cursor = conn.cursor()
-    instruccion = f"SELECT * FROM usuarios WHERE user_name = '{user}'"
-    cursor.execute(instruccion)
-    datos = cursor.fetchone()
-    conn.commit()
-    conn.close()
-    i_d, nom, ape, tel, dom, use, pas, pri, act = datos
-    return i_d, nom, ape, tel, dom, use, pas, pri, act
-
-
-def buscar_usuario_por_id(idu: int) -> tuple:
-    """Busca un usuario en la base de datos a partir del ID de usuario
-    y retorna una tupla con todos los datos del mismo.
-
-    :param user: ID de usuario
-    :type user: int
-
-    :rtype: tuple
-    """
-    with sql.connect(database) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM usuarios WHERE id = '{idu}'"
-        cursor.execute(instruccion)
-        datos = cursor.fetchone()
-
-    i_d, nom, ape, tel, dom, use, pas, pri, act = datos
-    return i_d, nom, ape, tel, dom, use, pas, pri, act
 
 
 def obtener_precio_venta(id_cat: int, pis: str, fil: str) -> tuple:
@@ -329,7 +174,7 @@ def obtener_precio_venta(id_cat: int, pis: str, fil: str) -> tuple:
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 loop = -1
     
-    with sql.connect(database) as conn:
+    with sql.connect(mant.DATABASE) as conn:
         cursor = conn.cursor()
         instruccion = f"SELECT * FROM precios_venta WHERE id = '{id_p_vent}'"
         cursor.execute(instruccion)
@@ -367,7 +212,7 @@ def buscar_socio_dni(dni: int|str) -> tuple:
     :param dni: Documento de identidad sin puntos
     :type dni: int or str
     """
-    with sql.connect(database) as conn:
+    with sql.connect(mant.DATABASE) as conn:
         cursor = conn.cursor()
         instruccion = f"SELECT * FROM socios WHERE dni = '{dni}'"
         cursor.execute(instruccion)
@@ -383,7 +228,7 @@ def obtener_localidad(c_p: int) -> tuple:
     :param c_p: Código postal corto (sólo números)
     :type c_p: int
     """
-    with sql.connect(database) as conn:
+    with sql.connect(mant.DATABASE) as conn:
         cursor = conn.cursor()
         instruccion = f"SELECT localidad FROM cod_post WHERE cp = {c_p}"
         cursor.execute(instruccion)
@@ -397,7 +242,7 @@ def obtener_cobradores() -> list:
 
     :rtype: list
     """
-    with sql.connect(database) as conn:
+    with sql.connect(mant.DATABASE) as conn:
         cursor = conn.cursor()
         instruccion = f"SELECT * FROM cobradores ORDER BY id"
         cursor.execute(instruccion)
@@ -414,7 +259,7 @@ def obtener_datos_complementarios(id_op: int) -> tuple:
 
     :rtype: tuple
     """
-    with sql.connect(database) as conn:
+    with sql.connect(mant.DATABASE) as conn:
         cursor = conn.cursor()
         instruccion = f"SELECT * FROM datos_complementarios WHERE id_op = {id_op}"
         cursor.execute(instruccion)
@@ -439,7 +284,7 @@ def edit_registro_socio(columna: str, nuevo_valor: str|int|float|bool, nro_socio
     """
     nuevo_valor = mant.reemplazar_comilla(nuevo_valor)
     
-    with sql.connect(database) as conn:
+    with sql.connect(mant.DATABASE) as conn:
         cursor = conn.cursor()
         instruccion = f"UPDATE socios SET {columna} = '{nuevo_valor}' WHERE nro_socio = '{nro_socio}'"
         cursor.execute(instruccion)
@@ -531,7 +376,7 @@ def venta_nicho(idu: int):
     :param idu: ID de usuario
     :type idu: int
     """
-    i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_id(idu)
+    i_d, nom, ape, tel, dom, use, pas, pri, act = mant.buscar_usuario_por_id(idu)
 
     if pri < 2:
         print()
@@ -730,7 +575,7 @@ def crear_socio(idu: int, ret: bool= True) -> tuple | None:
 
     :rtype: tuple
     """
-    i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_id(idu)
+    i_d, nom, ape, tel, dom, use, pas, pri, act = mant.buscar_usuario_por_id(idu)
     
     if pri < 2:
         print()
@@ -1034,7 +879,7 @@ def edit_nombre(idu:int , id_soc:int):
     :param id_soc: Número de socio (ID de asociado)
     :type id_soc: int
     """
-    i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_id(idu)
+    i_d, nom, ape, tel, dom, use, pas, pri, act = mant.buscar_usuario_por_id(idu)
 
     if pri < 2:
         print()
@@ -1072,7 +917,7 @@ def edit_dni(idu: int, id_soc: int):
     :param id_soc: Número de socio (ID de asociado)
     :type id_soc: int
     """
-    i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_id(idu)
+    i_d, nom, ape, tel, dom, use, pas, pri, act = mant.buscar_usuario_por_id(idu)
     
     if pri < 2:
         print()
@@ -1130,7 +975,7 @@ def edit_tel(idu: int, id_soc: int):
     :param id_soc: Número de socio (ID de asociado)
     :type id_soc: int
     """
-    i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_id(idu)
+    i_d, nom, ape, tel, dom, use, pas, pri, act = mant.buscar_usuario_por_id(idu)
     if pri < 2:
         print()
         print("         ERROR. No posee los privilegios necesarios para realizar esta acción.")
@@ -1190,7 +1035,7 @@ def edit_mail(idu: int, id_soc: int):
     :param id_soc: Número de socio (ID de asociado)
     :type id_soc: int
     """
-    i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_id(idu)
+    i_d, nom, ape, tel, dom, use, pas, pri, act = mant.buscar_usuario_por_id(idu)
     
     if pri < 2:
         print()
@@ -1224,7 +1069,7 @@ def edit_dom(idu: int, id_soc: int):
     :param id_soc: Número de socio (ID de asociado)
     :type id_soc: int
     """
-    i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_id(idu)
+    i_d, nom, ape, tel, dom, use, pas, pri, act = mant.buscar_usuario_por_id(idu)
     
     if pri < 2:
         print()
@@ -1266,7 +1111,7 @@ def edit_loc(idu: int, id_soc: int):
     :param id_soc: Número de socio (ID de asociado)
     :type id_soc: int
     """
-    i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_id(idu)
+    i_d, nom, ape, tel, dom, use, pas, pri, act = mant.buscar_usuario_por_id(idu)
 
     if pri < 2:
         print()
@@ -1331,7 +1176,7 @@ def edit_fec_nac(idu: int, id_soc: int):
     :param id_soc: Número de socio (ID de asociado)
     :type id_soc: int
     """
-    i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_id(idu)
+    i_d, nom, ape, tel, dom, use, pas, pri, act = mant.buscar_usuario_por_id(idu)
     
     if pri < 2:
         print()
@@ -1369,7 +1214,7 @@ def edit_act(idu: int, id_soc: int, estado: int):
     :param estado: Estado del usuario (Binario: 0=inactivo, 1=activo)
     :type id_soc: int
     """
-    i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_id(idu)
+    i_d, nom, ape, tel, dom, use, pas, pri, act = mant.buscar_usuario_por_id(idu)
     
     if pri < 2:
         print()
@@ -1452,7 +1297,7 @@ def crear_op(idu: int, id_socio: int, ret: bool= False) -> int | None:
 
     :rtype: tuple
     """
-    i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_id(idu)
+    i_d, nom, ape, tel, dom, use, pas, pri, act = mant.buscar_usuario_por_id(idu)
     
     if pri < 2:
         print()
@@ -2317,7 +2162,7 @@ def transferir_op(idu: int, id_op: int):
     :param id_op: ID de operación
     :type id_op: int
     """
-    i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_id(idu)
+    i_d, nom, ape, tel, dom, use, pas, pri, act = mant.buscar_usuario_por_id(idu)
 
     if pri < 2:
         print()
@@ -2475,7 +2320,7 @@ def cambiar_nicho(idu: int, id_op: int):
     :param id_op: ID de operación
     :type id_op: int
     """
-    i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_id(idu)
+    i_d, nom, ape, tel, dom, use, pas, pri, act = mant.buscar_usuario_por_id(idu)
 
     if pri < 2:
         print()
@@ -2664,7 +2509,7 @@ def cambiar_cobrador(idu: int, id_op: int, tarjeta: int):
     :param tarjeta: Número de la tarjeta de crédito (16 dígitos sin espacios)
     :type tarjeta: int
     """
-    i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_id(idu)
+    i_d, nom, ape, tel, dom, use, pas, pri, act = mant.buscar_usuario_por_id(idu)
     
     if pri < 2:
         print()
@@ -2728,7 +2573,7 @@ def editar_ruta(idu: int, id_op: int):
     :param id_op: ID de operación
     :type id_op: int
     """
-    i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_id(idu)
+    i_d, nom, ape, tel, dom, use, pas, pri, act = mant.buscar_usuario_por_id(idu)
     
     if pri < 2:
         print()
@@ -2771,7 +2616,7 @@ def editar_tarjeta(idu: int, id_op: int):
     :param id_op: ID de operación
     :type id_op: int
     """
-    i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_id(idu)
+    i_d, nom, ape, tel, dom, use, pas, pri, act = mant.buscar_usuario_por_id(idu)
     
     if pri < 2:
         print()
@@ -2816,7 +2661,7 @@ def editar_op_cobol(idu: int, id_op: int):
     :param id_op: ID de operación
     :type id_op: int
     """
-    i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_id(idu)
+    i_d, nom, ape, tel, dom, use, pas, pri, act = mant.buscar_usuario_por_id(idu)
     
     if pri < 2:
         print()
@@ -2862,7 +2707,7 @@ def editar_nom_alt(idu: int, id_op: int):
     :param id_op: ID de operación
     :type id_op: int
     """
-    i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_id(idu)
+    i_d, nom, ape, tel, dom, use, pas, pri, act = mant.buscar_usuario_por_id(idu)
     
     if pri < 2:
         print()
@@ -2897,7 +2742,7 @@ def editar_dom_alt(idu: int, id_op: int):
     :param id_op: ID de operación
     :type id_op: int
     """
-    i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_id(idu)
+    i_d, nom, ape, tel, dom, use, pas, pri, act = mant.buscar_usuario_por_id(idu)
     
     if pri < 2:
         print()
@@ -2941,7 +2786,7 @@ def cambiar_estado_cobro(idu: int, id_op: int, paga: bool | int):
     :param paga: Estado de cobro actual (0: inactivo, 1: activo)
     :type paga: bool|int
     """
-    i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_id(idu)
+    i_d, nom, ape, tel, dom, use, pas, pri, act = mant.buscar_usuario_por_id(idu)
     
     if pri < 4:
         print()
@@ -2977,60 +2822,3 @@ def cambiar_estado_cobro(idu: int, id_op: int, paga: bool | int):
                 print()
                 msj = input(f"¿Seguro que quiere cambiar el estado del socio? (S/N): ")
                 print()
-
-
-def cerrar_consola():
-    """Imprime en pantalla una gran cantidad de saltos de línea
-    y un cartel que comunica al usuario que puede cerrar la consola,
-    para que, en caso que el usuario inicie el sistema a través de
-    la consola y no iniciando el archivo ejecutable, el mismo sepa
-    que ya finalizó la ejecución.
-    """
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print(" -----------------------------")
-    print("| Ya puede cerrar la consola. |")
-    print(" -----------------------------")
-    print("")
-    print("")
-    print("")
-    print("")
-
-

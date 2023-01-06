@@ -25,7 +25,7 @@ try:
 
     while idu < 0:
         print("")
-        idu, nom, ape, tel, dom, use, pas, pri, act = func.iniciar_sesion()
+        idu, nom, ape, tel, dom, use, pas, pri, act = mant.iniciar_sesion()
 
     if idu == 0:
         mantenimiento = func.getpass("Presione enter para salir...")        
@@ -98,7 +98,7 @@ try:
             if salir == 1:
                 ########## CERRANDO CONSOLA ########## 
                 
-                func.cerrar_consola()
+                mant.cerrar_consola()
 
             os.system('color 0d')   # Colores del módulo (Púrpura sobre negro)
         else:
@@ -109,7 +109,7 @@ try:
 
             ########## CERRANDO CONSOLA ########## 
                 
-            func.cerrar_consola()
+            mant.cerrar_consola()
             os.system('color 0d')   # Colores del módulo (Púrpura sobre negro)
 except:
     mant.log_error()

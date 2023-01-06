@@ -11,127 +11,11 @@ import os
 os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
 os.system('color 80')   # Colores del módulo (Negro sobre gris)
 
-def obtener_database():
-    arch = open("../databases/database.ini", "r")
-    db = arch.readline()
-    arch.close()
-    return db
-database = obtener_database()
+
 
 #######################################################################################################################################################
 ###################################################################### FUNCIONES ######################################################################
 #######################################################################################################################################################
-
-def iniciar_sesion():
-    i_d = 0
-    user = input("Usuario: ").lower()
-    try:
-        i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_user(user)
-        if i_d == 0 and nom == 0 and ape == 0:
-            return 0, 0, 0, 0, 0, 0, 0, 0, 0
-        if act == 1:
-            counter = 0
-            pw = getpass("Contraseña: ")
-            while pw != pas:
-                print("Contraseña incorrecta")
-                print()
-                counter += 1
-                if counter == 3:
-                    mant.edit_registro('usuarios', 'activo', 2, i_d)
-                    print("Su usuario ha sido bloqueado por repetición de claves incorrectas. Comuníquese con un administrador.")
-                    i_d = -1
-                    nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
-                    return i_d, nom, ape, tel, dom, use, pas, pri, act
-                print("")
-                print
-                pw = getpass("Contraseña: ")
-            if pw == pas:
-                print()
-                print(f"Bienvenido/a {nom}, que tengas un buen día.")
-                print()
-                while pw == "0000":
-                    pw_new = str(getpass("Ingrese la nueva contraseña: "))
-                    while len(pw_new) < 4:
-                        print("La contraseña debe ser de 4 dígitos o más.")
-                        pw_new = str(getpass("Ingrese la nueva contraseña: "))
-                        print()
-                    while pw_new == "0000":
-                        print("La contraseña no puede ser 0000.")
-                        pw_new = str(getpass("Ingrese la nueva contraseña: "))
-                        print()
-                    pw_conf = str(getpass("Repita la nueva contraseña: "))
-                    print()
-                    if pw_new == pw_conf:
-                        mant.edit_registro('usuarios', 'pass', str(pw_new), i_d)
-                        print("Contraseña actualizada exitosamente.")
-                        print()
-                        return i_d, nom, ape, tel, dom, use, pw_new, pri, act
-                    else:
-                        pw = ""
-                return i_d, nom, ape, tel, dom, use, pas, pri, act
-        elif act == 2:
-            print("")
-            print("Su usuario se encuentra bloqueado. Comuníquese con un administrador.")
-            i_d = -1
-            nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
-            return i_d, nom, ape, tel, dom, use, pas, pri, act
-        else:
-            print("")
-            print("Usuario inactivo.")
-            i_d = -1
-            nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
-            return i_d, nom, ape, tel, dom, use, pas, pri, act
-    except TypeError:
-        print("")
-        print("Usuario inexistente.")
-        i_d = -1
-        nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
-        return i_d, nom, ape, tel, dom, use, pas, pri, act
-    except sql.OperationalError:
-        print("")
-        print("Usuario inexistente.")
-        i_d = -1
-        nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
-        return i_d, nom, ape, tel, dom, use, pas, pri, act
-    except:
-        mant.log_error()
-        print("")
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
-        i_d = -1
-        nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
-        return i_d, nom, ape, tel, dom, use, pas, pri, act
-
-
-def buscar_usuario_por_user(user):
-    try:
-        conn = sql.connect(database)
-    except sql.OperationalError:
-        print()
-        print("         ERROR. La base de datos no responde. Asegurese de estar conectado a la red y que el servidor se encuentre encendido.")
-        print()
-        print("         Si es así y el problema persiste, comuníquese con el administrador del sistema.")
-        print()
-        return 0, 0, 0, 0, 0, 0, 0, 0, 0
-    cursor = conn.cursor()
-    instruccion = f"SELECT * FROM usuarios WHERE user_name = '{user}'"
-    cursor.execute(instruccion)
-    datos = cursor.fetchone()
-    conn.commit()
-    conn.close()
-    i_d, nom, ape, tel, dom, use, pas, pri, act = datos
-    return i_d, nom, ape, tel, dom, use, pas, pri, act
-
-
-def buscar_usuario_por_id(idu):
-    conn = sql.connect(database)
-    cursor = conn.cursor()
-    instruccion = f"SELECT * FROM usuarios WHERE id = '{idu}'"
-    cursor.execute(instruccion)
-    datos = cursor.fetchone()
-    conn.commit()
-    conn.close()
-    i_d, nom, ape, tel, dom, use, pas, pri, act = datos
-    return i_d, nom, ape, tel, dom, use, pas, pri, act
 
 
 def opcion_menu():                                                                                  # OPCIÓN MENÚ PRINCIPAL
@@ -220,7 +104,7 @@ def morosos(idu):                                                               
     while opcion != 0:
         opcion = opcion_morosos()
         if opcion == 1:     # Listado detallado
-            i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_id(idu)
+            i_d, nom, ape, tel, dom, use, pas, pri, act = mant.buscar_usuario_por_id(idu)
             if pri < 1:
                 print("No posee privilegios para realizar esta acción")
                 print()
@@ -231,7 +115,7 @@ def morosos(idu):                                                               
                 print()
                 return
         elif opcion == 2:   # Listado comprimido
-            i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_id(idu)
+            i_d, nom, ape, tel, dom, use, pas, pri, act = mant.buscar_usuario_por_id(idu)
             if pri < 1:
                 print("No posee privilegios para realizar esta acción")
                 print()
@@ -246,7 +130,7 @@ def morosos(idu):                                                               
 
 
 def socios(idu):
-    i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_id(idu)
+    i_d, nom, ape, tel, dom, use, pas, pri, act = mant.buscar_usuario_por_id(idu)
     if pri < 1:
         print("No posee privilegios para realizar esta acción")
         print()
@@ -258,7 +142,7 @@ def socios(idu):
 
 
 def modif_caja(idu):
-    i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_id(idu)
+    i_d, nom, ape, tel, dom, use, pas, pri, act = mant.buscar_usuario_por_id(idu)
     if pri < 4:
         print("No posee privilegios para realizar esta acción")
         print()
@@ -270,7 +154,7 @@ def modif_caja(idu):
 
 
 def deb_aut(idu):
-    i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_id(idu)
+    i_d, nom, ape, tel, dom, use, pas, pri, act = mant.buscar_usuario_por_id(idu)
     if pri < 3:
         print("No posee privilegios para realizar esta acción")
         print()
@@ -304,7 +188,7 @@ def deb_aut(idu):
 
 
 def panteones(idu):
-    i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_id(idu)
+    i_d, nom, ape, tel, dom, use, pas, pri, act = mant.buscar_usuario_por_id(idu)
     if pri < 1:
         print("No posee privilegios para realizar esta acción")
         print()
@@ -316,7 +200,7 @@ def panteones(idu):
 
 
 def cobradores(idu):
-    i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_id(idu)
+    i_d, nom, ape, tel, dom, use, pas, pri, act = mant.buscar_usuario_por_id(idu)
     if pri < 1:
         print("No posee privilegios para realizar esta acción")
         print()
@@ -328,7 +212,7 @@ def cobradores(idu):
 
 
 def ultimos_recibos(idu):
-    i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_id(idu)
+    i_d, nom, ape, tel, dom, use, pas, pri, act = mant.buscar_usuario_por_id(idu)
     if pri < 1:
         print("No posee privilegios para realizar esta acción")
         print()
@@ -397,54 +281,6 @@ def ultimos_recibos(idu):
         print()
 
 
-def cerrar_consola():
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print(" -----------------------------")
-    print("| Ya puede cerrar la consola. |")
-    print(" -----------------------------")
-    print("")
-    print("")
-    print("")
-    print("")
-
 #######################################################################################################################################################
 ###################################################################### SCRIPT #########################################################################
 #######################################################################################################################################################
@@ -466,7 +302,7 @@ try:
 
     while idu < 0:
         print("")
-        idu, nom, ape, tel, dom, use, pas, pri, act = iniciar_sesion()
+        idu, nom, ape, tel, dom, use, pas, pri, act = mant.iniciar_sesion()
 
     if idu == 0:
         mantenimiento = getpass("Presione enter para salir...")        
@@ -491,7 +327,7 @@ try:
             print("")
 
     ########## CERRANDO CONSOLA ##########
-    cerrar_consola()
+    mant.cerrar_consola()
 
     os.system('color 80')   # Colores del módulo (Negro sobre gris)
 except:

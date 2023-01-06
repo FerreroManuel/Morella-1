@@ -12,128 +12,6 @@ os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
 os.system('color 0d')   # Colores del módulo (Púrpura sobre negro)
 os.system('mode con: cols=160 lines=9999')
 
-def obtener_database():
-    if not os.path.isfile("../databases/database.ini"):
-        arch = open("../databases/database.ini", "w")
-        arch.close()
-    with open("../databases/database.ini", "r") as arch:
-        db = arch.readline()
-    return db
-database = obtener_database()
-
-
-def iniciar_sesion():
-    i_d = 0
-    user = input("Usuario: ").lower()
-    try:
-        i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_user(user)
-        if i_d == 0 and nom == 0 and ape == 0:
-            return 0, 0, 0, 0, 0, 0, 0, 0, 0
-        if act == 1:
-            counter = 0
-            pw = getpass("Contraseña: ")
-            while pw != pas:
-                print("Contraseña incorrecta")
-                print()
-                counter += 1
-                if counter == 3:
-                    mant.edit_registro('usuarios', 'activo', 2, i_d)
-                    print("Su usuario ha sido bloqueado por repetición de claves incorrectas. Comuníquese con un administrador.")
-                    i_d = -1
-                    nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
-                    return i_d, nom, ape, tel, dom, use, pas, pri, act
-                print("")
-                print
-                pw = getpass("Contraseña: ")
-            if pw == pas:
-                print()
-                print(f"Bienvenido/a {nom}, que tengas un buen día.")
-                print()
-                while pw == "0000":
-                    pw_new = str(getpass("Ingrese la nueva contraseña: "))
-                    while len(pw_new) < 4:
-                        print("La contraseña debe ser de 4 dígitos o más.")
-                        pw_new = str(getpass("Ingrese la nueva contraseña: "))
-                        print()
-                    while pw_new == "0000":
-                        print("La contraseña no puede ser 0000.")
-                        pw_new = str(getpass("Ingrese la nueva contraseña: "))
-                        print()
-                    pw_conf = str(getpass("Repita la nueva contraseña: "))
-                    print()
-                    if pw_new == pw_conf:
-                        mant.edit_registro('usuarios', 'pass', str(pw_new), i_d)
-                        print("Contraseña actualizada exitosamente.")
-                        print()
-                        return i_d, nom, ape, tel, dom, use, pw_new, pri, act
-                    else:
-                        pw = ""
-                return i_d, nom, ape, tel, dom, use, pas, pri, act
-        elif act == 2:
-            print("")
-            print("Su usuario se encuentra bloqueado. Comuníquese con un administrador.")
-            i_d = -1
-            nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
-            return i_d, nom, ape, tel, dom, use, pas, pri, act
-        else:
-            print("")
-            print("Usuario inactivo.")
-            i_d = -1
-            nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
-            return i_d, nom, ape, tel, dom, use, pas, pri, act
-    except TypeError:
-        print("")
-        print("Usuario inexistente.")
-        i_d = -1
-        nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
-        return i_d, nom, ape, tel, dom, use, pas, pri, act
-    except sql.OperationalError:
-        print("")
-        print("Usuario inexistente.")
-        i_d = -1
-        nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
-        return i_d, nom, ape, tel, dom, use, pas, pri, act
-    except:
-        mant.log_error()
-        print("")
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
-        i_d = -1
-        nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
-        return i_d, nom, ape, tel, dom, use, pas, pri, act
-
-
-def buscar_usuario_por_user(user):
-    try:
-        conn = sql.connect(database)
-    except sql.OperationalError:
-        mant.log_error()
-        print()
-        print("         ERROR. La base de datos no responde. Asegurese de estar conectado a la red y que el servidor se encuentre encendido.")
-        print()
-        print("         Si es así y el problema persiste, comuníquese con el administrador del sistema.")
-        print()
-        return 0, 0, 0, 0, 0, 0, 0, 0, 0
-    cursor = conn.cursor()
-    instruccion = f"SELECT * FROM usuarios WHERE user_name = '{user}'"
-    cursor.execute(instruccion)
-    datos = cursor.fetchone()
-    conn.commit()
-    conn.close()
-    i_d, nom, ape, tel, dom, use, pas, pri, act = datos
-    return i_d, nom, ape, tel, dom, use, pas, pri, act
-
-
-def buscar_usuario_por_id(idu):
-    conn = sql.connect(database)
-    cursor = conn.cursor()
-    instruccion = f"SELECT * FROM usuarios WHERE id = '{idu}'"
-    cursor.execute(instruccion)
-    datos = cursor.fetchone()
-    conn.commit()
-    conn.close()
-    i_d, nom, ape, tel, dom, use, pas, pri, act = datos
-    return i_d, nom, ape, tel, dom, use, pas, pri, act
-
 
 def opcion_menu_buscar():                                                                           # OPCIÓN MENÚ BUSCAR
     print("")
@@ -318,7 +196,7 @@ def buscar_datos_cobol():
 
 
 def buscar_op_nro_operacion(nro_operacion, ret):
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"SELECT * FROM operaciones WHERE id = '{nro_operacion}'"
     cursor.execute(instruccion)
@@ -360,7 +238,7 @@ def buscar_op_nro_operacion(nro_operacion, ret):
 def buscar_op_nro_socio(nro_socio):
     try:
         nro, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = obtener_datos_socio(nro_socio)
-        conn = sql.connect(database)
+        conn = sql.connect(mant.DATABASE)
         cursor = conn.cursor()
         instruccion = f"SELECT * FROM operaciones WHERE socio = '{nro_socio}'"
         cursor.execute(instruccion)
@@ -418,7 +296,7 @@ def buscar_op_nombre_socio(nombre):
     if nombre == "":
         return
     try:
-        conn = sql.connect(database)
+        conn = sql.connect(mant.DATABASE)
         cursor = conn.cursor()
         instruccion = f"SELECT * FROM socios WHERE nombre ilike '%{nombre}%'"
         cursor.execute(instruccion)
@@ -446,7 +324,7 @@ def buscar_op_nombre_socio(nombre):
 
 
 def buscar_op_dni(dni):
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"SELECT * FROM socios WHERE dni = '{dni}'"
     cursor.execute(instruccion)
@@ -467,7 +345,7 @@ def buscar_op_domicilio(domicilio):
     if domicilio == "":
         return
     try:
-        conn = sql.connect(database)
+        conn = sql.connect(mant.DATABASE)
         cursor = conn.cursor()
         instruccion = f"SELECT * FROM socios WHERE domicilio ilike '%{domicilio}%'"
         cursor.execute(instruccion)
@@ -514,7 +392,7 @@ def buscar_op_cod_nicho(cod_nicho, ret):
         return
     panteon = rend.obtener_panteon(pan)
     id_nic, categ, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"SELECT * FROM operaciones WHERE nicho = '{cod_nicho}'"
     cursor.execute(instruccion)
@@ -557,7 +435,7 @@ def buscar_op_cod_nicho(cod_nicho, ret):
 
 def buscar_op_cob(cod_cobrador):
     cobrador = rend.obtener_nom_cobrador(cod_cobrador)
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"SELECT * FROM operaciones WHERE cobrador = '{cod_cobrador}'"
     cursor.execute(instruccion)
@@ -601,7 +479,7 @@ def buscar_op_cob(cod_cobrador):
 
 def buscar_op_nom_alt(nom_alt):
     try:
-        conn = sql.connect(database)
+        conn = sql.connect(mant.DATABASE)
         cursor = conn.cursor()
         instruccion = f"SELECT * FROM operaciones WHERE nombre_alt ilike '%{nom_alt}%'"
         cursor.execute(instruccion)
@@ -631,7 +509,7 @@ def buscar_op_nom_alt(nom_alt):
 
 def buscar_op_dom_alt(dom_alt):
     try:
-        conn = sql.connect(database)
+        conn = sql.connect(mant.DATABASE)
         cursor = conn.cursor()
         instruccion = f"SELECT * FROM operaciones WHERE domicilio_alt ilike '%{dom_alt}%'"
         cursor.execute(instruccion)
@@ -660,7 +538,7 @@ def buscar_op_dom_alt(dom_alt):
 
 
 def buscar_op_cobol(op_cobol):
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"SELECT * FROM operaciones WHERE op_cobol = {op_cobol}"
     cursor.execute(instruccion)
@@ -678,7 +556,7 @@ def buscar_op_cobol(op_cobol):
 
 
 def obtener_op_morosos():
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"SELECT * FROM operaciones WHERE moroso = '{1}'"
     cursor.execute(instruccion)
@@ -799,7 +677,7 @@ def buscar_estado_cta(nro_socio):
 
 
 def obtener_datos_socio(nro_socio):
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"SELECT * FROM socios WHERE nro_socio = '{nro_socio}'"
     cursor.execute(instruccion)
@@ -810,7 +688,7 @@ def obtener_datos_socio(nro_socio):
 
 
 def deuda_por_op(id_operacion):
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"SELECT * FROM recibos WHERE operacion = '{id_operacion}' AND pago = '0'"
     cursor.execute(instruccion)
@@ -866,7 +744,7 @@ def deuda_vieja_por_op(id_operacion):
     
 
 def buscar_recibos_por_op(id_operacion):
-        conn = sql.connect(database)
+        conn = sql.connect(mant.DATABASE)
         cursor = conn.cursor()
         instruccion = f"SELECT * FROM recibos WHERE operacion = '{id_operacion}' AND pago = '0'"
         cursor.execute(instruccion)
@@ -877,7 +755,7 @@ def buscar_recibos_por_op(id_operacion):
 
 
 def deuda_por_socio(nro_socio):
-    with sql.connect(database) as conn:
+    with sql.connect(mant.DATABASE) as conn:
         cursor = conn.cursor()
         instruccion = f"SELECT * FROM operaciones WHERE socio = '{nro_socio}'"
         cursor.execute(instruccion)
@@ -890,7 +768,7 @@ def deuda_por_socio(nro_socio):
 
 
 def buscar_op_por_nro_socio(nro_socio):
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"SELECT * FROM operaciones WHERE socio = '{nro_socio}'"
     cursor.execute(instruccion)
@@ -901,7 +779,7 @@ def buscar_op_por_nro_socio(nro_socio):
 
 
 def buscar_nicho_por_op(id_operacion):
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"SELECT * FROM operaciones WHERE id = '{id_operacion}'"
     cursor.execute(instruccion)
@@ -913,7 +791,7 @@ def buscar_nicho_por_op(id_operacion):
     
 
 def obtener_datos_op_por_nro_socio(nro_socio):
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"SELECT * FROM operaciones WHERE socio = '{nro_socio}'"
     cursor.execute(instruccion)
@@ -921,54 +799,3 @@ def obtener_datos_op_por_nro_socio(nro_socio):
     conn.commit()
     conn.close()
     return datos
-
-
-def cerrar_consola():           ################# ¿¿¿¿¿¿¿¿¿¿¿¿????????????
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print(" -----------------------------")
-    print("| Ya puede cerrar la consola. |")
-    print(" -----------------------------")
-    print("")
-    print("")
-    print("")
-    print("")
-
-

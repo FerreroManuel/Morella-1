@@ -21,18 +21,12 @@ from pprint import pprint
 
 ######## INICIO DE FUNCIONES  GRALES #########
 
-def obtener_database():
-    arch = open("../databases/database.ini", "r")
-    db = arch.readline()
-    arch.close()
-    return db
 
 ########## FIN DE FUNCIONES GRALES ###########
 
 
 ######### INICIO DE VARIABLES GRALES #########
 
-database = obtener_database()
 
 ########### FIN DE VARIABLES GRALES ##########
 
@@ -2081,7 +2075,7 @@ def recibos_documentos():
         return abs(d2-d1).days
 
     def buscar_documentos():
-        conn = sql.connect(database)
+        conn = sql.connect(mant.DATABASE)
         cursor = conn.cursor()
         instruccion = f"SELECT * FROM documentos ORDER BY id_op"
         cursor.execute(instruccion)
@@ -2464,7 +2458,7 @@ def listado_recibos_documentos(lista_recibos):
         
     ############ INICIO DE FUNCIONES ############
     def buscar_documento(id_op):
-        conn = sql.connect(database)
+        conn = sql.connect(mant.DATABASE)
         cursor = conn.cursor()
         instruccion = f"SELECT * FROM documentos WHERE id_op = {id_op}"
         cursor.execute(instruccion)
@@ -2481,7 +2475,7 @@ def listado_recibos_documentos(lista_recibos):
 
 
     def restar_cuota(id_op, cant_cuotas):
-        with sql.connect(database) as conn:
+        with sql.connect(mant.DATABASE) as conn:
             cursor = conn.cursor()
             instruccion = f"UPDATE documentos SET cant_cuotas = '{cant_cuotas-1}' WHERE id_op = '{id_op}'"
             cursor.execute(instruccion)
@@ -2497,7 +2491,7 @@ def listado_recibos_documentos(lista_recibos):
     ############ INICIO DE FUNCIONES DEPENDIENTES ############
     def evitar_duplicado(id_op):
         ult_rec = f'{int_mes_sig}-{año_var}'
-        with sql.connect(database) as conn:
+        with sql.connect(mant.DATABASE) as conn:
             cursor = conn.cursor()
             instruccion = f"UPDATE documentos SET ult_rec = '{ult_rec}' WHERE id_op = '{id_op}'"
             cursor.execute(instruccion)
@@ -4006,7 +4000,7 @@ def report_excel_socios():
     print("Generando archivo Excel")
     print("")
     print("Progreso: ")
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = "SELECT * FROM socios"
     cursor.execute(instruccion)
@@ -4098,7 +4092,7 @@ def report_excel_modif_caja():
     print("Generando archivo Excel")
     print("")
     print("Progreso: ")
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = "SELECT * FROM historial_caja"
     cursor.execute(instruccion)
@@ -4186,7 +4180,7 @@ def report_deb_aut(mes, año):
     print("Generando archivo Excel")
     print("")
     print("Progreso: ")
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"SELECT * FROM debitos_automaticos WHERE mes = '{mes}' AND año = '{año}'"
     cursor.execute(instruccion)
@@ -4265,7 +4259,7 @@ def report_cobradores():
 
 
     ############ INICIO DE FUNCIONES ############
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"SELECT * FROM cobradores ORDER BY id"
     cursor.execute(instruccion)
@@ -4377,7 +4371,7 @@ def report_panteones():
 
 
     ############ INICIO DE FUNCIONES ############
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"SELECT * FROM panteones ORDER BY id"
     cursor.execute(instruccion)
@@ -4478,14 +4472,14 @@ def report_panteones():
 
 
 def report_ult_recibo(cobrador: int, facturacion: str):
-    """Genera un reporte en Excel que contiene los datos de los últimos recibos impagos de cada operación de un cobrador y una facturación específicos.
+    """Genera un reporte en Excel que contiene los datos de los últimos recibos
+    impagos de cada operación de un cobrador y una facturación específicos.
 
     :param cobrador: id del cobrador
     :type cobrador: int
 
     :param facturacion: Categoría de facturación (bicon / nob)
     :type facturacion: str
-
     """
     ############ INICIO DE VARIABLES INDEPENDIENTES ############
     counter = 0
@@ -4500,17 +4494,14 @@ def report_ult_recibo(cobrador: int, facturacion: str):
 
     ############ INICIO DE FUNCIONES ############
     def ult_rec_imp(cobrador: int, facturacion: str) -> list:
-        """Retorna los siguientes datos de los últimos recibos impagos de todas las operaciones de un cobrador y una facturación específicos:
+        """Retorna los siguientes datos de los últimos recibos impagos de todas
+        las operaciones de un cobrador y una facturación específicos:
 
-            > Número de socio
-
-            > Nombre del asociado o nombre alternativo si posee
-
-            > Número de recibo
-
-            > Período y año
-
-            > Importe
+        - Número de socio
+        - Nombre del asociado o nombre alternativo si posee
+        - Número de recibo
+        - Período y año
+        - Importe
 
         :param cobrador: id del cobrador
         :type cobrador: int
@@ -4542,7 +4533,7 @@ def report_ult_recibo(cobrador: int, facturacion: str):
         )
         ORDER BY r.nro_recibo;
         """
-        with sql.connect(database) as conn:
+        with sql.connect(mant.DATABASE) as conn:
             cursor = conn.cursor()
             cursor.execute(instruccion)
             ultimos_recibos = cursor.fetchall()

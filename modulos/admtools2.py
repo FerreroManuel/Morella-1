@@ -5,14 +5,9 @@ from PySide6.QtGui import QIcon, QPixmap
 from datetime import datetime, date
 import psycopg2 as sql
 import psycopg2.errors
-from funciones_mantenimiento import VERSION
+from funciones_mantenimiento import VERSION, DATABASE
 
-def obtener_database():
-    arch = open("../databases/database.ini", "r")
-    db = arch.readline()
-    arch.close()
-    return db
-DATABASE = str(obtener_database())
+
 HOY = datetime.now().date()
 FECHA_NOB = date(year=2022, month=8, day=1)
 FECHA_BICON = date(year=2022, month=9, day=1)

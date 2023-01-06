@@ -11,131 +11,9 @@ os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
 os.system('color 0E')   # Colores del módulo (Amarillo sobre negro)
 os.system('mode con: cols=160 lines=9999')
 
-def obtener_database():
-    if not os.path.isfile("../databases/database.ini"):
-        arch = open("../databases/database.ini", "w")
-        arch.close()
-    with open("../databases/database.ini", "r") as arch:
-        db = arch.readline()
-    return db
-database = obtener_database()
-
-
-def iniciar_sesion():
-    i_d = 0
-    user = input("Usuario: ").lower()
-    try:
-        i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_user(user)
-        if i_d == 0 and nom == 0 and ape == 0:
-            return 0, 0, 0, 0, 0, 0, 0, 0, 0
-        if act == 1:
-            counter = 0
-            pw = getpass("Contraseña: ")
-            while pw != pas:
-                print("Contraseña incorrecta")
-                print()
-                counter += 1
-                if counter == 3:
-                    mant.edit_registro('usuarios', 'activo', 2, i_d)
-                    print("Su usuario ha sido bloqueado por repetición de claves incorrectas. Comuníquese con un administrador.")
-                    i_d = -1
-                    nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
-                    return i_d, nom, ape, tel, dom, use, pas, pri, act
-                print("")
-                print
-                pw = getpass("Contraseña: ")
-            if pw == pas:
-                print()
-                print(f"Bienvenido/a {nom}, que tengas un buen día.")
-                print()
-                while pw == "0000":
-                    pw_new = str(getpass("Ingrese la nueva contraseña: "))
-                    while len(pw_new) < 4:
-                        print("La contraseña debe ser de 4 dígitos o más.")
-                        pw_new = str(getpass("Ingrese la nueva contraseña: "))
-                        print()
-                    while pw_new == "0000":
-                        print("La contraseña no puede ser 0000.")
-                        pw_new = str(getpass("Ingrese la nueva contraseña: "))
-                        print()
-                    pw_conf = str(getpass("Repita la nueva contraseña: "))
-                    print()
-                    if pw_new == pw_conf:
-                        mant.edit_registro('usuarios', 'pass', str(pw_new), i_d)
-                        print("Contraseña actualizada exitosamente.")
-                        print()
-                        return i_d, nom, ape, tel, dom, use, pw_new, pri, act
-                    else:
-                        pw = ""
-                return i_d, nom, ape, tel, dom, use, pas, pri, act
-        elif act == 2:
-            print("")
-            print("Su usuario se encuentra bloqueado. Comuníquese con un administrador.")
-            i_d = -1
-            nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
-            return i_d, nom, ape, tel, dom, use, pas, pri, act
-        else:
-            print("")
-            print("Usuario inactivo.")
-            i_d = -1
-            nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
-            return i_d, nom, ape, tel, dom, use, pas, pri, act
-    except TypeError:
-        print("")
-        print("Usuario inexistente.")
-        i_d = -1
-        nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
-        return i_d, nom, ape, tel, dom, use, pas, pri, act
-    except sql.OperationalError:
-        print("")
-        print("Usuario inexistente.")
-        i_d = -1
-        nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
-        return i_d, nom, ape, tel, dom, use, pas, pri, act
-    except:
-        mant.log_error()
-        print("")
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
-        i_d = -1
-        nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
-        return i_d, nom, ape, tel, dom, use, pas, pri, act
-
-
-def buscar_usuario_por_user(user):
-    try:
-        conn = sql.connect(database)
-    except sql.OperationalError:
-        mant.log_error()
-        print()
-        print("         ERROR. La base de datos no responde. Asegurese de estar conectado a la red y que el servidor se encuentre encendido.")
-        print()
-        print("         Si es así y el problema persiste, comuníquese con el administrador del sistema.")
-        print()
-        return 0, 0, 0, 0, 0, 0, 0, 0, 0
-    cursor = conn.cursor()
-    instruccion = f"SELECT * FROM usuarios WHERE user_name = '{user}'"
-    cursor.execute(instruccion)
-    datos = cursor.fetchone()
-    conn.commit()
-    conn.close()
-    i_d, nom, ape, tel, dom, use, pas, pri, act = datos
-    return i_d, nom, ape, tel, dom, use, pas, pri, act
-
-
-def buscar_usuario_por_id(idu):
-    conn = sql.connect(database)
-    cursor = conn.cursor()
-    instruccion = f"SELECT * FROM usuarios WHERE id = '{idu}'"
-    cursor.execute(instruccion)
-    datos = cursor.fetchone()
-    conn.commit()
-    conn.close()
-    i_d, nom, ape, tel, dom, use, pas, pri, act = datos
-    return i_d, nom, ape, tel, dom, use, pas, pri, act
-
 
 def obtener_saldo_inicial():
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"SELECT saldo FROM saldo_caja ORDER BY nro_caja DESC LIMIT 1"
     cursor.execute(instruccion)
@@ -146,7 +24,7 @@ def obtener_saldo_inicial():
 
 
 def obtener_contador():
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"SELECT nro_caja FROM saldo_caja ORDER BY nro_caja DESC LIMIT 1"
     cursor.execute(instruccion)
@@ -157,7 +35,7 @@ def obtener_contador():
 
 
 def obtener_cobradores():
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"SELECT * FROM cobradores ORDER BY id"
     cursor.execute(instruccion)
@@ -186,7 +64,7 @@ def iniciar_caja():
             try:
                 loop = saldo_inicial = float(input("Por favor ingrese el saldo actual de la caja: $ "))
                 print()
-                conn = sql.connect(database)
+                conn = sql.connect(mant.DATABASE)
                 cursor = conn.cursor()
                 instruccion = f"UPDATE saldo_caja SET saldo = {saldo_inicial} WHERE saldo = -1"
                 cursor.execute(instruccion)
@@ -244,7 +122,7 @@ def obtener_categ_ing():
 
 
 # def obtener_categ_ing():
-#     conn = sql.connect(database)
+#     conn = sql.connect(mant.DATABASE)
 #     cursor = conn.cursor()
 #     instruccion = f"SELECT categoria FROM categorias_ingresos ORDER BY id"
 #     cursor.execute(instruccion)
@@ -264,7 +142,7 @@ def obtener_categ_egr():
 
 
 # def obtener_categ_egr():
-#     conn = sql.connect(database)
+#     conn = sql.connect(mant.DATABASE)
 #     cursor = conn.cursor()
 #     instruccion = f"SELECT categoria FROM categorias_egresos ORDER BY id"
 #     cursor.execute(instruccion)
@@ -283,7 +161,7 @@ def obtener_cobrador():
 
 
 def obtener_nom_cobrador(id_cobrador):
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"SELECT * FROM cobradores WHERE id = '{id_cobrador}'"
     cursor.execute(instruccion)
@@ -305,7 +183,7 @@ def obtener_panteon():
 
 
 def obtener_fecha_reg(id):
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"SELECT * FROM caja WHERE id = '{id}'"
     cursor.execute(instruccion)
@@ -317,7 +195,7 @@ def obtener_fecha_reg(id):
 
 
 def obtener_comisiones(rendicion):
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instrucción = f"SELECT * FROM comisiones WHERE rendicion = '{rendicion}'"
     cursor.execute(instrucción)
@@ -328,7 +206,7 @@ def obtener_comisiones(rendicion):
 
 
 def eliminar_comisiones(rendicion):
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instrucción = f"DELETE FROM comisiones WHERE rendicion = '{rendicion}'"
     cursor.execute(instrucción)
@@ -337,7 +215,7 @@ def eliminar_comisiones(rendicion):
 
 
 def es_cerrada(id):
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"SELECT * FROM caja WHERE id = '{id}'"
     cursor.execute(instruccion)
@@ -374,7 +252,7 @@ def añadir_panteon(nuevo_panteon):
 
 
 def run_query(query):
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     cursor.execute(query)
     conn.commit()
@@ -382,7 +260,7 @@ def run_query(query):
 
 
 def id_ult_reg():
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     cursor.execute(f"SELECT id FROM caja ORDER BY id DESC LIMIT 1")
     numreg = cursor.fetchall()
@@ -393,7 +271,7 @@ def id_ult_reg():
 
 
 def ult_reg():
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     cursor.execute(f"SELECT * FROM caja ORDER BY id DESC LIMIT 1")
     ult_registro = cursor.fetchall()
@@ -407,7 +285,7 @@ def total_ing_por_cob(cobrador, mes, año):
     categ = obtener_panteon()
     total = 0
     for i in categ:
-        conn = sql.connect(database)
+        conn = sql.connect(mant.DATABASE)
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM caja WHERE descripcion = '{cobrador}' AND categoria = '{i}' AND mes='{mes}' AND año='{año}' ORDER BY id")
         datos = cursor.fetchall()
@@ -423,7 +301,7 @@ def total_ing_por_cob(cobrador, mes, año):
 
 def total_egr_por_cob(cobrador, mes, año):
     total = 0
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     cursor.execute(f"SELECT * FROM caja WHERE descripcion = '{cobrador}' AND categoria = 'A rendir' AND mes='{mes}' AND año='{año}' ORDER BY id")
     datos = cursor.fetchall()
@@ -1410,7 +1288,7 @@ def ver_registros():
     dia = obtener_dia()
     mes = obtener_mes()
     año = obtener_año()
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"SELECT * FROM caja WHERE dia = '{dia}' AND mes = '{mes}' AND año = '{año}' ORDER BY id"
     cursor.execute(instruccion)
@@ -1421,7 +1299,7 @@ def ver_registros():
     print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
     for x in datos:
         i_d, cat, des, tra, ing, egr, obs, dia, mes, año, cer, use = x
-        idu, nom, ape, tel, dom, user, pas, pri, act = buscar_usuario_por_id(use)
+        idu, nom, ape, tel, dom, user, pas, pri, act = mant.buscar_usuario_por_id(use)
         if ing == None:
             ing = ''
         if egr == None:
@@ -1544,7 +1422,7 @@ def buscar_registro(par1, par2):
     if type(par2) == str and "'" in par2:
         par2 = par2.replace("'", "´")
     try:
-        conn = sql.connect(database)
+        conn = sql.connect(mant.DATABASE)
         cursor = conn.cursor()
         instruccion = f"SELECT * FROM caja WHERE {par1} = '{par2}' ORDER BY id"
         cursor.execute(instruccion)
@@ -1558,7 +1436,7 @@ def buscar_registro(par1, par2):
     print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
     for x in datos:
         i_d, cat, des, tra, ing, egr, obs, dia, mes, año, cer, use = x
-        idu, nom, ape, tel, dom, user, pas, pri, act = buscar_usuario_por_id(use)
+        idu, nom, ape, tel, dom, user, pas, pri, act = mant.buscar_usuario_por_id(use)
         if ing == None:
             ing = ''
         if egr == None:
@@ -1574,7 +1452,7 @@ def buscar_registro_like(par1, par2):
     if type(par2) == str and "'" in par2:
         par2 = par2.replace("'", "´")
     try:
-        conn = sql.connect(database)
+        conn = sql.connect(mant.DATABASE)
         cursor = conn.cursor()
         instruccion = f"SELECT * FROM caja WHERE {par1} ILIKE '{par2}' ORDER BY id"
         cursor.execute(instruccion)
@@ -1588,7 +1466,7 @@ def buscar_registro_like(par1, par2):
     print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
     for x in datos:
         i_d, cat, des, tra, ing, egr, obs, dia, mes, año, cer, use = x
-        idu, nom, ape, tel, dom, user, pas, pri, act = buscar_usuario_por_id(use)
+        idu, nom, ape, tel, dom, user, pas, pri, act = mant.buscar_usuario_por_id(use)
         if ing == None:
             ing = ''
         if egr == None:
@@ -1668,7 +1546,7 @@ def menu_buscar_fecha():                                                        
 
 
 def buscar_registro_fecha(dia, mes, año):
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"SELECT * FROM caja WHERE dia = '{dia}' AND mes = '{mes}' AND año = '{año}' ORDER BY id"
     cursor.execute(instruccion)
@@ -1679,7 +1557,7 @@ def buscar_registro_fecha(dia, mes, año):
     print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
     for x in datos:
         i_d, cat, des, tra, ing, egr, obs, dia, mes, año, cer, use = x
-        idu, nom, ape, tel, dom, user, pas, pri, act = buscar_usuario_por_id(use)
+        idu, nom, ape, tel, dom, user, pas, pri, act = mant.buscar_usuario_por_id(use)
         if ing == None:
             ing = ''
         if egr == None:
@@ -1692,7 +1570,7 @@ def buscar_registro_fecha(dia, mes, año):
 
 
 def buscar_registro_mes(mes, año):
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"SELECT * FROM caja WHERE mes = '{mes}' AND año = '{año}' ORDER BY id"
     cursor.execute(instruccion)
@@ -1703,7 +1581,7 @@ def buscar_registro_mes(mes, año):
     print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
     for x in datos:
         i_d, cat, des, tra, ing, egr, obs, dia, mes, año, cer, use = x
-        idu, nom, ape, tel, dom, user, pas, pri, act = buscar_usuario_por_id(use)
+        idu, nom, ape, tel, dom, user, pas, pri, act = mant.buscar_usuario_por_id(use)
         if ing == None:
             ing = ''
         if egr == None:
@@ -1716,7 +1594,7 @@ def buscar_registro_mes(mes, año):
 
 
 def buscar_registro_año(año):
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"SELECT * FROM caja WHERE año = '{año}' ORDER BY id"
     cursor.execute(instruccion)
@@ -1727,7 +1605,7 @@ def buscar_registro_año(año):
     print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
     for x in datos:
         i_d, cat, des, tra, ing, egr, obs, dia, mes, año, cer, use = x
-        idu, nom, ape, tel, dom, user, pas, pri, act = buscar_usuario_por_id(use)
+        idu, nom, ape, tel, dom, user, pas, pri, act = mant.buscar_usuario_por_id(use)
         if ing == None:
             ing = ''
         if egr == None:
@@ -1776,7 +1654,7 @@ def menu_modif_registro(id, idu):                                               
     id = id
     string = ""
     floating = float(0)
-    i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_id(idu)
+    i_d, nom, ape, tel, dom, use, pas, pri, act = mant.buscar_usuario_por_id(idu)
     while opcion != 0:
         opcion = opcion_menu_modif_registro()
         if opcion == 1:     # Modificar descripción
@@ -1873,7 +1751,7 @@ def modif_registro(idu):
 def edit_registro(id, parametro1, parametro2):
     if type(parametro2) == str and "'" in parametro2:
         parametro2 = parametro2.replace("'", "´")
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"UPDATE caja SET {parametro1} = '{parametro2}' WHERE id = '{id}'"
     cursor.execute(instruccion)
@@ -1882,7 +1760,7 @@ def edit_registro(id, parametro1, parametro2):
 
 
 def guardar_historial(id, idu):
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"SELECT * FROM caja WHERE id = {id} ORDER BY id"
     cursor.execute(instruccion)
@@ -1910,7 +1788,7 @@ def guardar_historial(id, idu):
 
 
 def mostrar_registro(id):
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"SELECT * FROM caja WHERE id = {id} ORDER BY id"
     cursor.execute(instruccion)
@@ -1925,7 +1803,7 @@ def mostrar_registro(id):
             ing = ''
         if egr == None:
             egr = ''
-        idu, nom, ape, tel, dom, user, pas, pri, act = buscar_usuario_por_id(use)
+        idu, nom, ape, tel, dom, user, pas, pri, act = mant.buscar_usuario_por_id(use)
         print("{:<9} {:<27} {:<27} {:<11} {:<15} {:<15} {:<30} {:<10} {:<6}".format(f"{i_d}".rjust(8, '0'), cat[:27], des[:27], f"{tra}"[:10], ing, egr, obs[:30], f'{dia}/{mes}/{año}', f'{user}'))
     conn.close()
     print("--------------------------------------------------------------------------------------------------------------------------------------------------------------")
@@ -1935,7 +1813,7 @@ def mostrar_registro(id):
 def eliminar_registro(idu):
     id = 0
     msj = " "
-    i_d, nom, ape, tel, dom, use, pas, pri, act = buscar_usuario_por_id(idu)
+    i_d, nom, ape, tel, dom, use, pas, pri, act = mant.buscar_usuario_por_id(idu)
     print("")
     if pri >= 4:
         try:
@@ -1950,7 +1828,7 @@ def eliminar_registro(idu):
                     if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
                         msj = "S"
                         guardar_historial(id, idu)
-                        conn = sql.connect(database)
+                        conn = sql.connect(mant.DATABASE)
                         cursor = conn.cursor()
                         instruccion = f"UPDATE historial_caja SET observacion = '[REGISTRO ELIMINADO]' WHERE id = '{id}'"
                         cursor.execute(instruccion)
@@ -1999,7 +1877,7 @@ def eliminar_registro(idu):
 def delete_row(parametro1, parametro2):
     if type(parametro2) == str and "'" in parametro2:
         parametro2 = parametro2.replace("'", "´")
-    conn = sql.connect(database)
+    conn = sql.connect(mant.DATABASE)
     cursor = conn.cursor()
     instruccion = f"DELETE FROM caja WHERE {parametro1} = '{parametro2}'"
     cursor.execute(instruccion)
@@ -2023,7 +1901,7 @@ def ver_estado_caja(idu):
     print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
     print()
     try:
-        conn = sql.connect(database)
+        conn = sql.connect(mant.DATABASE)
         cursor = conn.cursor()
         instruccion = f"SELECT * FROM caja WHERE cerrada = 0 ORDER BY id"
         cursor.execute(instruccion)
@@ -2037,7 +1915,7 @@ def ver_estado_caja(idu):
     print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
     for x in datos:
         i_d, cat, des, tra, ing, egr, obs, dia, mes, año, cer, use = x
-        idu, nom, ape, tel, dom, user, pas, pri, act = buscar_usuario_por_id(use)
+        idu, nom, ape, tel, dom, user, pas, pri, act = mant.buscar_usuario_por_id(use)
         if ing == None:
             ing = ''
             egresos += egr
@@ -2248,7 +2126,7 @@ def cierre_caja():
         print("")
 
         ##### CERRANDO REGISTROS ####
-        conn = sql.connect(database)
+        conn = sql.connect(mant.DATABASE)
         cursor = conn.cursor()
         instruccion = f"UPDATE caja SET cerrada = '1' WHERE cerrada = '0'"
         cursor.execute(instruccion)
@@ -2256,7 +2134,7 @@ def cierre_caja():
         conn.close()
         
         ##### GUARDANDO SALDO DE CAJA #####
-        conn = sql.connect(database)
+        conn = sql.connect(mant.DATABASE)
         cursor = conn.cursor()
         parameters = str((saldo_final, fyh))
         instruccion = f"INSERT INTO saldo_caja (saldo, fecha_y_hora_cierre) VALUES {parameters}"
@@ -2283,53 +2161,3 @@ def cierre_caja():
 """+Back.BLACK+Fore.LIGHTYELLOW_EX)
         opcion = -1
         return menu()
-
-
-def cerrar_consola():           ################# ¿¿¿¿¿¿¿¿¿¿¿¿????????????
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print(" -----------------------------")
-    print("| Ya puede cerrar la consola. |")
-    print(" -----------------------------")
-    print("")
-    print("")
-    print("")
-    print("")
-
