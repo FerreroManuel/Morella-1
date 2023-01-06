@@ -67,12 +67,14 @@ La nomenclatura de los commit sigue la siguiente semántica:
 
 - Arreglos de errores y problemas: _Fix #AAMMDDNN_
 
+- Modificaciones por refactorización: _Rfc #AAMMDDNN_
+
 Donde:
 
   1. **AA:** Número de dos cifras correspondiente al año
   2. **MM:** Número de dos cifras correspondiente al mes
   3. **DD:** Número de dos cifras correspondiente al día
-  4. **NN:** Número de dos cifras identificador del arreglo o actualización
+  4. **NN:** Número de dos cifras identificador del arreglo, actualización o refactorización
 
 ### Notas sobre versionado
 *Hasta el 17/11/2022 se realizó versionado local en PC, luego se realizó la subida de cada versión disponible en un commit y se registró la versión en Git.
