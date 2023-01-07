@@ -351,25 +351,11 @@ def total_ing_por_cob(cobrador: str, mes:str, año: str) -> float | int:
 
     :rtype: float or int
     """
-    categ = obtener_panteon()
-    total = 0
-
-    for i in categ:
-        with sql.connect(mant.DATABASE) as conn:
-            cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM caja WHERE descripcion = '{cobrador}' AND categoria = '{i}' AND mes='{mes}' AND año='{año}' ORDER BY id")
-            datos = cursor.fetchall()
-
-        subtotal = 0
-        for x in datos:
-            i_d, cat, des, tra, ing, egr, obs, dia, mes, año, cer, use = x
-            
-            if type(ing) == float:
-                subtotal += ing
-        
-        total += subtotal
-    
-    return total
+    with sql.connect(mant.DATABASE) as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT SUM(ingreso) FROM caja WHERE descripcion = '{cobrador}' AND mes='{mes}' AND año='{año}'")
+        datos = cursor.fetchone()
+    return datos[0]
 
 
 def total_egr_por_cob(cobrador: str, mes: str, año: str) -> float | int:
