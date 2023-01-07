@@ -373,20 +373,15 @@ def total_egr_por_cob(cobrador: str, mes: str, año: str) -> float | int:
 
     :rtype: float or int
     """
-    total = 0
-
     with sql.connect(mant.DATABASE) as conn:
         cursor = conn.cursor()
-        cursor.execute(f"SELECT * FROM caja WHERE descripcion = '{cobrador}' AND categoria = 'A rendir' AND mes='{mes}' AND año='{año}' ORDER BY id")
-        datos = cursor.fetchall()
+        cursor.execute(f"SELECT SUM(egreso) FROM caja WHERE descripcion = '{cobrador}' AND categoria = 'A rendir' AND mes = '{mes}' AND año = '{año}'")
+        datos = cursor.fetchone()
+    
+    if datos[0] == None:
+        return 0
 
-    for x in datos:
-        i_d, cat, des, tra, ing, egr, obs, dia, mes, año, cer, use = x
-        
-        if type(egr) == float:
-            total = total + egr
-
-    return total
+    return float(datos[0])
 
 
 def opcion_menu() -> int:                                                                           # OPCIÓN MENÚ PRINCIPAL
