@@ -54,7 +54,7 @@ try:
 
             ########## CERRANDO CONSOLA ########## 
             
-            func.cerrar_consola()
+            mant.cerrar_consola()
         else:
             print("         ERROR. No posee los privilegios necesarios para realizar esta operación. Comuníquese con un admnistrador.")
             print("")
