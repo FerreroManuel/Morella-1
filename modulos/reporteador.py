@@ -1,12 +1,14 @@
 print("\n\nCargando las funciones necesarias para ejectuar el módulo. Por favor aguarde... \n\n")
-import funciones_mantenimiento as mant
-import funciones_ventas as vent
-import funciones_rendiciones as rend
-import reporter as rep
+import os
 import psycopg2 as sql
 import psycopg2.errors
+
 from getpass import getpass
-import os
+
+import funciones_caja as caja
+import funciones_mantenimiento as mant
+import funciones_ventas as vent
+import reporter as rep
 
 os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
 os.system('color 80')   # Colores del módulo (Negro sobre gris)
@@ -18,7 +20,13 @@ os.system('color 80')   # Colores del módulo (Negro sobre gris)
 #######################################################################################################################################################
 
 
-def opcion_menu():                                                                                  # OPCIÓN MENÚ PRINCIPAL
+def opcion_menu() -> int:                                                                           # OPCIÓN MENÚ PRINCIPAL
+    """Muestra al usuario un menú y luego le solicita ingresar una de las
+    opciones mostradas a través del número correspondiente. En caso de no
+    ingresar una opción correcta, se le volverá a solicitar.
+
+    :rtype: int
+    """
     print("")
     print("********** Acciones disponibles **********")
     print("")
@@ -50,7 +58,14 @@ def opcion_menu():                                                              
     return opcion
 
 
-def menu(idu):                                                                                      # MENÚ PRINCIPAL
+def menu(idu: int):                                                                                 # MENÚ PRINCIPAL
+    """Llama a la función donde se muestra las opciones y recibe, a través de
+    ella, la opción ingresada por el usuario. Luego, según la opción ingresada,
+    llama a la función correspondiente.
+
+    :param idu: ID de usuario
+    :type idu: int
+    """
     opcion = -1
     while opcion != 0:
         opcion = opcion_menu()
@@ -72,7 +87,13 @@ def menu(idu):                                                                  
             return
 
 
-def opcion_morosos():                                                                               # OPCIÓN MENÚ MOROSOS
+def opcion_morosos() -> int:                                                                        # OPCIÓN MENÚ MOROSOS
+    """Muestra al usuario un menú y luego le solicita ingresar una de las
+    opciones mostradas a través del número correspondiente. En caso de no
+    ingresar una opción correcta, se le volverá a solicitar.
+
+    :rtype: int
+    """
     print("")
     print("********** Acciones disponibles **********")
     print("")
@@ -99,7 +120,14 @@ def opcion_morosos():                                                           
     return opcion
 
 
-def morosos(idu):                                                                                   # MENÚ MOROSOS
+def morosos(idu: int):                                                                              # MENÚ MOROSOS
+    """Llama a la función donde se muestra las opciones y recibe, a través de
+    ella, la opción ingresada por el usuario. Luego, según la opción ingresada,
+    llama a la función correspondiente.
+
+    :param idu: ID de usuario
+    :type idu: int
+    """
     opcion = -1
     while opcion != 0:
         opcion = opcion_morosos()
@@ -129,11 +157,21 @@ def morosos(idu):                                                               
             return
 
 
-def socios(idu):
+def socios(idu: int):
+    """Permite al usuario exportar toda la tabla de socios de la base de datos
+    en un archivo XLSX (Excel).
+
+    Nivel de privilegios mínimo: 1
+
+    :param idu: ID de usuario
+    :type idu: int
+    """
     i_d, nom, ape, tel, dom, use, pas, pri, act = mant.buscar_usuario_por_id(idu)
+    
     if pri < 1:
         print("No posee privilegios para realizar esta acción")
         print()
+    
     else:
         print("Confeccionando el listado. Por favor aguarde...")
         print()
@@ -141,11 +179,21 @@ def socios(idu):
         print()
 
 
-def modif_caja(idu):
+def modif_caja(idu: int):
+    """Permite al usuario exportar toda la tabla de historial de caja en
+    un archivo XLSX (Excel).
+
+    Nivel de privilegios mínimo: 4
+
+    :param idu: ID de usuario
+    :type idu: int
+    """
     i_d, nom, ape, tel, dom, use, pas, pri, act = mant.buscar_usuario_por_id(idu)
+    
     if pri < 4:
         print("No posee privilegios para realizar esta acción")
         print()
+    
     else:
         print("Confeccionando el listado. Por favor aguarde...")
         print()
@@ -153,15 +201,26 @@ def modif_caja(idu):
         print()
 
 
-def deb_aut(idu):
+def deb_aut(idu: int):
+    """Permite al usuario exportar todos los pagos realizados a través de
+    débito automático de un mes específico en un archivo XLSX (Excel).
+
+    Nivel de privilegios mínimo: 3
+
+    :param idu: ID de usuario
+    :type idu: int
+    """
     i_d, nom, ape, tel, dom, use, pas, pri, act = mant.buscar_usuario_por_id(idu)
+  
     if pri < 3:
         print("No posee privilegios para realizar esta acción")
         print()
+    
     else:
         try:
             mes = int(input("Indique el mes: "))
             print()
+    
         except ValueError: 
             print("         ERROR. El dato solicitado debe ser de tipo numérico.")
             print()
@@ -169,9 +228,11 @@ def deb_aut(idu):
             mant.log_error()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             print()
+    
         try:
             año = int(input("Indique el año: "))
             print()
+    
         except ValueError: 
             print("         ERROR. El dato solicitado debe ser de tipo numérico.")
             print()
@@ -179,19 +240,31 @@ def deb_aut(idu):
             mant.log_error()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             print() 
+    
         print("Confeccionando el listado. Por favor aguarde...")
         print()
         str_mes = str(mes).rjust(2, '0')
         str_año = str(año).rjust(3,'0').rjust(4, '2')
+    
         rep.report_deb_aut(str_mes, str_año)
         print()
 
 
-def panteones(idu):
+def panteones(idu: int):
+    """Permite al usuario exportar de la base de datos toda la tabla de
+    panteones en un archivo PDF.
+
+    Nivel de privilegios mínimo: 1
+
+    :param idu: ID de usuario
+    :type idu: int
+    """
     i_d, nom, ape, tel, dom, use, pas, pri, act = mant.buscar_usuario_por_id(idu)
+
     if pri < 1:
         print("No posee privilegios para realizar esta acción")
         print()
+
     else:
         print("Confeccionando el listado. Por favor aguarde...")
         print()
@@ -199,11 +272,21 @@ def panteones(idu):
         print()
 
 
-def cobradores(idu):
+def cobradores(idu: int):
+    """Permite al usuario exportar de la base de datos toda la tabla de
+    cobradores en un archivo PDF.
+
+    Nivel de privilegios mínimo: 1
+
+    :param idu: ID de usuario
+    :type idu: int
+    """
     i_d, nom, ape, tel, dom, use, pas, pri, act = mant.buscar_usuario_por_id(idu)
+    
     if pri < 1:
         print("No posee privilegios para realizar esta acción")
         print()
+    
     else:
         print("Confeccionando el listado. Por favor aguarde...")
         print()
@@ -211,11 +294,21 @@ def cobradores(idu):
         print()
 
 
-def ultimos_recibos(idu):
+def ultimos_recibos(idu: int):
+    """Permite al generar un reporte en Excel que contiene los datos de los últimos
+    recibos impagos de cada operación de un cobrador y una facturación específicos.
+
+    Nivel de privilegios mínimo: 1
+
+    :param idu: ID de usuario
+    :type idu: int
+    """
     i_d, nom, ape, tel, dom, use, pas, pri, act = mant.buscar_usuario_por_id(idu)
+    
     if pri < 1:
         print("No posee privilegios para realizar esta acción")
         print()
+    
     else:
         print("Indique el ID de cobrador: ")
         cobradores = vent.obtener_cobradores()
@@ -244,21 +337,25 @@ def ultimos_recibos(idu):
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 print()
                 return
+    
         print("")
         print("********** Elija una facturación **********")
         print("")
         print("   1. Bicon")
         print("   2. NOB")
         print("")
+        
         opcion = -1
         while opcion == -1:
             try:
                 opcion = int(input("Ingrese una opción: "))
+        
                 if opcion < 1 or opcion > 2:
                     print("")
                     print("Opción incorrecta.")
                     print("")
                     opcion = -1
+        
             except ValueError: 
                 print("Opción incorrecta.")
                 opcion = -1
@@ -268,15 +365,17 @@ def ultimos_recibos(idu):
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 print()
                 return
+        
         if opcion == 1:
             facturacion = 'bicon'
+        
         elif opcion == 2:
             facturacion = 'nob'
+        
         print("Confeccionando el listado. Por favor aguarde...")
         print()
-        ###
-        print(f'COBRADOR: {rend.obtener_nom_cobrador(cobrador)} - FACTURACIÓN: {facturacion}')
-        ###
+        print(f'COBRADOR: {caja.obtener_nom_cobrador(cobrador)} - FACTURACIÓN: {facturacion}')
+        
         rep.report_ult_recibo(cobrador, facturacion)
         print()
 
@@ -330,6 +429,7 @@ try:
     mant.cerrar_consola()
 
     os.system('color 80')   # Colores del módulo (Negro sobre gris)
+
 except:
     mant.log_error()
     print("")

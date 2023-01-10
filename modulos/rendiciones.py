@@ -1,7 +1,8 @@
 print("\n\nCargando las funciones necesarias para ejectuar el módulo. Por favor aguarde... \n\n")
-import funciones_rendiciones as func
-import funciones_mantenimiento as mant
 import os
+
+import funciones_mantenimiento as mant
+import funciones_rendiciones as func
 
 os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
 os.system('color 09')   # Colores del módulo (Azul sobre negro)
@@ -53,7 +54,7 @@ try:
             print("")
 
             ########## CERRANDO CONSOLA ##########
-            func.cerrar_consola()
+            mant.cerrar_consola()
             
     os.system('color 09')   # Colores del módulo (Azul sobre negro)
             

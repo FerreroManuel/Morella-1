@@ -1,10 +1,13 @@
+import psycopg2 as sql
+import psycopg2.errors
+
+from datetime import datetime, date
+
 from PySide6.QtWidgets import (QApplication, QWidget, QPushButton, QMainWindow, QVBoxLayout, QHBoxLayout, 
 QLabel, QLineEdit, QComboBox, QMessageBox, QFormLayout, QTableWidget, QTableWidgetItem, QHeaderView)
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon, QPixmap
-from datetime import datetime, date
-import psycopg2 as sql
-import psycopg2.errors
+
 from funciones_mantenimiento import VERSION, DATABASE
 
 

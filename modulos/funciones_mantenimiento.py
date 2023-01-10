@@ -5,14 +5,16 @@ TYPE_VERSION = 'RC'
 ARCH_INI = "../databases/database.ini"
 ARCH_LOG_ERROR = "../error.log"
 
-import funciones_rendiciones as rend
-import funciones_cuentas as ctas
-from traceback import format_exc
+import os
 import psycopg2 as sql
 import psycopg2.errors
-import os
+
 from datetime import datetime
 from getpass import getpass
+from traceback import format_exc
+
+import funciones_cuentas as ctas
+import funciones_rendiciones as rend
 
 os.system(f'TITLE Morella v{VERSION} - MF! Soluciones informáticas')
 os.system('color 0a')   # Colores del módulo (Verde sobre negro)
@@ -2418,7 +2420,7 @@ def eliminar_nicho(idu: int):
         
         elif len(operacion) == 1:
             i_d, soc, nic, fac, cob, tar, rut, ult, u_a, fec, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = operacion[0]
-            i_d, nom, dni, tel1, tel2, mail, dom, loc, c_p, f_n, f_a, act = ctas.obtener_datos_socio(soc)
+            i_d, nom, dni, tel1, tel2, mail, dom, loc, c_p, f_n, f_a, act = rend.obtener_datos_socio(soc)
             print(f"         ERROR. El nicho {cod_nicho} se encuentra relacionado a la operación nro. {str(i_d).rjust(7, '0')} del asociado {str(soc).rjust(6, '0')} - {nom}")
             print()
             return

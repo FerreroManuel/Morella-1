@@ -57,7 +57,7 @@ def report_caja_diaria(s_final):
 
     def buscar_imp_reg(categ):
         categ = categ
-        conn = caja.sql.connect(caja.database)
+        conn = sql.connect(mant.DATABASE)
         cursor = conn.cursor()
         instruccion = f"SELECT * FROM caja WHERE categoria='{categ}' AND cerrada = '0'"
         cursor.execute(instruccion)
@@ -297,7 +297,7 @@ def report_caja_mensual_det(mes, año):
 
     def buscar_imp_reg(categ):
         categ = categ
-        conn = caja.sql.connect(caja.database)
+        conn = sql.connect(mant.DATABASE)
         cursor = conn.cursor()
         instruccion = f"SELECT * FROM caja WHERE categoria='{categ}' AND mes='{mes}' AND año='{año}'"
         cursor.execute(instruccion)
@@ -549,7 +549,7 @@ def report_caja_mensual_comp(mes, año):
 
     def buscar_imp_reg(categ):
         categ = categ
-        conn = caja.sql.connect(caja.database)
+        conn = sql.connect(mant.DATABASE)
         cursor = conn.cursor()
         instruccion = f"SELECT * FROM caja WHERE categoria='{categ}' AND mes='{mes}' AND año='{año}'"
         cursor.execute(instruccion)
@@ -772,7 +772,7 @@ def report_caja_mensual_por_cob(mes, año):
     ############ INICIO DE FUNCIONES ############
 
     def buscar_imp_reg_por_cob(cobrador, mes, año):
-        conn = caja.sql.connect(caja.database)
+        conn = sql.connect(mant.DATABASE)
         cursor = conn.cursor()
         instruccion = f"SELECT * FROM caja WHERE descripcion='{cobrador}' AND mes='{mes}' AND año='{año}'"
         cursor.execute(instruccion)
@@ -1015,7 +1015,7 @@ def recibos(facturacion, id_cobrador, recibos):
                 continue
             id_c, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
             pant = rend.obtener_panteon(pan)
-            nco = rend.obtener_nom_cobrador(cob)
+            nco = caja.obtener_nom_cobrador(cob)
             val_mant = 0
             ultimo_pago = f'{ult}{u_a}'
             if nom_alt != None:
@@ -1043,7 +1043,7 @@ def recibos(facturacion, id_cobrador, recibos):
                     añovar = datetime.now().strftime('%Y')
                 parameters = str((id_o, periodo_actual, añovar, 0))
                 query = f"INSERT INTO recibos (operacion, periodo, año, pago) VALUES {parameters}"
-                rend.run_query(query)
+                mant.run_query(query)
                 ndr = rend.obtener_nro_recibo()
                 # Header
                 if fac == 'bicon':
@@ -1340,7 +1340,7 @@ def listado_recibos(facturacion, id_cobrador, recibos):
     año = datetime.now().strftime('%Y')
     año2c = datetime.now().strftime('%y')
     imp_acu = float(0)
-    nco = rend.obtener_nom_cobrador(id_cobrador)
+    nco = caja.obtener_nom_cobrador(id_cobrador)
     counter = 0
     errores = {}
 
@@ -1595,7 +1595,7 @@ def recibos_deb_aut(facturacion, recibos):
         id_c, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
         t01, t02, t03, t04 = rend.split_nro_tarjeta(tar)
         panteon = rend.obtener_panteon(pan)
-        nco = rend.obtener_nom_cobrador(cob)
+        nco = caja.obtener_nom_cobrador(cob)
         val_mant = 0
         if nom_alt != None:
             nom = f"[{nom_alt}]"
@@ -1623,7 +1623,7 @@ def recibos_deb_aut(facturacion, recibos):
                     añovar = datetime.now().strftime('%Y')
                 parameters = str((id_o, periodo_actual, añovar, 0))
                 query = f"INSERT INTO recibos (operacion, periodo, año, pago) VALUES {parameters}"
-                rend.run_query(query)
+                mant.run_query(query)
                 ndr = rend.obtener_nro_recibo()
                 # Header
                 # Bicon
@@ -1787,7 +1787,7 @@ def listado_recibos_deb_aut(facturacion, recibos):
     año2c = datetime.now().strftime('%y')
     año_sig_2c = int(año2c)+1
     imp_acu = float(0)
-    nco = rend.obtener_nom_cobrador(id_cobrador)
+    nco = caja.obtener_nom_cobrador(id_cobrador)
     counter = 0
     contador_fiserv = 0
     val_total = 0
@@ -2117,7 +2117,7 @@ def recibos_documentos():
         for documento in documentos:
             id_op, cant_cuotas, val_cuotas, ult_rec = documento
             if cant_cuotas > 0 and ult_rec != f'{int_mes_sig}-{año2c}':
-                id_o, soc, nic, fac, cob, tar, rut, ult, u_a, fup, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = ctas.buscar_op_nro_operacion(id_op, 1)
+                id_o, soc, nic, fac, cob, tar, rut, ult, u_a, fup, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = ctas.buscar_op_nro_operacion(id_op, True)
                 if cob == id_cob:
                     # Variables individuales
                     try:
@@ -2131,7 +2131,7 @@ def recibos_documentos():
                     nro, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = rend.obtener_datos_socio(soc)
                     id_c, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
                     pant = rend.obtener_panteon(pan)
-                    nco = rend.obtener_nom_cobrador(cob)
+                    nco = caja.obtener_nom_cobrador(cob)
                     fup_sep = str(fup).split("/")
                     fup_date = date(year = int(fup_sep[1]), month = int(fup_sep[0]), day = 1)
                     hoy = datetime.now().date()
@@ -2142,7 +2142,7 @@ def recibos_documentos():
                         dom = f"[{dom_alt}]"
                     parameters = str((id_o, f'Doc: {str_mes_sig}', str(año_var), 0))
                     query = f"INSERT INTO recibos (operacion, periodo, año, pago) VALUES {parameters}"
-                    rend.run_query(query)
+                    mant.run_query(query)
                     ndr = rend.obtener_nro_recibo()
                     lista_recibos.append(ndr)
                     # Header                                                   <----- HAY QUE PENSAR COMO PONER LA IMG DE ÑUL Y SEPARARLOS   
@@ -2653,7 +2653,7 @@ def reimpresion_recibo(ndr):
     nro, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = rend.obtener_datos_socio(soc)
     id_c, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
     pant = rend.obtener_panteon(pan)
-    nco = rend.obtener_nom_cobrador(cob)
+    nco = caja.obtener_nom_cobrador(cob)
     errores = {}
     if nom_alt != None:
         nom = f"[{nom_alt}]"
@@ -2935,7 +2935,7 @@ def recibo_adelanto(ndr, cobrador, periodo_h, año_h, valor_total):
     nro, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = rend.obtener_datos_socio(soc)
     id_c, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
     panteon = rend.obtener_panteon(pan)
-    nco = rend.obtener_nom_cobrador(cobrador)
+    nco = caja.obtener_nom_cobrador(cobrador)
     errores = {}
     if nom_alt != None:
         nom = f"[{nom_alt}]"
@@ -3192,7 +3192,7 @@ def report_estado_cta(nro_socio, nombre, dni, facturacion, domicilio, te_1, te_2
     pdf.set_auto_page_break(True, 25)
     pdf.alias_nb_pages()
     pdf.add_page()
-    operaciones = ctas.buscar_op_por_nro_socio(nro_socio)
+    operaciones = ctas.obtener_datos_op_por_nro_socio(nro_socio)
     for o in operaciones:
         id_op, soc, nic, fac, cob, tar, rut, ult, u_a, fec, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = o
         cob = caja.obtener_nom_cobrador(cob)
@@ -3435,7 +3435,7 @@ def report_estado_cta_mail(nro_socio, nombre, dni, facturacion, domicilio, te_1,
     pdf.set_auto_page_break(True, 25)
     pdf.alias_nb_pages()
     pdf.add_page()
-    operaciones = ctas.buscar_op_por_nro_socio(nro_socio)
+    operaciones = ctas.obtener_datos_op_por_nro_socio(nro_socio)
     for o in operaciones:
         id_op, soc, nic, fac, cob, tar, rut, ult, u_a, fec, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = o
         cob = caja.obtener_nom_cobrador(cob)
@@ -3914,7 +3914,7 @@ def report_morosos_comp():
     pdf.add_page()
     for i in morosos:
         id_op, soc, nic, fac, cob, tar, rut, ult, u_a, fec_u_p, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = i
-        nro, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = ctas.obtener_datos_socio(soc)
+        nro, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = rend.obtener_datos_socio(soc)
         if nom_alt != None:
             nom = f"[{nom_alt}]"
         pdf.set_font('Arial', '', 9)
@@ -4484,7 +4484,7 @@ def report_ult_recibo(cobrador: int, facturacion: str):
     ############ INICIO DE VARIABLES INDEPENDIENTES ############
     counter = 0
     errores = {}
-    n_cob = rend.obtener_nom_cobrador(cobrador)
+    n_cob = caja.obtener_nom_cobrador(cobrador)
     title = f"Últimos recibos de {n_cob}"
     if len(title) > 31:
         title = f'Ult.rec.{n_cob}'[:31]

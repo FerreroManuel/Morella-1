@@ -1,11 +1,14 @@
-import funciones_mantenimiento as mant
-import funciones_rendiciones as rend
-import funciones_cuentas as ctas
+import os
 import psycopg2 as sql
 import psycopg2.errors
-import os
-from getpass import getpass
+
 from datetime import datetime
+from getpass import getpass
+
+import funciones_caja as caja
+import funciones_cuentas as ctas
+import funciones_mantenimiento as mant
+import funciones_rendiciones as rend
 
 
 os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
@@ -422,7 +425,7 @@ def venta_nicho(idu: int):
                         ctas.menu_buscar()
                         print()
                         id_socio = int(input("Indique el nro. de socio: "))
-                    n_so, nom_socio, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = ctas.obtener_datos_socio(id_socio)
+                    n_so, nom_socio, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = rend.obtener_datos_socio(id_socio)
                     loop = 1
         
                 except TypeError:
@@ -452,7 +455,7 @@ def venta_nicho(idu: int):
         print()
         
         id_op, soc, nic, fac, cob, tar, rut, ult, u_a, fec, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = rend.obtener_datos_op(id_op)
-        n_so, nom_socio, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = ctas.obtener_datos_socio(id_socio)
+        n_so, nom_socio, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = rend.obtener_datos_socio(id_socio)
         cod_nic, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
         i_d, nom_precio, pre, ant, cuo = obtener_precio_venta(cat, pis, fil)
         
@@ -817,7 +820,7 @@ def menu_editar_socio(idu: int):                                                
     opcion = -1
     while opcion != 0:
         try:
-            id_soc, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = ctas.obtener_datos_socio(id_socio)
+            id_soc, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = rend.obtener_datos_socio(id_socio)
         except TypeError:
             print("         ERROR. No existe nro. de socio.")
             print()
@@ -1329,7 +1332,7 @@ def crear_op(idu: int, id_socio: int, ret: bool= False) -> int | None:
                 cod_nicho, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(exist)
         
                 try:
-                    id_operacion, soc, nic, fac, cob, tar, rut, ult, u_a, fec, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = ctas.buscar_op_cod_nicho(str(cod_nicho), 1)
+                    id_operacion, soc, nic, fac, cob, tar, rut, ult, u_a, fec, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = ctas.buscar_op_cod_nicho(str(cod_nicho), True)
                     print(f"         ERROR. El nicho indicado ya se encuentra asociado a la operación {str(id_operacion).rjust(7, '0')}")
                     print()
                     print()
@@ -1360,7 +1363,7 @@ def crear_op(idu: int, id_socio: int, ret: bool= False) -> int | None:
             cod_nicho = mant.alta_nicho(idu, True)
         
             try:
-                id_operacion, soc, nic, fac, cob, tar, rut, ult, u_a, fec, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = ctas.buscar_op_cod_nicho(str(cod_nicho), 1)
+                id_operacion, soc, nic, fac, cob, tar, rut, ult, u_a, fec, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = ctas.buscar_op_cod_nicho(str(cod_nicho), True)
                 print()
                 print()
                 print(f"         ERROR. El nicho indicado ya se encuentra asociado a la operación {str(id_operacion).rjust(7, '0')}")
@@ -1401,7 +1404,7 @@ def crear_op(idu: int, id_socio: int, ret: bool= False) -> int | None:
                 while loop == -1:
                     try:
                         loop = id_socio = int(exist)
-                        n_so, nom_soc, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = ctas.obtener_datos_socio(id_socio)
+                        n_so, nom_soc, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = rend.obtener_datos_socio(id_socio)
                         print()
                         print(f'            Socio {str(n_so).rjust(6, "0")} - {nom_soc}. Domicilio: {dom}')
                         print()
@@ -1428,10 +1431,10 @@ def crear_op(idu: int, id_socio: int, ret: bool= False) -> int | None:
         
             if exist == "":
                 id_socio, opcion = crear_socio(idu)
-                n_so, nom_soc, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = ctas.obtener_datos_socio(id_socio)
+                n_so, nom_soc, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = rend.obtener_datos_socio(id_socio)
                 print()
         
-        n_so, nom_soc, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = ctas.obtener_datos_socio(id_socio)
+        n_so, nom_soc, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = rend.obtener_datos_socio(id_socio)
         cod_nich, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(cod_nicho)
         
         if pan == 6 or pan == 7:
@@ -1859,7 +1862,7 @@ def ver_operacion():
         print()
         return
     
-    cobrador = rend.obtener_nom_cobrador(cob)
+    cobrador = caja.obtener_nom_cobrador(cob)
     
     if False:   # Datos complementarios (ACCIÓN INHABILITADA)
         try:
@@ -1876,7 +1879,7 @@ def ver_operacion():
             print()
             return
     
-    id_soc, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = ctas.obtener_datos_socio(nro_soc)
+    id_soc, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = rend.obtener_datos_socio(nro_soc)
     
     try:
         cod_nicho, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(cod_nic)
@@ -2091,8 +2094,8 @@ def menu_editar_op(idu: int):                                                   
             print()
             return
     
-        cobrador = rend.obtener_nom_cobrador(cob)
-        id_soc, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = ctas.obtener_datos_socio(nro_soc)
+        cobrador = caja.obtener_nom_cobrador(cob)
+        id_soc, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = rend.obtener_datos_socio(nro_soc)
     
         if paga == 1:
             pag = 'SI'
@@ -2212,7 +2215,7 @@ def transferir_op(idu: int, id_op: int):
                 return
 
             else:
-                n_so_n, nom_n, dni_n, te_1_n, te_2_n, mail_n, dom_n, loc_n, c_p_n, f_n_n, f_a_n, act_n = ctas.obtener_datos_socio(id_socio)
+                n_so_n, nom_n, dni_n, te_1_n, te_2_n, mail_n, dom_n, loc_n, c_p_n, f_n_n, f_a_n, act_n = rend.obtener_datos_socio(id_socio)
 
         if opcion == 2:
             loop = -1
@@ -2225,7 +2228,7 @@ def transferir_op(idu: int, id_op: int):
                         ctas.menu_buscar()
                         print()
                         id_socio = int(input("Indique el nro. de socio: "))
-                    n_so_n, nom_n, dni_n, te_1_n, te_2_n, mail_n, dom_n, loc_n, c_p_n, f_n_n, f_a_n, act_n = ctas.obtener_datos_socio(id_socio)
+                    n_so_n, nom_n, dni_n, te_1_n, te_2_n, mail_n, dom_n, loc_n, c_p_n, f_n_n, f_a_n, act_n = rend.obtener_datos_socio(id_socio)
                     loop = 1
 
                 except UnboundLocalError:
@@ -2265,7 +2268,7 @@ def transferir_op(idu: int, id_op: int):
             return
 
         try:
-            n_so_v, nom_v, dni_v, te_1_v, te_2_v, mail_v, dom_v, loc_v, c_p_v, f_n_v, f_a_v, act_v = ctas.obtener_datos_socio(nro_soc)
+            n_so_v, nom_v, dni_v, te_1_v, te_2_v, mail_v, dom_v, loc_v, c_p_v, f_n_v, f_a_v, act_v = rend.obtener_datos_socio(nro_soc)
 
         except TypeError:
             print("         ERROR. No existe nro. de socio.")
@@ -2342,7 +2345,7 @@ def cambiar_nicho(idu: int, id_op: int):
                 cod_nicho, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(exist)
 
                 try:
-                    id_operacion, soc, nic, fac, cob, tar, rut, ult, u_a, fec, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = ctas.buscar_op_cod_nicho(str(cod_nicho), 1)
+                    id_operacion, soc, nic, fac, cob, tar, rut, ult, u_a, fec, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = ctas.buscar_op_cod_nicho(str(cod_nicho), True)
                     print(f"         ERROR. El nicho indicado ya se encuentra asociado a la operación {str(id_operacion).rjust(7, '0')}")
                     print()
                     return

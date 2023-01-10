@@ -1,11 +1,13 @@
-import funciones_mantenimiento as mant
-import reporter as rep
+import os
 import psycopg2 as sql
 import psycopg2.errors
-import os
+
 from colorama import init, Fore, Back
 from datetime import datetime
 from getpass import getpass
+
+import funciones_mantenimiento as mant
+import reporter as rep
 
 os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
 os.system('color 0E')   # Colores del módulo (Amarillo sobre negro)

@@ -1,7 +1,8 @@
 print("\n\nCargando las funciones necesarias para ejectuar el módulo. Por favor aguarde... \n\n")
+import os
+
 import funciones_caja as func
 import funciones_mantenimiento as mant
-import os
 
 os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
 os.system('color 0E')   # Colores del módulo (Amarillo sobre negro)
