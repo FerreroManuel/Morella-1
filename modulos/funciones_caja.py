@@ -339,7 +339,7 @@ def ult_reg() -> list:
 
 
 def total_ing_por_cob(cobrador: str, mes:str, año: str) -> float | int:
-    """Suma todos los ingresos de un cobrador específico en un mes específico y
+    """Suma todos los cobros de un cobrador específico en un mes específico y
     los retorna.
 
     :param cobrador: Nombre del cobrador
@@ -353,9 +353,11 @@ def total_ing_por_cob(cobrador: str, mes:str, año: str) -> float | int:
 
     :rtype: float or int
     """
+    panteones = tuple(obtener_panteon())
+
     with sql.connect(mant.DATABASE) as conn:
         cursor = conn.cursor()
-        cursor.execute(f"SELECT SUM(ingreso) FROM caja WHERE descripcion = '{cobrador}' AND mes='{mes}' AND año='{año}'")
+        cursor.execute(f"SELECT SUM(ingreso) FROM caja WHERE descripcion = '{cobrador}' AND mes='{mes}' AND año='{año}' AND categoria IN {panteones}")
         datos = cursor.fetchone()
     
     if datos[0] == None:

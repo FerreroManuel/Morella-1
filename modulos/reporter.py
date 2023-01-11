@@ -1267,9 +1267,8 @@ def report_caja_mensual_por_cob(mes: int, año: int):
         :type cobrador: str
         """
         tot_i_por_cob = caja.total_ing_por_cob(cobrador, mes, año)
-        tot_e_por_cob = caja.total_egr_por_cob(cobrador, mes, año)
-        total_por_cob = tot_i_por_cob - tot_e_por_cob
         
+                
         pdf.set_font('Arial', 'B', 10)
         pdf.cell(0, 5, f'{cobrador}', 0, 1, 'L')
         pdf.set_font('Arial', '', 10)
@@ -1278,6 +1277,9 @@ def report_caja_mensual_por_cob(mes: int, año: int):
             i_d, cat, des, tra, ing, egr, obs, dia, mes, año, cer, use = i
         
             if egr:
+                continue
+
+            if cat not in caja.obtener_panteon():
                 continue
 
             pdf.set_font('Arial', '', 10)
