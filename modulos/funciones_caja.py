@@ -357,7 +357,11 @@ def total_ing_por_cob(cobrador: str, mes:str, año: str) -> float | int:
         cursor = conn.cursor()
         cursor.execute(f"SELECT SUM(ingreso) FROM caja WHERE descripcion = '{cobrador}' AND mes='{mes}' AND año='{año}'")
         datos = cursor.fetchone()
-    return datos[0]
+    
+    if datos[0] == None:
+        return 0
+
+    return float(datos[0])
 
 
 def total_egr_por_cob(cobrador: str, mes: str, año: str) -> float | int:
