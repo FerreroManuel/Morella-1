@@ -37,7 +37,13 @@ from pprint import pprint
     ############################################# REPORT CAJA DIARIA ################################################
     #################################################################################################################
 
-def report_caja_diaria(s_final):
+def report_caja_diaria(s_final: float | int):
+    """Genera un reporte de la caja diaria, lo guarda en formato PDF y
+    luego lo abre en el programa predeterminado.
+
+    :param s_final: Saldo final de caja
+    :type s_final: float or int
+    """
     ############ INICIO DE VARIABLES INDEPENDIENTES ############
 
     fecha = caja.obtener_fecha()
@@ -55,51 +61,108 @@ def report_caja_diaria(s_final):
     
     ############ INICIO DE FUNCIONES ############
 
-    def buscar_imp_reg(categ):
-        categ = categ
-        conn = sql.connect(mant.DATABASE)
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM caja WHERE categoria='{categ}' AND cerrada = '0'"
-        cursor.execute(instruccion)
-        datos = cursor.fetchall()
-        conn.close()
+    def buscar_imp_reg(categ: str) -> list:
+        """Recupera de la base de datos todos los movimientos de caja de una
+        categoría específica que no se encuentren en una caja cerrada y los
+        retorna en una lista.
+
+        :param categ: Categoría de caja
+        :type categ: str
+
+        :rtype: list
+        """
+        with sql.connect(mant.DATABASE) as conn:
+            cursor = conn.cursor()
+            instruccion = f"SELECT * FROM caja WHERE categoria='{categ}' AND cerrada = '0'"
+            cursor.execute(instruccion)
+            datos = cursor.fetchall()
         return datos
 
 
-    def tot_cat_ing(categ):
-        categ = categ
-        i = 0
-        total = 0
-        for i in buscar_imp_reg(categ):
-            i_d, cat, des, tra, ing, egr, obs, dia, mes, año, cer, use = i
-            total = total + ing
-        return total
+    def tot_cat_ing(categ: str) -> float | int:
+        """Recupera desde la base de datos el total de ingresos de 
+        la caja actual, pertenecientes a una categoría de caja 
+        específica, y lo retorna.
+
+        :param categ: Categoría de caja
+        :type categ: str
+
+        :rtype: float or int
+        """
+        with sql.connect(mant.DATABASE) as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT SUM(ingreso) FROM caja WHERE categoria = '{categ}' AND cerrada = '0'")
+            ingresos = cursor.fetchone()
+        
+        if ingresos[0]:
+            return ingresos[0]
+        
+        else:
+            return 0
 
 
-    def tot_cat_egr(categ):
-        categ = categ
-        i = 0
-        total = 0
-        for i in buscar_imp_reg(categ):
-            i_d, cat, des, tra, ing, egr, obs, dia, mes, año, cer, use = i
-            total = total + egr
-        return total
+    def tot_cat_egr(categ: str) -> float | int:
+        """Recupera desde la base de datos el total de egresos
+        pertenecientes a una categoría de caja y lo retorna.
+
+        :param categ: Categoría de caja
+        :type categ: str
+
+        :rtype: float or int
+        """
+        with sql.connect(mant.DATABASE) as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT SUM(egreso) FROM caja WHERE categoria = '{categ}' AND cerrada = '0'")
+            egresos = cursor.fetchone()
+        
+        if egresos[0]:
+            return egresos[0]
+        
+        else:
+            return 0
 
 
-    def select_categ(categ):
+    def select_categ(categ: list) -> list:
+        """Recibe una lista con nombres de categoría de caja y retorna
+        una lista que contiene el nombre sólo de aquellas que tengan
+        movimientos dentro de la caja actual.
+
+        :param categ: Lista de categorías de caja.
+        :type categ: list
+
+        :rtype: list
+        """
         lista_categ = []
+        
         for i in categ:
             cat = buscar_imp_reg(i)
-            if cat != []:
+        
+            if cat:
                 lista_categ.append(i)
+        
         return lista_categ
 
 
-    def imprimir_registros_ing(categ):
-        categ = categ
+    def imprimir_registros_ing(categ: str):
+        """Escribe en el PDF todos los movimientos de ingreso de
+        una caja sin cerrar de una categoría específica.
+
+        Contenido:
+        - Nombre de la categoría (Arial Negrita 10p).
+        - Una línea por cada movimiento (Arial 10p) conteniendo:
+          - Descripción.
+          - Número de transacción (ticket, recibo, rendición, etc).
+          - Monto.
+          - Observaciones.
+        - Total de ingresos de la categoría (Arial Negrita 10p).
+
+        :param categ: Nombre de categoría de caja.
+        :type categ: str
+        """
         pdf.set_font('Arial', 'B', 10)
         pdf.cell(0, 5, f'{categ}', 0, 1, 'L')
         pdf.set_font('Arial', '', 10)
+    
         for i in buscar_imp_reg(categ):
             i_d, cat, des, tra, ing, egr, obs, dia, mes, año, cer, use = i
             pdf.set_font('Arial', '', 10)
@@ -108,10 +171,11 @@ def report_caja_diaria(s_final):
             pdf.cell(1, 5, '', 0, 0, 'L')
             pdf.cell(15, 5, f'{tra}', 0, 0, 'L')
             pdf.cell(5, 5, '', 0, 0, 'L')
-            pdf.cell(10, 5, f'{ing}', 0, 0, 'R')
+            pdf.cell(10, 5, f'{ing:.2f}', 0, 0, 'R')
             pdf.cell(25, 5, f'', 0, 0, 'L')
             pdf.cell(1, 5, '', 0, 0, 'L')
             pdf.cell(0, 5, f'{obs}', 0, 1, 'L')
+    
         pdf.ln(2)
         pdf.set_font('Arial', 'B', 10)
         pdf.cell(0, 5, f'$ {tot_cat_ing(categ):.2f}', 0, 0, 'R')
@@ -119,8 +183,22 @@ def report_caja_diaria(s_final):
         pdf.ln(2)
         
 
-    def imprimir_registros_egr(categ):
-        categ = categ
+    def imprimir_registros_egr(categ: str):
+        """Escribe en el PDF todos los movimientos de egreso de
+        una caja sin cerrar de una categoría específica.
+
+        Contenido:
+        - Nombre de la categoría (Arial Negrita 10p).
+        - Una línea por cada movimiento (Arial 10p) conteniendo:
+          - Descripción.
+          - Número de transacción (ticket, recibo, rendición, etc).
+          - Monto.
+          - Observaciones.
+        - Total de egresos de la categoría (Arial Negrita 10p).
+
+        :param categ: Nombre de categoría de caja.
+        :type categ: str
+        """
         pdf.set_font('Arial', 'B', 10)
         pdf.cell(0, 5, f'{categ}', 0, 1, 'L')
         pdf.set_font('Arial', '', 10)
@@ -133,7 +211,7 @@ def report_caja_diaria(s_final):
             pdf.cell(15, 5, f'{tra}', 0, 0, 'L')
             pdf.cell(5, 5, '', 0, 0, 'L')
             pdf.cell(15, 5, f'', 0, 0, 'L')
-            pdf.cell(20, 5, f'({egr})', 0, 0, 'R')
+            pdf.cell(20, 5, f'({egr:.2f})', 0, 0, 'R')
             pdf.cell(1, 5, '', 0, 0, 'L')
             pdf.cell(0, 5, f'{obs}', 0, 1, 'L')
         pdf.ln(2)
@@ -143,20 +221,44 @@ def report_caja_diaria(s_final):
         pdf.ln(2)
 
 
-    def total_ingresos(saldo_inicial):
-        total = 0
-        for i in categ_ing:
-            total = total + tot_cat_ing(i)
-        total = total + saldo_inicial
-        return total
+    def total_ingresos(saldo_inicial: float | int) -> float | int:
+        """Recibe el saldo inicial de la caja, lo suma al total de ingresos
+        de la caja actual y retorna el resultado.
+
+        :param saldo_inicial: Saldo inicial de la caja.
+        :type saldo_inicial: float or int
+
+        :rtype: float or int
+        """
+        with sql.connect(mant.DATABASE) as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT SUM(ingreso) FROM caja WHERE cerrada = 0")
+            tot_ingresos = cursor.fetchone()[0]
+        
+        if tot_ingresos == None:
+            tot_ingresos = 0
+
+        return tot_ingresos + saldo_inicial
 
 
-    def total_egresos(saldo_final):
-        total = 0
-        for i in categ_egr:
-            total = total + tot_cat_egr(i)
-        total = total + saldo_final
-        return total
+    def total_egresos(saldo_final: float | int) -> float | int:
+        """Recibe el saldo final de la caja, lo suma al total de egresos
+        de la caja actual y retorna el resultado.
+
+        :param saldo_inicial: Saldo final de la caja.
+        :type saldo_inicial: float or int
+
+        :rtype: float or int
+        """
+        with sql.connect(mant.DATABASE) as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT SUM(egreso) FROM caja WHERE cerrada = 0")
+            tot_egresos = cursor.fetchone()[0]
+
+        if tot_egresos == None:
+            tot_egresos = 0
+
+        return tot_egresos + saldo_final
 
     ############ FIN DE FUNCIONES ############
 
@@ -174,6 +276,19 @@ def report_caja_diaria(s_final):
     class PDF(FPDF):
         # Page header
         def header(self):
+            """Escribe un encabezado para cada página del documento.
+
+            Contenido:
+            - Logo de la empresa.
+            - Título del documento (Arial Negrita 15p).
+            - Fecha, hora y número de caja (Arial 10p).
+            - Nombres de columnas (Arial Negrita 15p):
+              - Descripción
+              - N°Transacción
+              - Ingreso
+              - Egreso
+              - Observaciones
+            """
             # Logo
             self.image('../docs/logo_bicon.jpg', 14.5, 12, 15)
             # Arial bold 15
@@ -202,6 +317,13 @@ def report_caja_diaria(s_final):
             
         # Page footer
         def footer(self):
+            """Escribe un pie para cada página del documento.
+
+            Contenido:
+            - Número y total de páginas.
+            - Nombre y versión de Morella.
+            - Logo de MF! Soluciones Informáticas.
+            """
             # Position at 2.5 cm from bottom
             self.set_y(-25)
             # Arial italic 8
@@ -216,6 +338,7 @@ def report_caja_diaria(s_final):
 
     # Instantiation of inherited class
     pdf = PDF()
+    
     pdf.set_auto_page_break(True, 25)
     pdf.alias_nb_pages()
     pdf.add_page()
@@ -223,10 +346,13 @@ def report_caja_diaria(s_final):
     pdf.cell(0, 5, 'CAJA INICIAL: ', 0, 0, "L")
     pdf.cell(0, 5, f'$ {saldo_inicial:.2f}', 0, 1, 'R')
     pdf.set_font('Arial', '', 10)
+    
     for i in select_categ(categ_ing):
         imprimir_registros_ing(i)
+    
     for e in select_categ(categ_egr):
         imprimir_registros_egr(e)
+    
     pdf.set_font('Arial', 'B', 10)
     pdf.cell(0, 5, 'CIERRE DE CAJA: ', 0, 0, "L")
     pdf.cell(0, 5, f'($ {saldo_final:.2f})', 0, 1, 'R')
@@ -236,16 +362,21 @@ def report_caja_diaria(s_final):
     pdf.cell(0, 5, f'( {total_egr:.2f})', 0, 0, 'R')
     pdf.cell(-27, 5, f'TOTAL EGRESOS: $ ', 0, 1, 'R')
     pdf.cell(0, 5, f'_____________________________', 0, 1, 'R')
+    
     if final == 0:
         pdf.cell(0, 5, f' {final:.2f} ', 0, 0, 'R')
         pdf.cell(-27, 5, f'DIFERENCIA: $ ', 0, 1, 'R')
+    
     elif final > 0:
         pdf.cell(0, 5, f' {final:.2f} ', 0, 0, 'R')
         pdf.cell(-27, 5, f'FALTANTE: $ ', 0, 1, 'R')
+    
     elif final < 0:
         pdf.cell(0, 5, f' {-1*final:.2f}', 0, 0, 'R')
         pdf.cell(-27, 5, f'SOBRANTE: $ ', 0, 1, 'R')
+    
     pdf.ln(2)
+
     pdf.output(f'../reports/caja/diaria/caja_diaria-{str(contador).rjust(6, "0")}.pdf', 'F')
 
 
@@ -261,8 +392,10 @@ def report_caja_diaria(s_final):
     print("Abriendo reporte. Luego de cerrarlo presione enter para continuar...")
     ruta = f'../reports/caja/diaria'
     arch = f'caja_diaria-{str(contador).rjust(6, "0")}.pdf'
+
     os.chdir(ruta)
     os.system(arch)
+
     ruta = '../../../modulos/'
     os.chdir(ruta)
 
@@ -277,7 +410,16 @@ def report_caja_diaria(s_final):
     ######################################## REPORT CAJA MENSUAL DETALLADA ##########################################
     #################################################################################################################
 
-def report_caja_mensual_det(mes, año):
+def report_caja_mensual_det(mes: int, año: int):
+    """Genera un reporte de la caja mensual, detallando cada movimiento de cada
+    categoría, luego lo guarda en formato PDF y lo abre en el programa predeterminado.
+
+    :param mes: Mes a imprimir
+    :type mes: int
+
+    :param año: Año a imprimir (hasta 2099 se aceptan dos dígitos, hasta 2999 se aceptan tres dígitos)
+    :type año: int
+    """
     ############ INICIO DE VARIABLES INDEPENDIENTES ############
 
     fecha = caja.obtener_fecha()
@@ -295,51 +437,108 @@ def report_caja_mensual_det(mes, año):
     
     ############ INICIO DE FUNCIONES ############
 
-    def buscar_imp_reg(categ):
-        categ = categ
-        conn = sql.connect(mant.DATABASE)
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM caja WHERE categoria='{categ}' AND mes='{mes}' AND año='{año}'"
-        cursor.execute(instruccion)
-        datos = cursor.fetchall()
-        conn.close()
+    def buscar_imp_reg(categ: str) -> list:
+        """Recupera de la base de datos todos los movimientos de caja de una
+        categoría específica en un mes específico y los retorna en una lista.
+
+        :param categ: Categoría de caja
+        :type categ: str
+
+        :rtype: list
+        """
+        with sql.connect(mant.DATABASE) as conn:
+            cursor = conn.cursor()
+            instruccion = f"SELECT * FROM caja WHERE categoria='{categ}' AND mes='{mes}' AND año='{año}'"
+            cursor.execute(instruccion)
+            datos = cursor.fetchall()
+
         return datos
 
 
-    def tot_cat_ing(categ):
-        categ = categ
-        i = 0
-        total = 0
-        for i in buscar_imp_reg(categ):
-            i_d, cat, des, tra, ing, egr, obs, dia, mes, año, cer, use = i
-            total = total + ing
-        return total
+    def tot_cat_ing(categ: str) -> float | int:
+        """Recupera desde la base de datos el total de ingresos pertenecientes
+        a una categoría de caja específica, en un mes específico, y lo retorna.
+
+        :param categ: Categoría de caja
+        :type categ: str
+
+        :rtype: float or int
+        """
+        with sql.connect(mant.DATABASE) as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT SUM(ingreso) FROM caja WHERE categoria='{categ}' AND mes='{mes}' AND año='{año}'")
+            ingresos = cursor.fetchone()
+        
+        if ingresos[0]:
+            return ingresos[0]
+        
+        else:
+            return 0
 
 
-    def tot_cat_egr(categ):
-        categ = categ
-        i = 0
-        total = 0
-        for i in buscar_imp_reg(categ):
-            i_d, cat, des, tra, ing, egr, obs, dia, mes, año, cer, use = i
-            total = total + egr
-        return total
+    def tot_cat_egr(categ: str) -> float | int:
+        """Recupera desde la base de datos el total de egresos pertenecientes
+        a una categoría de caja específica, en un mes específico, y lo retorna.
+
+        :param categ: Categoría de caja
+        :type categ: str
+
+        :rtype: float or int
+        """
+        with sql.connect(mant.DATABASE) as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT SUM(egreso) FROM caja WHERE categoria='{categ}' AND mes='{mes}' AND año='{año}'")
+            egresos = cursor.fetchone()
+        
+        if egresos[0]:
+            return egresos[0]
+        
+        else:
+            return 0
 
 
-    def select_categ(categ):
+    def select_categ(categ: list) -> list:
+        """Recibe una lista con nombres de categoría de caja y retorna
+        una lista que contiene el nombre sólo de aquellas que tengan
+        movimientos dentro del mes indicado.
+
+        :param categ: Lista de categorías de caja.
+        :type categ: list
+
+        :rtype: list
+        """
         lista_categ = []
+        
         for i in categ:
             cat = buscar_imp_reg(i)
-            if cat != []:
+        
+            if cat:
                 lista_categ.append(i)
+        
         return lista_categ
 
 
-    def imprimir_registros_ing_mes(categ):
-        categ = categ
+    def imprimir_registros_ing_mes(categ: str):
+        """Escribe en el PDF todos los movimientos de ingreso de
+        caja, en un mes específico, de una categoría específica.
+
+        Contenido:
+        - Nombre de la categoría (Arial Negrita 10p).
+        - Una línea por cada movimiento (Arial 10p) conteniendo:
+          - Descripción.
+          - Número de transacción (ticket, recibo, rendición, etc).
+          - Monto.
+          - Observaciones.
+          - Fecha (MM/AAAA).
+        - Total de ingresos de la categoría (Arial Negrita 10p).
+
+        :param categ: Nombre de categoría de caja.
+        :type categ: str
+        """
         pdf.set_font('Arial', 'B', 10)
         pdf.cell(0, 5, f'{categ}', 0, 1, 'L')
         pdf.set_font('Arial', '', 10)
+        
         for i in buscar_imp_reg(categ):
             i_d, cat, des, tra, ing, egr, obs, dia, mes, año, cer, use = i
             pdf.set_font('Arial', '', 10)
@@ -348,11 +547,12 @@ def report_caja_mensual_det(mes, año):
             pdf.cell(1, 5, '', 0, 0, 'L')
             pdf.cell(15, 5, f'{tra}', 0, 0, 'L')
             pdf.cell(5, 5, '', 0, 0, 'L')
-            pdf.cell(10, 5, f'{ing}', 0, 0, 'R')
+            pdf.cell(10, 5, f'{ing:.2f}', 0, 0, 'R')
             pdf.cell(25, 5, f'', 0, 0, 'L')
             pdf.cell(1, 5, '', 0, 0, 'L')
             pdf.cell(60, 5, f'{obs}', 0, 0, 'L')
             pdf.cell(0, 5 , f'{mes}/{año}', 0, 1, 'L')
+        
         pdf.ln(2)
         pdf.set_font('Arial', 'B', 10)
         pdf.cell(0, 5, f'$ {tot_cat_ing(categ):.2f}', 0, 0, 'R')
@@ -360,11 +560,27 @@ def report_caja_mensual_det(mes, año):
         pdf.ln(2)
         
 
-    def imprimir_registros_egr_mes(categ):
-        categ = categ
+    def imprimir_registros_egr_mes(categ: str):
+        """Escribe en el PDF todos los movimientos de egreso de
+        caja, en un mes específico, de una categoría específica.
+
+        Contenido:
+        - Nombre de la categoría (Arial Negrita 10p).
+        - Una línea por cada movimiento (Arial 10p) conteniendo:
+          - Descripción.
+          - Número de transacción (ticket, recibo, rendición, etc).
+          - Monto.
+          - Observaciones.
+          - Fecha (MM/AAAA).
+        - Total de egresos de la categoría (Arial Negrita 10p).
+
+        :param categ: Nombre de categoría de caja.
+        :type categ: str
+        """
         pdf.set_font('Arial', 'B', 10)
         pdf.cell(0, 5, f'{categ}', 0, 1, 'L')
         pdf.set_font('Arial', '', 10)
+        
         for i in buscar_imp_reg(categ):
             i_d, cat, des, tra, ing, egr, obs, dia, mes, año, cer, use = i
             pdf.set_font('Arial', '', 10)
@@ -374,10 +590,11 @@ def report_caja_mensual_det(mes, año):
             pdf.cell(15, 5, f'{tra}', 0, 0, 'L')
             pdf.cell(5, 5, '', 0, 0, 'L')
             pdf.cell(15, 5, f'', 0, 0, 'L')
-            pdf.cell(20, 5, f'({egr})', 0, 0, 'R')
+            pdf.cell(20, 5, f'({egr:.2f})', 0, 0, 'R')
             pdf.cell(1, 5, '', 0, 0, 'L')
             pdf.cell(60, 5, f'{obs}', 0, 0, 'L')
             pdf.cell(0, 5 , f'{mes}/{año}', 0, 1, 'L')
+        
         pdf.ln(2)
         pdf.set_font('Arial', 'B', 10)
         pdf.cell(0, 5, f'($ {tot_cat_egr(categ):.2f})', 0, 0, 'R')
@@ -385,45 +602,87 @@ def report_caja_mensual_det(mes, año):
         pdf.ln(2)
 
 
-    def total_ingresos_mensual():
-        total = 0
-        for i in categ_ing:
-            total = total + tot_cat_ing(i)
-        return total
+    def total_ingresos_mensual() -> float | int:
+        """Recupera de la base de datos el total de ingresos de un
+        mes específico y lo retorna.
+
+        :rtype: float or int
+        """
+        with sql.connect(mant.DATABASE) as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT SUM (ingreso) FROM caja WHERE mes = '{mes}' AND año = '{año}'")
+            tot_ingresos = cursor.fetchone()[0]
+        
+        if tot_ingresos:
+            return tot_ingresos
+        
+        else:
+            return 0
 
 
-    def total_egresos_mensual():
-        total = 0
-        for i in categ_egr:
-            total = total + tot_cat_egr(i)
-        return total
+    def total_egresos_mensual() -> float | int:
+        """Recupera de la base de datos el total de ingresos de un
+        mes específico y lo retorna.
+
+        :rtype: float or int
+        """
+        with sql.connect(mant.DATABASE) as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT SUM (egreso) FROM caja WHERE mes = '{mes}' AND año = '{año}'")
+            tot_egresos = cursor.fetchone()[0]
+        
+        if tot_egresos:
+            return tot_egresos
+        
+        else:
+            return 0
 
 
-    def str_mes(mes):
+    def str_mes(mes: str) -> str:
+        """Recibe una cadena conteniendo el mes como número de dos dígitos
+        y retorna una cadena con el nombre correspondiente.
+
+        :param mes: Mes (número dos dígitos).
+        :type mes: str
+
+        :rtype: str
+        """
         if mes == '01':
             string_mes = 'Enero'
+        
         if mes == '02':
             string_mes = 'Febrero'
+        
         elif mes == '03':
             string_mes = 'Marzo'
+        
         elif mes == '04':
             string_mes = 'Abril'
+        
         elif mes == '05':
             string_mes = 'Mayo'
+        
         elif mes == '06':
             string_mes = 'Junio'
+        
         elif mes == '07':
             string_mes = 'Julio'
+        
         elif mes == '08':
             string_mes = 'Agosto'
+        
         elif mes == '09':
             string_mes = 'Septiembre'
+        
         elif mes == '10':
             string_mes = 'Octubre'
+        
         elif mes == '11':
             string_mes = 'Noviembre'
+        
         elif mes == '12':
             string_mes = 'Diciembre'
+        
         return string_mes
 
     ############ FIN DE FUNCIONES ############
@@ -433,8 +692,7 @@ def report_caja_mensual_det(mes, año):
     string_mes = str_mes(mes)
     total_ing = total_ingresos_mensual()
     total_egr = total_egresos_mensual()
-    # final = total_ing - total_egr
-
+    
     ########### FIN DE VARIABLES DEPENDIENTES ############
 
     ############ INICIO DE REPORT ############
@@ -442,6 +700,20 @@ def report_caja_mensual_det(mes, año):
     class PDF(FPDF):
         # Page header
         def header(self):
+            """Escribe un encabezado para cada página del documento.
+
+            Contenido:
+            - Logo de la empresa.
+            - Título del documento (Arial Negrita 15p).
+            - Fecha y hora (Arial 10p).
+            - Nombres de columnas (Arial Negrita 15p):
+              - Descripción
+              - N°Transacción
+              - Ingreso
+              - Egreso
+              - Observaciones
+              - Fecha
+            """
             # Logo
             self.image('../docs/logo_bicon.jpg', 14.5, 12, 15)
             # Arial bold 15
@@ -471,6 +743,13 @@ def report_caja_mensual_det(mes, año):
             
         # Page footer
         def footer(self):
+            """Escribe un pie para cada página del documento.
+
+            Contenido:
+            - Número y total de páginas.
+            - Nombre y versión de Morella.
+            - Logo de MF! Soluciones Informáticas.
+            """
             # Position at 2.5 cm from bottom
             self.set_y(-25)
             # Arial italic 8
@@ -485,20 +764,25 @@ def report_caja_mensual_det(mes, año):
 
     # Instantiation of inherited class
     pdf = PDF()
+
     pdf.set_auto_page_break(True, 25)
     pdf.alias_nb_pages()
     pdf.add_page()
     pdf.set_font('Arial', '', 10)
+    
     for i in select_categ(categ_ing):
         imprimir_registros_ing_mes(i)
+    
     for e in select_categ(categ_egr):
         imprimir_registros_egr_mes(e)
+    
     pdf.ln(15)
     pdf.cell(0, 5, f' {total_ing:.2f} ', 0, 0, 'R')
     pdf.cell(-27, 5, f'TOTAL INGRESOS: $ ', 0, 1, 'R')
     pdf.cell(0, 5, f'( {total_egr:.2f})', 0, 0, 'R')
     pdf.cell(-27, 5, f'TOTAL EGRESOS: $ ', 0, 1, 'R')
     pdf.ln(2)
+    
     pdf.output(f'../reports/caja/mensual/detallada/caja_{str.lower(string_mes)}-{año}.pdf', 'F')
 
 
@@ -512,10 +796,13 @@ def report_caja_mensual_det(mes, año):
         print('\n\n\n\n')
 
     print("Abriendo reporte. Cierre el archivo para continuar...")
+    
     ruta = f'../reports/caja/mensual/detallada/'
     arch = f'caja_{str.lower(string_mes)}-{año}.pdf'
+    
     os.chdir(ruta)
     os.system(arch)
+    
     ruta = '../../../../modulos/'
     os.chdir(ruta)
 
@@ -529,7 +816,16 @@ def report_caja_mensual_det(mes, año):
     ######################################### REPORT CAJA MENSUAL COMPRIMIDA ########################################
     #################################################################################################################
 
-def report_caja_mensual_comp(mes, año):
+def report_caja_mensual_comp(mes: int, año: int):
+    """Genera un reporte de la caja mensual, mostrando sólo los totales de cada
+    categoría, luego lo guarda en formato PDF y lo abre en el programa predeterminado.
+
+    :param mes: Mes a imprimir
+    :type mes: int
+
+    :param año: Año a imprimir (hasta 2099 se aceptan dos dígitos, hasta 2999 se aceptan tres dígitos)
+    :type año: int
+    """
     ############ INICIO DE VARIABLES INDEPENDIENTES ############
 
     fecha = caja.obtener_fecha()
@@ -547,101 +843,199 @@ def report_caja_mensual_comp(mes, año):
     
     ############ INICIO DE FUNCIONES ############
 
-    def buscar_imp_reg(categ):
-        categ = categ
-        conn = sql.connect(mant.DATABASE)
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM caja WHERE categoria='{categ}' AND mes='{mes}' AND año='{año}'"
-        cursor.execute(instruccion)
-        datos = cursor.fetchall()
-        conn.close()
+    def buscar_imp_reg(categ: str) -> list:
+        """Recupera de la base de datos todos los movimientos de caja de una
+        categoría específica en un mes específico y los retorna en una lista.
+
+        :param categ: Categoría de caja
+        :type categ: str
+
+        :rtype: list
+        """
+        with sql.connect(mant.DATABASE) as conn:
+            cursor = conn.cursor()
+            instruccion = f"SELECT * FROM caja WHERE categoria='{categ}' AND mes='{mes}' AND año='{año}'"
+            cursor.execute(instruccion)
+            datos = cursor.fetchall()
         return datos
 
 
-    def tot_cat_ing(categ):
-        categ = categ
-        i = 0
-        total = 0
-        for i in buscar_imp_reg(categ):
-            i_d, cat, des, tra, ing, egr, obs, dia, mes, año, cer, use = i
-            total = total + ing
-        return total
+    def tot_cat_ing(categ: str) -> float | int:
+        """Recupera desde la base de datos el total de ingresos pertenecientes
+        a una categoría de caja específica, en un mes específico, y lo retorna.
+
+        :param categ: Categoría de caja
+        :type categ: str
+
+        :rtype: float or int
+        """
+        with sql.connect(mant.DATABASE) as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT SUM(ingreso) FROM caja WHERE categoria='{categ}' AND mes='{mes}' AND año='{año}'")
+            ingresos = cursor.fetchone()
+        
+        if ingresos[0]:
+            return ingresos[0]
+        
+        else:
+            return 0
 
 
-    def tot_cat_egr(categ):
-        categ = categ
-        i = 0
-        total = 0
-        for i in buscar_imp_reg(categ):
-            i_d, cat, des, tra, ing, egr, obs, dia, mes, año, cer, use = i
-            total = total + egr
-        return total
+    def tot_cat_egr(categ: str) -> float | int:
+        """Recupera desde la base de datos el total de egresos pertenecientes
+        a una categoría de caja específica, en un mes específico, y lo retorna.
+
+        :param categ: Categoría de caja
+        :type categ: str
+
+        :rtype: float or int
+        """
+        with sql.connect(mant.DATABASE) as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT SUM(egreso) FROM caja WHERE categoria='{categ}' AND mes='{mes}' AND año='{año}'")
+            egresos = cursor.fetchone()
+        
+        if egresos[0]:
+            return egresos[0]
+        
+        else:
+            return 0
 
 
-    def select_categ(categ):
+    def select_categ(categ: list) -> list:
+        """Recibe una lista con nombres de categoría de caja y retorna
+        una lista que contiene el nombre sólo de aquellas que tengan
+        movimientos dentro de la caja actual.
+
+        :param categ: Lista de categorías de caja.
+        :type categ: list
+
+        :rtype: list
+        """
         lista_categ = []
+        
         for i in categ:
             cat = buscar_imp_reg(i)
-            if cat != []:
+        
+            if cat:
                 lista_categ.append(i)
+        
         return lista_categ
 
 
-    def imprimir_registros_ing_mes(categ):
-        categ = categ
+    def imprimir_registros_ing_mes(categ: str):
+        """Escribe en el PDF el total de ingresos de una categoría específica.
+
+        Contenido:
+        - Nombre de la categoría (Arial 10p).
+        - Total de ingresos de la categoría (Arial 10p).
+
+        :param categ: Nombre de categoría de caja.
+        :type categ: str
+        """
         pdf.set_font('Arial', '', 10)
         pdf.cell(0, 5, f'{categ}', 0, 0, 'L')
         pdf.cell(-58, 5, f'$ {tot_cat_ing(categ):.2f}', 0, 1, 'R')
         pdf.ln(2)
         
 
-    def imprimir_registros_egr_mes(categ):
-        categ = categ
+    def imprimir_registros_egr_mes(categ: str):
+        """Escribe en el PDF el total de egresos de una categoría específica.
+
+        Contenido:
+        - Nombre de la categoría (Arial 10p).
+        - Total de egresos de la categoría (Arial 10p).
+
+        :param categ: Nombre de categoría de caja.
+        :type categ: str
+        """
         pdf.set_font('Arial', '', 10)
         pdf.cell(0, 5, f'{categ}', 0, 0, 'L')
         pdf.cell(0, 5, f'($ {tot_cat_egr(categ):.2f})', 0, 1, 'R')
         pdf.ln(2)
 
 
-    def total_ingresos_mensual():
-        total = 0
-        for i in categ_ing:
-            total = total + tot_cat_ing(i)
-        return total
+    def total_ingresos_mensual() -> float | int:
+        """Recupera de la base de datos el total de ingresos de un
+        mes específico y lo retorna.
+
+        :rtype: float or int
+        """
+        with sql.connect(mant.DATABASE) as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT SUM (ingreso) FROM caja WHERE mes = '{mes}' AND año = '{año}'")
+            tot_ingresos = cursor.fetchone()[0]
+        
+        if tot_ingresos:
+            return tot_ingresos
+        
+        else:
+            return 0
 
 
-    def total_egresos_mensual():
-        total = 0
-        for i in categ_egr:
-            total = total + tot_cat_egr(i)
-        return total
+    def total_egresos_mensual() -> float | int:
+        """Recupera de la base de datos el total de ingresos de un
+        mes específico y lo retorna.
+
+        :rtype: float or int
+        """
+        with sql.connect(mant.DATABASE) as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT SUM (egreso) FROM caja WHERE mes = '{mes}' AND año = '{año}'")
+            tot_egresos = cursor.fetchone()[0]
+        
+        if tot_egresos:
+            return tot_egresos
+        
+        else:
+            return 0
 
 
-    def str_mes(mes):
+    def str_mes(mes: str) -> str:
+        """Recibe una cadena conteniendo el mes como número de dos dígitos
+        y retorna una cadena con el nombre correspondiente.
+
+        :param mes: Mes (número dos dígitos).
+        :type mes: str
+
+        :rtype: str
+        """
         if mes == '01':
             string_mes = 'Enero'
+        
         if mes == '02':
             string_mes = 'Febrero'
+        
         elif mes == '03':
             string_mes = 'Marzo'
+        
         elif mes == '04':
             string_mes = 'Abril'
+        
         elif mes == '05':
             string_mes = 'Mayo'
+        
         elif mes == '06':
             string_mes = 'Junio'
+        
         elif mes == '07':
             string_mes = 'Julio'
+        
         elif mes == '08':
             string_mes = 'Agosto'
+        
         elif mes == '09':
             string_mes = 'Septiembre'
+        
         elif mes == '10':
             string_mes = 'Octubre'
+        
         elif mes == '11':
             string_mes = 'Noviembre'
+        
         elif mes == '12':
             string_mes = 'Diciembre'
+        
         return string_mes
 
     ############ FIN DE FUNCIONES ############
@@ -652,8 +1046,7 @@ def report_caja_mensual_comp(mes, año):
     string_mes = str_mes(mes)
     total_ing = total_ingresos_mensual()
     total_egr = total_egresos_mensual()
-    # final = total_ing - total_egr
-
+    
     ########### FIN DE VARIABLES DEPENDIENTES ############
     
 
@@ -662,6 +1055,17 @@ def report_caja_mensual_comp(mes, año):
     class PDF(FPDF):
         # Page header
         def header(self):
+            """Escribe un encabezado para cada página del documento.
+
+            Contenido:
+            - Logo de la empresa.
+            - Título del documento (Arial Negrita 15p).
+            - Fecha y hora (Arial 10p).
+            - Nombres de columnas (Arial Negrita 15p):
+              - Categoría
+              - Ingreso
+              - Egreso
+            """
             # Logo
             self.image('../docs/logo_bicon.jpg', 14.5, 12, 15)
             # Arial bold 15
@@ -691,6 +1095,13 @@ def report_caja_mensual_comp(mes, año):
             
         # Page footer
         def footer(self):
+            """Escribe un pie para cada página del documento.
+
+            Contenido:
+            - Número y total de páginas.
+            - Nombre y versión de Morella.
+            - Logo de MF! Soluciones Informáticas.
+            """
             # Position at 2.5 cm from bottom
             self.set_y(-25)
             # Arial italic 8
@@ -709,14 +1120,18 @@ def report_caja_mensual_comp(mes, año):
 
     # Instantiation of inherited class
     pdf = PDF()
+    
     pdf.set_auto_page_break(True, 25)
     pdf.alias_nb_pages()
     pdf.add_page()
     pdf.set_font('Arial', '', 10)
+    
     for i in select_categ(categ_ing):
         imprimir_registros_ing_mes(i)
+    
     for e in select_categ(categ_egr):
         imprimir_registros_egr_mes(e)
+    
     pdf.ln(15)
     pdf.set_font('Arial', 'B', 10)
     pdf.cell(0, 5, f' {total_ing:.2f} ', 0, 0, 'R')
@@ -724,6 +1139,7 @@ def report_caja_mensual_comp(mes, año):
     pdf.cell(0, 5, f'( {total_egr:.2f})', 0, 0, 'R')
     pdf.cell(-27, 5, f'TOTAL EGRESOS: $ ', 0, 1, 'R')
     pdf.ln(2)
+    
     pdf.output(f'../reports/caja/mensual/comprimida/caja_{str.lower(string_mes)}-{año}-COMP.pdf', 'F')
 
 
@@ -737,10 +1153,12 @@ def report_caja_mensual_comp(mes, año):
         print('\n\n\n\n')
 
     print("Abriendo reporte. Cierre el archivo para continuar...")
+    
     ruta = f'../reports/caja/mensual/comprimida/'
     arch = f'caja_{str.lower(string_mes)}-{año}-COMP.pdf'
     os.chdir(ruta)
     os.system(arch)
+    
     ruta = '../../../../modulos/'
     os.chdir(ruta)
 
@@ -755,7 +1173,16 @@ def report_caja_mensual_comp(mes, año):
     #################################################################################################################
 
 
-def report_caja_mensual_por_cob(mes, año):
+def report_caja_mensual_por_cob(mes: int, año: int):
+    """Genera un reporte de la caja mensual, detallando todos los ingresos de cada
+    cobrador, luego lo guarda en formato PDF y lo abre en el programa predeterminado.
+
+    :param mes: Mes a imprimir
+    :type mes: int
+
+    :param año: Año a imprimir (hasta 2099 se aceptan dos dígitos, hasta 2999 se aceptan tres dígitos)
+    :type año: int
+    """
     ############ INICIO DE VARIABLES INDEPENDIENTES ############
 
     fecha = caja.obtener_fecha()
@@ -771,34 +1198,85 @@ def report_caja_mensual_por_cob(mes, año):
     
     ############ INICIO DE FUNCIONES ############
 
-    def buscar_imp_reg_por_cob(cobrador, mes, año):
-        conn = sql.connect(mant.DATABASE)
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM caja WHERE descripcion='{cobrador}' AND mes='{mes}' AND año='{año}'"
-        cursor.execute(instruccion)
-        datos = cursor.fetchall()
-        conn.close()
+    def buscar_imp_reg_por_cob(cobrador: str, mes: str, año: str) -> list:
+        """Recupera de la base de datos todos los ingresos de caja de un cobrador
+        específico en un mes específico y los retorna en una lista.
+
+        :param categ: Categoría de caja
+        :type categ: str
+
+        :param mes: Mes (cadena, dos dígitos)
+        :type mes: str
+
+        :param año: Año (cadena, cuatro dígitos)
+        :type año: str
+
+        :rtype: list
+        """
+        with sql.connect(mant.DATABASE) as conn:
+            cursor = conn.cursor()
+            instruccion = f"SELECT * FROM caja WHERE descripcion='{cobrador}' AND mes='{mes}' AND año='{año}'"
+            cursor.execute(instruccion)
+            datos = cursor.fetchall()
+
         return datos
 
 
-    def select_cob(cob, mes, año):
+    def select_cob(cobradores: list, mes: str, año: str) -> list:
+        """Recibe una lista con los nombres delos cobradores y retorna
+        una lista que contiene el nombre sólo de aquellos que tengan
+        ingresos registrados dentro del mes indicado.
+
+        :param cobradores: Lista de nombres de cobradores.
+        :type cobradores: list
+
+        :param mes: Mes (cadena, dos dígitos).
+        :type mes: str
+
+        :param año: Año (cadena, cuatro dígitos).
+        :type año: str
+
+        :rtype: list
+        """
         lista_cob = []
-        for i in cob:
+
+        for i in cobradores:
             cob = buscar_imp_reg_por_cob(i, mes, año)
-            if cob != []:
+            
+            if cob:
                 lista_cob.append(i)
+
         return lista_cob
 
 
-    def imprimir_registros_por_cob(cobrador, mes, año):
+    def imprimir_registros_por_cob(cobrador: str, mes: str, año: str):
+        """Escribe en el PDF todos los movimientos de ingreso de un cobrador
+        en un mes específico.
+
+        Contenido:
+        - Nombre de la categoría (Arial Negrita 10p).
+        - Una línea por cada movimiento (Arial 10p) conteniendo:
+          - Descripción.
+          - Número de transacción (ticket, recibo, rendición, etc).
+          - Monto.
+          - Observaciones.
+          - Fecha (MM/AAAA).
+        - Total de ingresos de la categoría (Arial Negrita 10p).
+
+        :param categ: Nombre de categoría de caja.
+        :type categ: str
+        """
         tot_i_por_cob = caja.total_ing_por_cob(cobrador, mes, año)
         tot_e_por_cob = caja.total_egr_por_cob(cobrador, mes, año)
         total_por_cob = tot_i_por_cob - tot_e_por_cob
+        
         pdf.set_font('Arial', 'B', 10)
         pdf.cell(0, 5, f'{cobrador}', 0, 1, 'L')
         pdf.set_font('Arial', '', 10)
+        
         for i in buscar_imp_reg_por_cob(cobrador, mes, año):
             i_d, cat, des, tra, ing, egr, obs, dia, mes, año, cer, use = i
+        
             if egr != '':
                 continue
             pdf.set_font('Arial', '', 10)
@@ -811,6 +1289,7 @@ def report_caja_mensual_por_cob(mes, año):
             pdf.cell(1, 5, '', 0, 0, 'L')
             pdf.cell(73, 5, f'{obs}', 0, 0, 'L')
             pdf.cell(0, 5 , f'{mes}/{año}', 0, 1, 'L')
+        
         pdf.ln(2)
         pdf.set_font('Arial', 'B', 10)
         pdf.cell(0, 5, f'$ {tot_i_por_cob:.2f}', 0, 0, 'R')
@@ -818,49 +1297,80 @@ def report_caja_mensual_por_cob(mes, año):
         pdf.ln(2)
 
 
-    def total_mensual_cobradores():
-        total_cobradores=0
+    def total_mensual_cobradores(mes: str, año: str) -> float | int:
+        """Suma todos los ingresos de cobradores en un mes específico y lo retorna.
+
+        :param mes: Mes (cadena, dos dígitos)
+        :type mes: str
+
+        :param año: Año (cadena, cuatro dígitos)
+        :type año: str
+
+        :rtype: float or int
+        """
+        total_cobradores = 0
+
         for i in cobradores:
             ing_por_cob = caja.total_ing_por_cob(i, mes, año)
-            egr_por_cob = caja.total_egr_por_cob(i, mes, año)
-            total_por_cob = ing_por_cob - egr_por_cob
-            total_cobradores = total_cobradores + ing_por_cob
+            total_cobradores += ing_por_cob
+
         return total_cobradores
 
 
-    def str_mes(mes):
+    def str_mes(mes: str) -> str:
+        """Recibe una cadena conteniendo el mes como número de dos dígitos
+        y retorna una cadena con el nombre correspondiente.
+
+        :param mes: Mes (número dos dígitos).
+        :type mes: str
+
+        :rtype: str
+        """
         if mes == '01':
             string_mes = 'Enero'
+        
         if mes == '02':
             string_mes = 'Febrero'
+        
         elif mes == '03':
             string_mes = 'Marzo'
+        
         elif mes == '04':
             string_mes = 'Abril'
+        
         elif mes == '05':
             string_mes = 'Mayo'
+        
         elif mes == '06':
             string_mes = 'Junio'
+        
         elif mes == '07':
             string_mes = 'Julio'
+        
         elif mes == '08':
             string_mes = 'Agosto'
+        
         elif mes == '09':
             string_mes = 'Septiembre'
+        
         elif mes == '10':
             string_mes = 'Octubre'
+        
         elif mes == '11':
             string_mes = 'Noviembre'
+        
         elif mes == '12':
             string_mes = 'Diciembre'
+        
         return string_mes
+
 
     ############ FIN DE FUNCIONES ############
 
     ############ INICIO DE VARIABLES DEPENDIENTES ############
 
     string_mes = str_mes(mes)
-    total_mes_cob = total_mensual_cobradores()
+    total_mes_cob = total_mensual_cobradores(mes, año)
 
     ########### FIN DE VARIABLES DEPENDIENTES ############
     
@@ -911,20 +1421,24 @@ def report_caja_mensual_por_cob(mes, año):
 
     # Instantiation of inherited class
     pdf = PDF()
+    
     pdf.set_auto_page_break(True, 25)
     pdf.alias_nb_pages()
     pdf.add_page()
     pdf.set_font('Arial', '', 10)
     datos = select_cob(cobradores, mes, año)
+    
     for i in datos:
         imprimir_registros_por_cob(i, mes, año)
         counter += 1
         mant.barra_progreso(counter, len(datos), titulo=f'Morella v{mant.VERSION} - MF! Soluciones informáticas')
+    
     os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
     pdf.ln(15)
     pdf.cell(0, 5, f' {total_mes_cob:.2f} ', 0, 0, 'R')
     pdf.cell(-27, 5, f'TOTAL: $ ', 0, 1, 'R')
     pdf.ln(2)
+    
     pdf.output(f'../reports/caja/mensual/por_cobrador/caja_{str.lower(string_mes)}-{año}-por_cobrador.pdf', 'F')
         
 
@@ -937,11 +1451,15 @@ def report_caja_mensual_por_cob(mes, año):
         pprint(errores)
         print('\n\n\n\n')
 
+    print()
+    print()
     print("Abriendo reporte. Cierre el archivo para continuar...")
+    
     ruta = f'../reports/caja/mensual/por_cobrador/'
     arch = f'caja_{str.lower(string_mes)}-{año}-por_cobrador.pdf'
     os.chdir(ruta)
     os.system(arch)
+    
     ruta = '../../../../modulos/'
     os.chdir(ruta)
 
