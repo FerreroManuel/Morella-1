@@ -1254,17 +1254,17 @@ def report_caja_mensual_por_cob(mes: int, año: int):
         en un mes específico.
 
         Contenido:
-        - Nombre de la categoría (Arial Negrita 10p).
+        - Nombre del cobrador (Arial Negrita 10p).
         - Una línea por cada movimiento (Arial 10p) conteniendo:
-          - Descripción.
-          - Número de transacción (ticket, recibo, rendición, etc).
+          - Panteón (categoría).
+          - Número de transacción (rendición).
           - Monto.
           - Observaciones.
           - Fecha (MM/AAAA).
-        - Total de ingresos de la categoría (Arial Negrita 10p).
+        - Total de ingresos del cobrador (Arial Negrita 10p).
 
-        :param categ: Nombre de categoría de caja.
-        :type categ: str
+        :param cobrador: Nombre del cobrador.
+        :type cobrador: str
         """
         tot_i_por_cob = caja.total_ing_por_cob(cobrador, mes, año)
         tot_e_por_cob = caja.total_egr_por_cob(cobrador, mes, año)
