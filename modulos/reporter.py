@@ -1277,8 +1277,9 @@ def report_caja_mensual_por_cob(mes: int, año: int):
         for i in buscar_imp_reg_por_cob(cobrador, mes, año):
             i_d, cat, des, tra, ing, egr, obs, dia, mes, año, cer, use = i
         
-            if egr != '':
+            if egr:
                 continue
+
             pdf.set_font('Arial', '', 10)
             pdf.cell(5, 5, '', 0, 0, 'L')
             pdf.cell(60, 5, f'{cat}', 0, 0, 'L')
