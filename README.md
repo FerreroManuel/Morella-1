@@ -80,3 +80,51 @@ Donde:
 *Hasta el 17/11/2022 se realizó versionado local en PC, luego se realizó la subida de cada versión disponible en un commit y se registró la versión en Git.
 
 **Los primeros dos commit de arreglos se realizaron con nomenclatura erronea siguiendo la siguiente semántica: _Fix #AADDMMNN_
+
+<br>
+<br>
+
+# Descarga y uso
+
+En la carpeta ```descargas``` se encuentran los instaladores para la última versión de Morella y el widget Admin Tools. 
+
+Para poder utilizarlos deberá instalar un servidor de *PostgreSQL* y crear la base de datos, ya sea en la misma PC o en otra con cualquier sistema operativo.
+
+Una vez realizado esto, se deberá ingresar al módulo Mantenimiento de tablas (carpeta de instalación\modulos\mantenimiento.exe) y, una vez allí, ingresar al menú oculto para modificar los datos de acceso a la base de datos (ver código fuente de modulos\mantenimiento.py).
+
+<br>
+
+### Crear DB en Windows:
+
+Para crear la base de datos en windows seguir los siguentes pasos:
+
+1. Ejecutar SQL Shell (psql) e ingresar a postgres.
+2. Crear la base de datos utilizando ```db_script_create.sql``` (en carpeta ```descargas```) como ejemplo.
+3. Descargar ```schema.sql``` (ubicado en la carpeta ```descargas```).
+4. Desde la consola de windows ubicarse en la carpeta ```bin``` de postgres (por defecto C:\Program Files\PostgreSQL\VV\bin\ donde VV es el número de version).
+5. Ejecutar ```psql.exe -h localhost -p 5432 -U postgres -d morella -f C:\~\schema.sql``` . Donde:
+   - *localhost* es la dirección IP donde está alojada la base de datos.
+   - *5432* es el puerto de conexión a la base de datos.
+   - *postgres* es el usuario de PostgreSQL.
+   - *morella* es el nombre de la base de datos.
+   - *C:\\~\schema.sql* es la ruta completa hacia el archivo ```schema.sql``` descargado previamente.
+
+<br>
+
+### Crear DB en Linux:
+
+Para crear la base de datos en linux seguir los siguientes pasos:
+
+1. Ingresar a la terminal y ejecutar ```psql -h localhost -p 5432 -U postgres -d postgres``` . Donde:
+   - *localhost* es la dirección IP donde está alojada la base de datos.
+   - *5432* es el puerto de conexión a la base de datos.
+   - *postgres* es el usuario de PostgreSQL.
+   - *postgres* es el nombre de la base de datos de mantenimiento de PostgreSQL.
+2. Crear la base de datos utilizando ```db_script_create.sql``` (en carpeta ```descargas```) como ejemplo.
+3. Descargar ```schema.sql``` (ubicado en la carpeta ```descargas```).
+4. Ejecutar ```psql -h localhost -p 5432 -U postgres -d morella -f \home\~\schema.sql``` . Donde:
+   - *localhost* es la dirección IP donde está alojada la base de datos.
+   - *5432* es el puerto de conexión a la base de datos.
+   - *postgres* es el usuario de PostgreSQL.
+   - *morella* es el nombre de la base de datos.
+   - *\home\\~\schema.sql* es la ruta completa hacia el archivo ```schema.sql``` descargado previamente.
