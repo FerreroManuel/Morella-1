@@ -366,32 +366,6 @@ def total_ing_por_cob(cobrador: str, mes:str, año: str) -> float | int:
     return float(datos[0])
 
 
-def total_egr_por_cob(cobrador: str, mes: str, año: str) -> float | int:
-    """Suma todos los egresos de un cobrador específico en un mes específico y
-    los retorna.
-
-    :param cobrador: Nombre del cobrador
-    :type cobrador: str
-
-    :param mes: Mes a buscar (cadena, dos dígitos).
-    :type mes: str
-
-    :param año: Año a buscar (cadena, cuatro dígitos).
-    :type año: str
-
-    :rtype: float or int
-    """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        cursor.execute(f"SELECT SUM(egreso) FROM caja WHERE descripcion = '{cobrador}' AND categoria = 'A rendir' AND mes = '{mes}' AND año = '{año}'")
-        datos = cursor.fetchone()
-    
-    if datos[0] == None:
-        return 0
-
-    return float(datos[0])
-
-
 def opcion_menu() -> int:                                                                           # OPCIÓN MENÚ PRINCIPAL
     """Muestra al usuario un menú y luego le solicita ingresar una de las
     opciones mostradas a través del número correspondiente. En caso de no

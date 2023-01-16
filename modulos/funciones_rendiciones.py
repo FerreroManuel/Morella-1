@@ -524,7 +524,7 @@ def obtener_mes_siguiente(mes: str) -> tuple:
 
 
 def days_between(d1: date, d2: date) -> int:
-    """Recibe dos fechas y retorna la diferencia en días entre ellas.
+    """Recibe dos fechas y retorna la diferencia absoluta en días entre ellas.
 
     :param d1: Fecha 1
     :type d1: datetime.date
@@ -657,20 +657,22 @@ def emitir_recibos():
                 print("")
                 print("Emitiendo recibos...")
                 recibos = buscar_recibos(facturacion, cobrador)
-    
+
+                # NO débito automático
                 if cobrador != 6:
-                    thread1 = Thread(target=rep.recibos, args=(facturacion, cobrador, recibos))
-                    thread2 = Thread(target=rep.listado_recibos, args=(facturacion, cobrador, recibos))
+                    thread1 = Thread(target=rep.recibos, args=(facturacion, recibos))
+                    thread2 = Thread(target=rep.listado_recibos, args=(cobrador, recibos))
                     thread1.start()
                     thread2.start()
                     thread1.join()
                     thread2.join()
                     print("")
                     return
-    
+
+                # Débito automático
                 elif cobrador == 6:
-                    thread1 = Thread(target=rep.recibos_deb_aut, args=(facturacion, recibos))
-                    thread2 = Thread(target=rep.listado_recibos_deb_aut, args=(facturacion, recibos))
+                    thread1 = Thread(target=rep.recibos_deb_aut, args=(recibos))
+                    thread2 = Thread(target=rep.listado_recibos_deb_aut, args=(recibos))
                     thread1.start()
                     thread2.start()
                     thread1.join()
@@ -1482,8 +1484,8 @@ def menu_cobradores() -> int:
 
 
 def buscar_recibos(facturacion: str, id_cobrador: int) -> list:
-    """Recupera de la base de datos todos los recibos de un cobrador y una
-    facturación específica, de operaciones que tienen el pago habilitado,
+    """Recupera de la base de datos todas las operaciones que tengan el pago
+    habilitado, pertenecientes a un cobrador y una facturación específica,
     ordernados por ruta y los retorna en una lista.
 
     :param facturacion: Tipo de facturación (bicon o nob)

@@ -29,8 +29,9 @@ def obtener_mail(id: int) -> tuple:
 
 
 def envio_de_recibo(num_socio: int, id_op: int, periodo: str, nro_nicho: str, pan: int, t04: str, nom_cob: str, num_rec: int):
-    """Recibe los datos necesarios para generar un reporte de recibo y lo envía, como
-    archivo adjunto a través de un email, al asociado.
+    """Recibe los datos necesarios para buscar un recibo de débito automático ya
+    emitido y lo envía, como archivo adjunto a través de un email, al asociado.
+    
     El email es enviado a través de la cuenta de email con ID número uno.
 
     :param num_socio: Número de socio (ID de asociado)
