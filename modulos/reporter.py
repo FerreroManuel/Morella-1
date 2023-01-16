@@ -4846,9 +4846,9 @@ def report_estado_cta_mail(nro_socio: int, nombre: str, dni: int, facturacion: s
     #################################################################################################################
 
 def report_morosos_det():
-    """Genera un reporte en PDF que contiene un listado con todos los socios que
-    tengan operaciones en estado moroso y toda la información correspondiente a
-    ellas. Luego lo guarda y lo abre con el programa predeterminado.
+    """Genera un reporte en PDF que contiene un listado con todos los estados de
+    cuentas de aquellos socios que tengan operaciones en estado moroso. Luego lo
+    guarda y lo abre con el programa predeterminado.
     """
     ############ INICIO DE VARIABLES INDEPENDIENTES ############
     fecha = caja.obtener_fecha()
@@ -5128,9 +5128,9 @@ def report_morosos_det():
 
 
 def report_morosos_comp():
-    """Genera un reporte en PDF que contiene un listado con todos los socios que
-    tengan operaciones en estado moroso, luego lo guarda y lo abre con el programa
-    predeterminado.
+    """Genera un reporte en PDF que contiene un listado con la información de todos los
+    socios que tengan operaciones en estado moroso, luego lo guarda y lo abre con el
+    programa predeterminado.
     """
     ############ INICIO DE VARIABLES INDEPENDIENTES ############
     fecha = caja.obtener_fecha()
