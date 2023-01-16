@@ -1443,36 +1443,7 @@ def crear_op(idu: int, id_socio: int, ret: bool= False) -> int | None:
         else:
             facturacion = 'bicon'
         
-        print("Indique el ID de cobrador: ")
-        datos = obtener_cobradores()
-        counter = 0
-        
-        for i in datos:
-            counter += 1
-            id_cob, n_cob = i
-            print(f"    * {id_cob}. {n_cob}")
-        print()
-        
-        loop = -1
-        while loop == -1:
-            try:
-                loop = cobrador = int(input("Cobrador: "))
-                print()
-                while cobrador < 1 or cobrador > counter:
-                    print("         ERROR. Debe indicar un ID de cobrador válido.")
-                    print()
-                    cobrador = int(input("Cobrador: "))
-        
-            except ValueError:
-                print("         ERROR. Debe ingresar un dato de tipo numérico.")
-                print()
-                loop = -1
-            except:
-                mant.log_error()
-                print("")
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
-                print()
-                return
+        cobrador = rend.menu_cobradores()
         
         if cobrador == 6:
             deb_aut = 1
@@ -2522,36 +2493,7 @@ def cambiar_cobrador(idu: int, id_op: int, tarjeta: int):
     else:
         print("***** Editar tarjeta de crédito *****")
         print()
-        print("Indique el ID de cobrador: ")
-        datos = obtener_cobradores()
-        counter = 0
-    
-        for i in datos:
-            counter += 1
-            id_cob, n_cob = i
-            print(f"    * {id_cob}. {n_cob}")
-        print()
-    
-        loop = -1
-        while loop == -1:
-            try:
-                loop = cobrador = int(input("Cobrador: "))
-                print()
-                while cobrador < 1 or cobrador > counter:
-                    print("         ERROR. Debe indicar un ID de cobrador válido.")
-                    print()
-                    cobrador = int(input("Cobrador: "))
-    
-            except ValueError:
-                print("         ERROR. Debe ingresar un dato de tipo numérico.")
-                print()
-                loop = -1
-            except:
-                mant.log_error()
-                print("")
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
-                print()
-                return
+        cobrador = rend.menu_cobradores()
     
         mant.edit_registro('operaciones', 'cobrador', cobrador, id_op)
         print("Cobrador modificado exitosamente.")

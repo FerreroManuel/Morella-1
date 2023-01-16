@@ -274,36 +274,7 @@ def ingresar_cobro(idu: int):
                                     print("         ATENCIÓN: A partir del pago ralizado el asociado deja de ser MOROSO, indique cobrador y ruta para la operación.")
                                     print()
             
-                                    datos = vent.obtener_cobradores()
-                                    counter = 0
-            
-                                    for i in datos:
-                                        counter += 1
-                                        id_cob, n_cob = i
-                                        print(f"    * {id_cob}. {n_cob}")
-                                    print()
-            
-                                    loop = -1
-                                    while loop == -1:
-                                        try:
-                                            loop = cobrador = int(input("Cobrador: "))
-                                            print()
-            
-                                            while cobrador < 1 or cobrador > counter:
-                                                print("         ERROR. Debe indicar un ID de cobrador válido.")
-                                                print()
-                                                cobrador = int(input("Cobrador: "))
-            
-                                        except ValueError:
-                                            print("         ERROR. Debe ingresar un dato de tipo numérico.")
-                                            print()
-                                            loop = -1
-                                        except:
-                                            mant.log_error()
-                                            print("")
-                                            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
-                                            print()
-                                            return
+                                    cobrador = menu_cobradores()
             
                                     if cobrador == 6:
                                         deb_aut = 1
@@ -876,36 +847,8 @@ def ingresar_adelantos(idu: int):
                 print()
                 print("         ATENCIÓN: A partir del pago ralizado el asociado deja de ser MOROSO, indique cobrador y ruta para la operación.")
                 print()
-                datos = vent.obtener_cobradores()
-                counter = 0
-    
-                for i in datos:
-                    counter += 1
-                    id_cob, n_cob = i
-                    print(f"    * {id_cob}. {n_cob}")
-                print()
-    
-                loop = -1
-                while loop == -1:
-                    try:
-                        loop = cobrador = int(input("Cobrador: "))
-                        print()
-    
-                        while cobrador < 1 or cobrador > counter:
-                            print("         ERROR. Debe indicar un ID de cobrador válido.")
-                            print()
-                            cobrador = int(input("Cobrador: "))
-    
-                    except ValueError:
-                        print("         ERROR. Debe ingresar un dato de tipo numérico.")
-                        print()
-                        loop = -1
-                    except:
-                        mant.log_error()
-                        print("")
-                        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
-                        print()
-                        return
+                
+                cobrador = menu_cobradores()
     
                 if cobrador == 6:
                     deb_aut = 1

@@ -63,11 +63,13 @@ def menu_buscar():                                                              
     opcion = -1
     while opcion != 0:
         opcion = opcion_menu_buscar()
+        
         if opcion == 1:     # Buscar por nro. op
             try:
                 print("")
                 nro_operacion = int(input("Indique nro. de operación: "))
                 buscar_op_nro_operacion(nro_operacion)
+        
             except ValueError:
                 print("")
                 print("         ERROR. Nro de operación inválido")
@@ -77,19 +79,23 @@ def menu_buscar():                                                              
                 print("")
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 print()
+        
         elif opcion == 2:   # Buscar por nombre
             try:
                 nombre = input("Ingrese apellido y nombre del asociado o parte de él: ")
                 buscar_op_nombre_socio(nombre)
+        
             except:
                 mant.log_error()
                 print("")
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 print()
+        
         elif opcion == 3:   # Buscar por DNI
             try:
                 dni = int(input("Ingrese DNI (sin puntos): "))
                 buscar_op_dni(dni)
+        
             except ValueError:
                 print("")
                 print("         ERROR. DNI inválido. Recuerde que debe ingresarlo sin puntos.")
@@ -99,57 +105,39 @@ def menu_buscar():                                                              
                 print("")
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 print()
+        
         elif opcion == 4:   # Buscar por domicilio
             try:
                 domicilio = input("Ingrese domicilio o parte de él: ")
                 buscar_op_domicilio(domicilio)
+        
             except:
                 mant.log_error()
                 print("")
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 print()
+        
         elif opcion == 5:   # Buscar por código de nicho
             try:
                 cod_nicho = input("Ingrese el código de nicho: ")
                 buscar_op_cod_nicho(cod_nicho)
+        
             except:
                 mant.log_error()
                 print("")
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 print()
+        
         elif opcion == 6:   # Buscar por ID de cobrador
-            print("Indique el ID de cobrador: ")
-            datos = vent.obtener_cobradores()
-            counter = 0
-            for i in datos:
-                counter += 1
-                id_cob, n_cob = i
-                print(f"    * {id_cob}. {n_cob}")
-            print()
-            loop = -1
-            while loop == -1:
-                try:
-                    loop = cobrador = int(input("Cobrador: "))
-                    print()
-                    while cobrador < 1 or cobrador > counter:
-                        print("         ERROR. Debe indicar un nro. de panteón válido.")
-                        print()
-                        cobrador = int(input("Cobrador: "))
-                except ValueError:
-                    print("         ERROR. Debe ingresar un dato de tipo numérico.")
-                    print()
-                    loop = -1
-                except:
-                    mant.log_error()
-                    print("")
-                    input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
-                    print()
-                    loop = -1
+            cobrador = rend.menu_cobradores()
             buscar_op_cob(cobrador)
+        
         elif opcion == 7:   # Buscar morosos
             buscar_op_morosos()
+        
         elif opcion == 8:   # Buscar por datos Cobol
             buscar_datos_cobol()
+        
         elif opcion == 0:   # Volver
             return
 

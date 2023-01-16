@@ -295,7 +295,7 @@ def cobradores(idu: int):
 
 
 def ultimos_recibos(idu: int):
-    """Permite al generar un reporte en Excel que contiene los datos de los últimos
+    """Permite al usuario generar un reporte en Excel que contiene los datos de los últimos
     recibos impagos de cada operación de un cobrador y una facturación específicos.
 
     Nivel de privilegios mínimo: 1
@@ -310,33 +310,10 @@ def ultimos_recibos(idu: int):
         print()
     
     else:
-        print("Indique el ID de cobrador: ")
-        cobradores = vent.obtener_cobradores()
-        counter = 0
-        for i in cobradores:
-            counter += 1
-            id_cob, n_cob = i
-            print(f"    * {id_cob}. {n_cob}")
-        print()
-        loop = -1
-        while loop == -1:
-            try:
-                loop = cobrador = int(input("Cobrador: "))
-                print()
-                while cobrador < 1 or cobrador > counter:
-                    print("         ERROR. Debe indicar un ID de cobrador válido.")
-                    print()
-                    cobrador = int(input("Cobrador: "))
-            except ValueError:
-                print("         ERROR. Debe ingresar un dato de tipo numérico.")
-                print()
-                loop = -1
-            except:
-                mant.log_error()
-                print("")
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
-                print()
-                return
+        cobrador = mant.rend.menu_cobradores()
+        
+        if cobrador == 0:
+            return
     
         print("")
         print("********** Elija una facturación **********")
@@ -435,3 +412,4 @@ except:
     print("")
     input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
     print()
+    

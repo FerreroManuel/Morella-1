@@ -914,39 +914,10 @@ def reg_pago_comision(idu: int):
         else:
             print("                                                                *** ATENCIÓN ***")
             print("                                                     La rendición posee varios cobradores.")
+            print("                                             Debe indicar el ID del cobrador que cobra la comisión")
             print()
             
-            print("Indique el ID del cobrador que cobra la comisión: ")
-            datos = obtener_cobradores()
-            counter = 0
-            
-            for i in datos:
-                counter += 1
-                id_cob, n_cob = i
-                print(f"    * {id_cob}. {n_cob}")
-            print()
-            
-            loop = -1
-            while loop == -1:
-                try:
-                    loop = cob = int(input("Cobrador: "))
-                    print()
-            
-                    while cob < 1 or cob > counter:
-                        print("         ERROR. Debe indicar un ID de cobrador válido.")
-                        print()
-                        cob = int(input("Cobrador: "))
-            
-                except ValueError:
-                    print("         ERROR. Debe ingresar un dato de tipo numérico.")
-                    print()
-                    loop = -1
-                except:
-                    mant.log_error()
-                    print("")
-                    input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
-                    print()
-                    return
+            cob = mant.rend.menu_cobradores()
         
         cobrador = obtener_nom_cobrador(cob)
         
@@ -1219,39 +1190,7 @@ def a_rendir(idu: int):
         transaccion = input("Número de rendición: ")
         print("")
     
-        print("Indique el ID de cobrador: ")
-    
-        datos = obtener_cobradores()
-        counter = 0
-       
-        for i in datos:
-            counter += 1
-            id_cob, n_cob = i
-            print(f"    * {id_cob}. {n_cob}")
-        print()
-       
-        loop = -1
-        while loop == -1:
-            try:
-                loop = cobrador = int(input("Cobrador: "))
-                print()
-                while cobrador < 1 or cobrador > counter:
-                    print("         ERROR. Debe indicar un ID de cobrador válido.")
-                    print()
-                    cobrador = int(input("Cobrador: "))
-       
-            except ValueError:
-                print("         ERROR. Debe ingresar un dato de tipo numérico.")
-                print()
-                loop = -1
-       
-            except:
-                mant.log_error()
-                print("")
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
-                print()
-                return
-        print("")
+        cobrador = mant.rend.menu_cobradores()
     
     try:
         while egreso == 0:
@@ -1332,39 +1271,7 @@ def rend_adeudada(idu: int):
         transaccion = input("Número de rendición: ")
         print("")
     
-    print("Indique el ID de cobrador: ")
-    
-    datos = obtener_cobradores()
-    counter = 0
-    
-    for i in datos:
-        counter += 1
-        id_cob, n_cob = i
-        print(f"    * {id_cob}. {n_cob}")
-    print()
-    
-    loop = -1
-    while loop == -1:
-        try:
-            loop = cobrador = int(input("Cobrador: "))
-            print()
-    
-            while cobrador < 1 or cobrador > counter:
-                print("         ERROR. Debe indicar un ID de cobrador válido.")
-                print()
-                cobrador = int(input("Cobrador: "))
-    
-        except ValueError:
-            print("         ERROR. Debe ingresar un dato de tipo numérico.")
-            print()
-            loop = -1
-        except:
-            mant.log_error()
-            print("")
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
-            print()
-            return
-        print("")
+    cobrador = mant.rend.menu_cobradores()
     
     try:
         while ingreso == 0:
@@ -1439,38 +1346,7 @@ def sin_listado(idu: int):
     mes = obtener_mes()
     año = obtener_año()
     
-    print("Indique el ID de cobrador: ")
-    datos = obtener_cobradores()
-    counter = 0
-    
-    for i in datos:
-        counter += 1
-        id_cob, n_cob = i
-        print(f"    * {id_cob}. {n_cob}")
-    print()
-    
-    loop = -1
-    while loop == -1:
-        try:
-            loop = cobrador = int(input("Cobrador: "))
-            print()
-    
-            while cobrador < 1 or cobrador > counter:
-                print("         ERROR. Debe indicar un ID de cobrador válido.")
-                print()
-                cobrador = int(input("Cobrador: "))
-    
-        except ValueError:
-            print("         ERROR. Debe ingresar un dato de tipo numérico.")
-            print()
-            loop = -1
-        except:
-            mant.log_error()
-            print("")
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
-            print()
-            return
-        print("")
+    cobrador = mant.rend.menu_cobradores()
     
     try:
         while ingreso == 0:
@@ -1552,38 +1428,7 @@ def listado_adeudado(idu: int):
         transaccion = input("Número de rendición: ")
         print("")
     
-        print("Indique el ID de cobrador: ")
-        datos = obtener_cobradores()
-        counter = 0
-    
-        for i in datos:
-            counter += 1
-            id_cob, n_cob = i
-            print(f"    * {id_cob}. {n_cob}")
-        print()
-    
-        loop = -1
-        while loop == -1:
-            try:
-                loop = cobrador = int(input("Cobrador: "))
-                print()
-    
-                while cobrador < 1 or cobrador > counter:
-                    print("         ERROR. Debe indicar un ID de cobrador válido.")
-                    print()
-                    cobrador = int(input("Cobrador: "))
-    
-            except ValueError:
-                print("         ERROR. Debe ingresar un dato de tipo numérico.")
-                print()
-                loop = -1
-            except:
-                mant.log_error()
-                print("")
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
-                print()
-                return
-        print("")
+        cobrador = mant.rend.menu_cobradores()
     
     try:
         while egreso == 0:
