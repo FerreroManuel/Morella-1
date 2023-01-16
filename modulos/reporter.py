@@ -2531,7 +2531,7 @@ def listado_recibos_deb_aut(recibos: list):
     mes = datetime.now().strftime('%m')
     año = datetime.now().strftime('%Y')
     año2c = datetime.now().strftime('%y')
-    año_sig_2c = int(año2c)+1
+    año_sig_2c = str(int(año2c)+1).rjust(2, '0')
     imp_acu = float(0)
     nco = caja.obtener_nom_cobrador(id_cobrador)
     counter = 0
