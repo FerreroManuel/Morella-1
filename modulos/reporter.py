@@ -2545,7 +2545,9 @@ def listado_recibos_deb_aut(recibos: list):
 
         
     ############ INICIO DE FUNCIONES ############
-    if os.path.isfile('../reports/presentaciones_fiserv/temp/pres_det.txt') == True:
+
+    # Eliminar el archivo temporal de detalle de la presentación si es que existe
+    if os.path.isfile('../reports/presentaciones_fiserv/temp/pres_det.txt'):
         os.remove('../reports/presentaciones_fiserv/temp/pres_det.txt')
 
     ############ FIN DE FUNCIONES ############
@@ -2786,20 +2788,16 @@ def listado_recibos_deb_aut(recibos: list):
                 
                 ########## Generando TXT de presentación para FiServ ##########
 
-    # Verifica que no exista el archivo
-    if os.path.isfile(f'../reports/presentaciones_fiserv/presentacion_{año}-{mes}-{dia}.txt') == True:
-        print()
-        print("ATENCIÓN!")
-        print()
-        print(f"Ya existe un archivo de presentación con el nombre 'presentacion_{año}-{mes}-{dia}.txt'. Si continúa, éste será eliminado.")
-        print("Por favor asegúrese de guardar la infomación que necesite.")
-        print()
-        input("Para continuar presione enter (Esta acción no puede deshacerse)")
-        
-        os.remove(f'../reports/presentaciones_fiserv/presentacion_{año}-{mes}-{dia}.txt')
-    
+    # Evita sobreescribir un archivo existente
+    output_counter = 0
+    output_name = f'presentacion_{año}-{mes}-{dia}.txt'
+
+    while os.path.isfile(f'../reports/presentaciones_fiserv/{output_name}'):
+        output_counter += 1
+        output_name = f'presentacion_{año}-{mes}-{dia}_({output_counter}).txt'
+
     # Escritura de la cabecera de la presentacíon
-    with open(f'../reports/presentaciones_fiserv/presentacion_{año}-{mes}-{dia}.txt', 'a') as presentacion:
+    with open(f'../reports/presentaciones_fiserv/{output_name}', 'w') as presentacion:
         presentacion.write(f"{nro_comercio_fiserv}1{dia}{mes}{año2c}{str(contador_fiserv).rjust(7, '0')}0{str(int(val_total)).rjust(12, '0')}00{91*filler}")
 
     # Escritura del detalle de la presentación
@@ -2808,7 +2806,7 @@ def listado_recibos_deb_aut(recibos: list):
             lista = detalle.readlines()
 
         for linea in lista:
-            with open(f'../reports/presentaciones_fiserv/presentacion_{año}-{mes}-{dia}.txt', 'a') as presentacion:
+            with open(f'../reports/presentaciones_fiserv/{output_name}', 'a') as presentacion:
                 presentacion.write(linea)
 
     except FileNotFoundError:
@@ -2827,16 +2825,15 @@ def listado_recibos_deb_aut(recibos: list):
         if not os.path.isdir(f'../reports/recibos/{nco}'):
             os.mkdir(f'../reports/recibos/{nco}')
 
-        # Verifica que no exista el archivo
-        if not os.path.isfile(f'../reports/recibos/{nco}/listado_recibos_{año}-{mes}-{dia}.pdf'):
-            pdf.output(f'../reports/recibos/{nco}/listado_recibos_{año}-{mes}-{dia}.pdf', 'F')
+        # Evita sobreescribir un archivo existente
+        output_counter = 0
+        output_name = f'listado_recibos_{año}-{mes}-{dia}.pdf'
 
-        else:
-            print("ATENCIÓN!")
-            print("Está a punto de sobreescribir un archivo existente. Antes de continuar asegurese de hacer copia de toda la información que sea útil.")
-            input("Para continuar con la sobreescritura presiones enter. Tenga en cuenta que esta acción no puede deshacerse. ")
-            
-            pdf.output(f'../reports/recibos/{nco}/listado_recibos_{año}-{mes}-{dia}.pdf', 'F')
+        while os.path.isfile(f'../reports/recibos/{output_name}'):
+            output_counter += 1
+            output_name = f'listado_recibos_{año}-{mes}-{dia}_({output_counter}).pdf'
+
+        pdf.output(f'../reports/recibos/{nco}/{output_name}', 'F')
         
     ############ ABRIR REPORT ############
 
