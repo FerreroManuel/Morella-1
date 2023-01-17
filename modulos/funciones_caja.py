@@ -386,11 +386,12 @@ def opcion_menu() -> int:                                                       
     print("   8. Operar con los registros")
     print("   9. Caja mensual")
     print("   10. Registrar cobros de Federación")
+    print("   11. Registrar una bonificación de mantenimiento")
     print("   0. Realizar cierre de caja")
     print("")
     try:
         opcion = int(input("Ingrese una opción: "))
-        while opcion < 0 or opcion > 10:
+        while opcion < 0 or opcion > 11:
             print("")
             print("Opción incorrecta.")
             print("")
@@ -438,6 +439,8 @@ def menu(idu: int):                                                             
             menu_caja_mensual()
         elif opcion == 10:  # Registrar cobros de Federación
             reg_cobros_federacion(idu)
+        elif opcion == 11:  # Registrar cobros de Federación
+            reg_bonif_mant(idu)
         elif opcion == 0:   # Realizar cierre de caja
             cierre_caja()
 
@@ -2684,7 +2687,96 @@ def reg_cobros_federacion(idu: int):
     print("")
     
     return
+
+
+def reg_bonif_mant(idu: int):
+    """Permite al usuario registrar una bonificación en el cobro de
+    un mantenimiento.
+
+    Los campos a completar por el usuario son los siguientes:
+    - 
+    """
+    print("********** Registrar bonificación de mantenimiento **********")
+    print("")
     
+    transaccion = "BONIF"
+    categoria = "Bonificación mantenimiento"
+    descripcion = "Operación "
+    egreso = 0
+    observacion = ""
+    dia = obtener_dia()
+    mes = obtener_mes()
+    año = obtener_año()
+
+    oper = ''
+    while oper == '':
+        try:
+            oper = int(input("Indique número de operación: "))
+            print()
+
+            with sql.connect(mant.DATABASE) as conn:
+                cursor = conn.cursor()
+                cursor.execute(f"SELECT id FROM operaciones WHERE id = {oper}")
+                datos = cursor.fetchall()
+            
+            if not datos:
+                print("         ERROR. La operación indicada no existe.")
+                print()
+                oper = ''
+
+        
+        except ValueError:
+            print("")
+            print("         ERROR. El dato solicitado debe ser numérico.")
+            print("")
+            oper = ''
+        except sql.errors.SyntaxError:
+            print("         ERROR. La operación indicada no existe.")
+            print()
+            oper = ''
+        except:
+            mant.log_error()
+            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            print()
+            return
+
+    
+        
+    descripcion += str(oper).rjust(7, '0')
+
+    try:
+        while egreso == 0:
+            egreso = float(input("Monto: $ "))
+            print("")
+    
+    except ValueError:
+        print("")
+        print("         ERROR. El monto debe ser numérico. No se registró ningún movimiento.")
+        print("")
+        return
+    except:
+        mant.log_error()
+        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        print()
+        return
+    
+    observacion = input("Observaciones: ")
+    print("")
+    
+    descripcion = mant.reemplazar_comilla(descripcion)
+    transaccion = mant.reemplazar_comilla(transaccion)
+    observacion = mant.reemplazar_comilla(observacion)
+    
+    parameters = str((categoria, descripcion, transaccion, egreso, observacion, dia, mes, año, idu))
+    query = f"INSERT INTO caja (categoria, descripcion, transaccion, egreso, observacion, dia, mes, año, id_user) VALUES {parameters}"
+    
+    mant.run_query(query)
+    
+    ult_reg_list = ult_reg()
+    print("Se registró: ", ult_reg_list[1], " - ", ult_reg_list[2], " - ","$", ult_reg_list[4], " - ", ult_reg_list[6], " - " "NÚMERO DE REGISTRO: ", f"{ult_reg_list[0]}".rjust(8, '0'))
+    
+    return
+
 
 def cierre_caja():
     """Permite al usuario realizar el cierre de caja. Para ello el usuario

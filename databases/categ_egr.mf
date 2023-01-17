@@ -8,3 +8,4 @@ Pago de comisiones
 Alivios de caja
 A rendir
 Sin listado (-)
+Bonificación mantenimiento
