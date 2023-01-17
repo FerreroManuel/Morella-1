@@ -70,16 +70,16 @@ def iniciar_caja() -> float:
     
     if saldo_inicial >= 0:
         print(f"Fecha: {fecha}")
-        print("")
+        print()
         print(f"Número de caja: {str(obtener_contador()).rjust(6, '0')}")
-        print("")
+        print()
         print(f"El saldo inicial es $ {saldo_inicial:.2f}")
-        print("")
+        print()
     
     else:
-        print("")
+        print()
         print(" *** ERROR. No ha sido posible leer el saldo final de la caja anterior.*** ")
-        print("")
+        print()
     
         loop = -1
         while loop == -1:
@@ -94,11 +94,11 @@ def iniciar_caja() -> float:
                 print()
                 
                 print(f"Fecha: {fecha}")
-                print("")
+                print()
                 print(f"Número de caja: {str(obtener_contador()).rjust(6, '0')}")
-                print("")
+                print()
                 print(f"El saldo inicial es $ {saldo_inicial:.2f}")
-                print("")
+                print()
             
             except ValueError:
                 print(" *** ERROR. EL MONTO DEBE SER NUMÉRICO ***")
@@ -373,9 +373,9 @@ def opcion_menu() -> int:                                                       
 
     :rtype: int
     """
-    print("")
+    print()
     print("********** Acciones disponibles **********")
-    print("")
+    print()
     print("   1. Registrar gasto de oficina")
     print("   2. Registrar pago de alquiler")
     print("   3. Registrar pago de sueldo")
@@ -388,13 +388,13 @@ def opcion_menu() -> int:                                                       
     print("   10. Registrar cobros de Federación")
     print("   11. Registrar una bonificación de mantenimiento")
     print("   0. Realizar cierre de caja")
-    print("")
+    print()
     try:
         opcion = int(input("Ingrese una opción: "))
         while opcion < 0 or opcion > 11:
-            print("")
+            print()
             print("Opción incorrecta.")
-            print("")
+            print()
             opcion = int(input("Ingrese una opción: "))
     except ValueError: 
         print("Opción incorrecta.")
@@ -452,22 +452,22 @@ def menu_oficinas() -> int:                                                     
 
     :rtype: int
     """
-    print("")
+    print()
     print("Seleccione una oficina")
-    print("")
+    print()
     print("   1. Córdoba 2915")
     print("   2. Gálvez")
     print("   3. Arroyo")
     print("   4. Panteón NOB")
     print("   0. Volver")
-    print("")
+    print()
     oficina = -1
     try:
         oficina = int(input("Ingrese una opción: "))
         while oficina < 0 or oficina > 4:
-            print("")
+            print()
             print("Opción incorrecta.")
-            print("")
+            print()
             oficina = int(input("Ingrese una opción: "))
     except ValueError: 
         print("Opción incorrecta.")
@@ -497,7 +497,7 @@ def reg_gastos_of(idu: int):
     :type idu: int
     """
     print("********** Registrar gasto de oficina **********")
-    print("")
+    print()
     
     oficina = -1
     transaccion = ""
@@ -516,23 +516,23 @@ def reg_gastos_of(idu: int):
             categoria = "Gastos oficina Córdoba 2915"
             
             while transaccion == "":
-                print("")
+                print()
                 transaccion = input("Número de ticket: ")
-                print("")
+                print()
             
             while descripcion == "":
                 descripcion = input("Descripción: ")
-                print("")
+                print()
             
             try:
                 while egreso == 0:
                     egreso = float(input("Monto: $ "))
-                    print("")
+                    print()
             
             except ValueError:
-                print("")
+                print()
                 print("         ERROR. El monto debe ser numérico. No se registró ningún movimiento.")
-                print("")
+                print()
                 return
             except:
                 mant.log_error()
@@ -541,7 +541,7 @@ def reg_gastos_of(idu: int):
                 return
             
             observacion = input("Observaciones: ")
-            print("")
+            print()
             
             descripcion = mant.reemplazar_comilla(descripcion)
             transaccion = mant.reemplazar_comilla(transaccion)
@@ -568,23 +568,23 @@ def reg_gastos_of(idu: int):
             categoria = "Gastos oficina Gálvez"
             
             while transaccion == "":
-                print("")
+                print()
                 transaccion = input("Número de ticket: ")
-                print("")
+                print()
             
             while descripcion == "":
                 descripcion = input("Descripción: ")
-                print("")
+                print()
             
             try:
                 while egreso == 0:
                     egreso = float(input("Monto: $ "))
-                    print("")
+                    print()
             
             except ValueError:
-                print("")
+                print()
                 print("         ERROR. El monto debe ser numérico. No se registró ningún movimiento.")
-                print("")
+                print()
                 return
             except:
                 mant.log_error()
@@ -593,7 +593,7 @@ def reg_gastos_of(idu: int):
                 return
             
             observacion = input("Observaciones: ")
-            print("")
+            print()
             
             descripcion = mant.reemplazar_comilla(descripcion)
             transaccion = mant.reemplazar_comilla(transaccion)
@@ -620,23 +620,23 @@ def reg_gastos_of(idu: int):
             categoria = "Gastos oficina Arroyo"
             
             while transaccion == "":
-                print("")
+                print()
                 transaccion = input("Número de ticket: ")
-                print("")
+                print()
             
             while descripcion == "":
                 descripcion = input("Descripción: ")
-                print("")
+                print()
             
             try:
                 while egreso == 0:
                     egreso = float(input("Monto: $ "))
-                    print("")
+                    print()
             
             except ValueError:
-                print("")
+                print()
                 print("         ERROR. El monto debe ser numérico. No se registró ningún movimiento.")
-                print("")
+                print()
                 return
             except:
                 mant.log_error()
@@ -645,7 +645,7 @@ def reg_gastos_of(idu: int):
                 return
             
             observacion = input("Observaciones: ")
-            print("")
+            print()
             
             descripcion = mant.reemplazar_comilla(descripcion)
             transaccion = mant.reemplazar_comilla(transaccion)
@@ -672,23 +672,23 @@ def reg_gastos_of(idu: int):
             categoria = "Gastos panteón NOB"
             
             while transaccion == "":
-                print("")
+                print()
                 transaccion = input("Número de ticket: ")
-                print("")
+                print()
             
             while descripcion == "":
                 descripcion = input("Descripción: ")
-                print("")
+                print()
             
             try:
                 while egreso == 0:
                     egreso = float(input("Monto: $ "))
-                    print("")
+                    print()
             
             except ValueError:
-                print("")
+                print()
                 print("         ERROR. El monto debe ser numérico. No se registró ningún movimiento.")
-                print("")
+                print()
                 return
             except:
                 mant.log_error()
@@ -697,7 +697,7 @@ def reg_gastos_of(idu: int):
                 return
             
             observacion = input("Observaciones: ")
-            print("")
+            print()
             
             descripcion = mant.reemplazar_comilla(descripcion)
             transaccion = mant.reemplazar_comilla(transaccion)
@@ -734,7 +734,7 @@ def reg_pago_alquiler(idu: int):
     :type idu: int
     """
     print("********** Registrar gasto de oficina **********")
-    print("")
+    print()
     
     transaccion = ""
     categoria = "Pago de alquileres"
@@ -746,23 +746,23 @@ def reg_pago_alquiler(idu: int):
     año = obtener_año()
     
     while transaccion == "":
-        print("")
+        print()
         transaccion = input("Número de ticket / recibo: ")
-        print("")
+        print()
     
     while descripcion == "":
         descripcion = input("Descripción: ")
-        print("")
+        print()
     
     try:
         while egreso == 0:
             egreso = float(input("Monto: $ "))
-            print("")
+            print()
     
     except ValueError:
-        print("")
+        print()
         print("         ERROR. El monto debe ser numérico. No se registró ningún movimiento.")
-        print("")
+        print()
         return
     except:
         mant.log_error()
@@ -771,7 +771,7 @@ def reg_pago_alquiler(idu: int):
         return
     
     observacion = input("Observaciones: ")
-    print("")
+    print()
     
     descripcion = mant.reemplazar_comilla(descripcion)
     transaccion = mant.reemplazar_comilla(transaccion)
@@ -808,7 +808,7 @@ def reg_pago_sueldo(idu: int):
     :type idu: int
     """    
     print("********** Registrar pago de sueldo **********")
-    print("")
+    print()
     
     transaccion = ""
     categoria = "Pago de sueldos"
@@ -820,23 +820,23 @@ def reg_pago_sueldo(idu: int):
     año = obtener_año()
     
     while transaccion == "":
-        print("")
+        print()
         transaccion = input("Número de recibo: ")
-        print("")
+        print()
     
     while descripcion == "":
         descripcion = input("Empleado/a: ")
-        print("")
+        print()
     
     try:
         while egreso == 0:
             egreso = float(input("Monto: $ "))
-            print("")
+            print()
     
     except ValueError:
-        print("")
+        print()
         print("         ERROR. El monto debe ser numérico. No se registró ningún movimiento.")
-        print("")
+        print()
         return
     except:
         mant.log_error()
@@ -845,7 +845,7 @@ def reg_pago_sueldo(idu: int):
         return
     
     observacion = input("Observaciones: ")
-    print("")
+    print()
     
     descripcion = mant.reemplazar_comilla(descripcion)
     transaccion = mant.reemplazar_comilla(transaccion)
@@ -887,7 +887,7 @@ def reg_pago_comision(idu: int):
     :type idu: int
     """
     print("********** Registrar pago de comisión **********")
-    print("")
+    print()
     
     try:
         rendicion = int(input("Indique el número de rendición: "))
@@ -925,7 +925,7 @@ def reg_pago_comision(idu: int):
         cobrador = obtener_nom_cobrador(cob)
         
         observacion = input("Observaciones: ")
-        print("")
+        print()
         
         dia = obtener_dia()
         mes = obtener_mes()
@@ -940,7 +940,7 @@ def reg_pago_comision(idu: int):
 
         ult_reg_list = ult_reg()
         print("Se registró: ", ult_reg_list[1], " - ", ult_reg_list[2], " - ","$", ult_reg_list[5], " - ", ult_reg_list[6], " - " "NÚMERO DE REGISTRO: ", f"{ult_reg_list[0]}".rjust(8, '0'))
-        print("")
+        print()
         
         # Eliminando las comisiones pagas de la base de datos
         eliminar_comisiones(rendicion)
@@ -973,7 +973,7 @@ def reg_alivio(idu: int):
     :type idu: int
     """
     print("********** Registar alivio de caja **********")
-    print("")
+    print()
     
     transaccion = ""
     categoria = "Alivios de caja"
@@ -985,28 +985,28 @@ def reg_alivio(idu: int):
     año = obtener_año()
     
     while transaccion == "":
-        print("")
+        print()
         transaccion = input("Número de caja: ")
-        print("")
+        print()
     
     while descripcion == "":
         des1 = input("¿Quién realiza el alivio?: ")
-        print("")
+        print()
     
         des2 = input("¿A quién se lo entrega?: ")
-        print("")
+        print()
     
         descripcion = "A " + des2 + " de " + des1  
     
     try:
         while egreso == 0:
             egreso = float(input("Monto: $ "))
-            print("")
+            print()
     
     except ValueError:
-        print("")
+        print()
         print("         ERROR. El monto debe ser numérico. No se registró ningún movimiento.")
-        print("")
+        print()
         return
     
     except:
@@ -1016,7 +1016,7 @@ def reg_alivio(idu: int):
         return
     
     observacion = input("Observaciones: ")
-    print("")
+    print()
     
     descripcion = mant.reemplazar_comilla(descripcion)
     transaccion = mant.reemplazar_comilla(transaccion)
@@ -1047,7 +1047,7 @@ def reg_ingreso_extraordinario(idu: int):
     :type idu: int
     """
     print("********** Registrar ingreso extraordinario **********")
-    print("")
+    print()
     
     transaccion = ""
     categoria = "Ingresos extraordinarios"
@@ -1059,23 +1059,23 @@ def reg_ingreso_extraordinario(idu: int):
     año = obtener_año()
     
     while transaccion == "":
-        print("")
+        print()
         transaccion = input("Número de ticket / recibo: ")
-        print("")
+        print()
     
     while descripcion == "":
         descripcion = input("Descripción: ")
-        print("")
+        print()
     
     try:
         while ingreso == 0:
             ingreso = float(input("Monto: $ "))
-            print("")
+            print()
     
     except ValueError:
-        print("")
+        print()
         print("         ERROR. El monto debe ser numérico. No se registró ningún movimiento.")
-        print("")
+        print()
         return
     except:
         mant.log_error()
@@ -1084,7 +1084,7 @@ def reg_ingreso_extraordinario(idu: int):
         return
     
     observacion = input("Observaciones: ")
-    print("")
+    print()
     
     descripcion = mant.reemplazar_comilla(descripcion)
     transaccion = mant.reemplazar_comilla(transaccion)
@@ -1108,21 +1108,21 @@ def opcion_menu_rendiciones() -> int:                                           
 
     :rtype: int
     """
-    print("")
+    print()
     print("********** Acciones disponibles **********")
-    print("")
+    print()
     print("   1. Registrar un monto a rendir (-)")
     print("   2. Registrar pago de rendición adeudada (+)")
     print("   3. Registrar entrega de dinero sin listado (+)")
     print("   4. Registrar entrega de listado adeudado (-)")
     print("   0. Volver")
-    print("")
+    print()
     try:
         opcion = int(input("Ingrese una opción: "))
         while opcion < 0 or opcion > 4:
-            print("")
+            print()
             print("Opción incorrecta.")
-            print("")
+            print()
             opcion = int(input("Ingrese una opción: "))
     except ValueError: 
         print("Opción incorrecta.")
@@ -1177,7 +1177,7 @@ def a_rendir(idu: int):
     :type idu: int
     """
     print("********** Registrar monto a rendir (-) **********")
-    print("")
+    print()
     
     transaccion = ""
     categoria = "A rendir"
@@ -1189,21 +1189,21 @@ def a_rendir(idu: int):
     año = obtener_año()
     
     while transaccion == "":
-        print("")
+        print()
         transaccion = input("Número de rendición: ")
-        print("")
+        print()
     
         cobrador = mant.rend.menu_cobradores()
     
     try:
         while egreso == 0:
             egreso = float(input("Monto a rendir: $ "))
-            print("")
+            print()
     
     except ValueError:
-        print("")
+        print()
         print("         ERROR. El monto debe ser numérico. No se registró ningún movimiento.")
-        print("")
+        print()
         return
     except:
         mant.log_error()
@@ -1212,7 +1212,7 @@ def a_rendir(idu: int):
         return
     
     observacion = input("Observaciones: ")
-    print("")
+    print()
     
     descripcion = obtener_nom_cobrador(cobrador)
     
@@ -1258,7 +1258,7 @@ def rend_adeudada(idu: int):
     :type idu: int
     """
     print("********** Registrar pago de rendición adeudada (+) **********")
-    print("")
+    print()
     
     transaccion = ""
     categoria = "Rendiciones adeudadas"
@@ -1270,21 +1270,21 @@ def rend_adeudada(idu: int):
     año = obtener_año()
     
     while transaccion == "":
-        print("")
+        print()
         transaccion = input("Número de rendición: ")
-        print("")
+        print()
     
     cobrador = mant.rend.menu_cobradores()
     
     try:
         while ingreso == 0:
             ingreso = float(input("Monto: $ "))
-            print("")
+            print()
     
     except ValueError:
-        print("")
+        print()
         print("         ERROR. El monto debe ser numérico. No se registró ningún movimiento.")
-        print("")
+        print()
         return
     except:
         mant.log_error()
@@ -1293,7 +1293,7 @@ def rend_adeudada(idu: int):
         return
     
     observacion = input("Observaciones: ")
-    print("")
+    print()
     
     descripcion = obtener_nom_cobrador(cobrador)
     
@@ -1338,7 +1338,7 @@ def sin_listado(idu: int):
     :type idu: int
     """
     print("********** Registrar entrega de dinero sin listado (+) **********")
-    print("")
+    print()
     
     transaccion = "S/L"
     categoria = "Sin listado (+)"
@@ -1354,12 +1354,12 @@ def sin_listado(idu: int):
     try:
         while ingreso == 0:
             ingreso = float(input("Monto: $ "))
-            print("")
+            print()
     
     except ValueError:
-        print("")
+        print()
         print("         ERROR. El monto debe ser numérico. No se registró ningún movimiento.")
-        print("")
+        print()
         return
     except:
         mant.log_error()
@@ -1368,7 +1368,7 @@ def sin_listado(idu: int):
         return
     
     observacion = input("Observaciones: ")
-    print("")
+    print()
     
     descripcion = obtener_nom_cobrador(cobrador)
     
@@ -1415,7 +1415,7 @@ def listado_adeudado(idu: int):
     :type idu: int
     """
     print("********** Registrar entrega de listado adeudado (-) **********")
-    print("")
+    print()
     
     transaccion = ""
     categoria = "Sin listado (-)"
@@ -1427,21 +1427,21 @@ def listado_adeudado(idu: int):
     año = obtener_año()
     
     while transaccion == "":
-        print("")
+        print()
         transaccion = input("Número de rendición: ")
-        print("")
+        print()
     
         cobrador = mant.rend.menu_cobradores()
     
     try:
         while egreso == 0:
             egreso = float(input("Monto del listado: $ "))
-            print("")
+            print()
     
     except ValueError:
-        print("")
+        print()
         print("         ERROR. El monto debe ser numérico. No se registró ningún movimiento.")
-        print("")
+        print()
         return
     except:
         mant.log_error()
@@ -1450,7 +1450,7 @@ def listado_adeudado(idu: int):
         return
     
     observacion = input("Observaciones: ")
-    print("")
+    print()
     
     descripcion = obtener_nom_cobrador(cobrador)
     
@@ -1484,21 +1484,21 @@ def opcion_menu_edit() -> int:                                                  
     :rtype: int
     """
     print("Seleccione una acción")
-    print("")
+    print()
     print("   1. Ver movimientos del día")
     print("   2. Buscar un registro")
     print("   3. Modificar un registro")
     print("   4. Eliminar un registro")
     print("   5. Ver estado de caja actual")
     print("   0. Volver")
-    print("")
+    print()
     accion = -1
     try:
         accion = int(input("Ingrese una opción: "))
         while accion < 0 or accion > 5:
-            print("")
+            print()
             print("Opción incorrecta.")
-            print("")
+            print()
             accion = int(input("Ingrese una opción: "))
     except ValueError: 
         print("Opción incorrecta.")
@@ -1568,7 +1568,7 @@ def ver_registros():
         print("{:<9} {:<27} {:<27} {:<11} {:<15} {:<15} {:<30} {:<10} {:<6}".format(f"{i_d}".rjust(8, '0'), f"{cat[:27]}", f"{des[:27]}", f"{tra}"[:11], f"{ing}", f"{egr}", f"{obs[:30]}", f"{dia}/{mes}/{año}", f"{user}"))
 
     print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
-    print("")
+    print()
     input("Presione la tecla enter para continuar... ")
 
 
@@ -1579,9 +1579,9 @@ def opcion_menu_buscar() -> int:                                                
 
     :rtype: int
     """
-    print("")
+    print()
     print("Seleccione una acción")
-    print("")
+    print()
     print("      1. Buscar por número de registro")
     print("      2. Buscar por categoría")
     print("      3. Buscar por descripción")
@@ -1591,14 +1591,14 @@ def opcion_menu_buscar() -> int:                                                
     print("      7. Buscar por observación")
     print("      8. Buscar por fecha")
     print("      0. Volver")
-    print("")
+    print()
     opcion = -1
     try:
         opcion = int(input("Ingrese una opción: "))
         while opcion < 0 or opcion > 8:
-            print("")
+            print()
             print("Opción incorrecta.")
-            print("")
+            print()
             accion = int(input("Ingrese una opción: "))
     except ValueError: 
         print("Opción incorrecta.")
@@ -1635,55 +1635,55 @@ def menu_buscar():                                                              
         opcion = opcion_menu_buscar()
     
         if opcion == 1:     # Buscar por ID
-            print("")
+            print()
             columna = "id"
             
             valor = input("Indique número de registro: ")
             
             buscar_registro(columna, valor)
-            print("")
+            print()
     
         elif opcion == 2:   # Buscar por categoría
-            print("")
+            print()
             columna = "categoria"
             
             inp = input("Indique categoría o parte de ella: ")
             valor = f"%{inp}%"
             
             buscar_registro_like(columna, valor)
-            print("")
+            print()
     
         elif opcion == 3:   # Buscar por descripción
-            print("")
+            print()
             columna = "descripcion"
             
             inp = input("Indique descripción o parte de ella: ")
             valor = f"%{inp}%"
 
             buscar_registro_like(columna, valor)
-            print("")
+            print()
     
         elif opcion == 4:   # Buscar por transacción
-            print("")
+            print()
             columna = "transaccion"
 
             valor = input("Indique número de transacción: ")
 
             buscar_registro_like(columna, valor)
-            print("")
+            print()
     
         elif opcion == 5:   # Buscar por ingreso
             try:
-                print("")
+                print()
                 columna = "ingreso"
                 
                 valor = float(input("Indique monto de ingreso: $ "))
                 
                 buscar_registro(columna, valor)
-                print("")
+                print()
             
             except ValueError:
-                print("")
+                print()
                 print("         ERROR. El monto debe ser numérico.")
             except:
                 mant.log_error()
@@ -1692,16 +1692,16 @@ def menu_buscar():                                                              
     
         elif opcion == 6:   # Buscar por egreso
             try:
-                print("")
+                print()
                 columna = "egreso"
 
                 valor = float(input("Indique monto de egreso: $ "))
                 
                 buscar_registro(columna, valor)
-                print("")
+                print()
             
             except ValueError:
-                print("")
+                print()
                 print("         ERROR. El monto debe ser numérico.")
             except:
                 mant.log_error()
@@ -1709,17 +1709,17 @@ def menu_buscar():                                                              
                 print()
     
         elif opcion == 7:   # Buscar por observación
-            print("")
+            print()
             columna = "observacion"
 
             inp = input("Indique observación o parte de ella: ")
             valor = f"%{inp}%"
             
             buscar_registro_like(columna, valor)
-            print("")
+            print()
     
         elif opcion == 8:   # Buscar por fecha
-            print("")
+            print()
             menu_buscar_fecha()
     
         elif opcion == 0:   # Volver
@@ -1767,7 +1767,7 @@ def buscar_registro(columna: str, valor: str | int | float | bool):
         print("{:<9} {:<27} {:<27} {:<11} {:<15} {:<15} {:<30} {:<10} {:<6}".format(f"{i_d}".rjust(8, '0'), cat[:27], des[:27], f"{tra}"[:10], ing, egr, obs[:30], f'{dia}/{mes}/{año}', f'{user}'))
 
     print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
-    print("")
+    print()
     input("Presione la tecla enter para continuar... ")
 
 
@@ -1815,7 +1815,7 @@ def buscar_registro_like(columna: str, valor: str | int | float | bool):
         print("{:<9} {:<27} {:<27} {:<11} {:<15} {:<15} {:<30} {:<10} {:<6}".format(f"{i_d}".rjust(8, '0'), cat[:27], des[:27], f"{tra}"[:10], ing, egr, obs[:30], f'{dia}/{mes}/{año}', f'{user}'))
 
     print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
-    print("")
+    print()
     input("Presione la tecla enter para continuar... ")
 
 
@@ -1826,21 +1826,21 @@ def opcion_menu_buscar_fecha() -> int:                                          
 
     :rtype: int
     """
-    print("")
+    print()
     print("Seleccione una acción")
-    print("")
+    print()
     print("      1. Buscar por fecha exacta")
     print("      2. Buscar por mes")
     print("      3. Buscar por año")
     print("      0. Volver")
-    print("")
+    print()
     accion = -1
     try:
         accion = int(input("Ingrese una opción: "))
         while accion < 0 or accion > 3:
-            print("")
+            print()
             print("Opción incorrecta.")
-            print("")
+            print()
             accion = int(input("Ingrese una opción: "))
     except ValueError: 
         print("Opción incorrecta.")
@@ -1871,45 +1871,45 @@ def menu_buscar_fecha():                                                        
         opcion = opcion_menu_buscar_fecha()
     
         if opcion == 1:     # Buscar por fecha exacta
-            print("")
+            print()
     
             dia = input("Indique día: ")
-            print("")
+            print()
     
             mes = input("Indique mes: ")
-            print("")
+            print()
     
             año = input("Indique año: ")
-            print("")
+            print()
     
             print(f"Registros del día {dia.rjust(2, '0')}/{mes.rjust(2, '0')}/{año.rjust(3, '0').rjust(4, '2')}")
-            print("")
+            print()
     
             buscar_registro_fecha(dia.rjust(2, '0'), mes.rjust(2, '0'), año.rjust(3, '0').rjust(4, '2'))
     
         elif opcion == 2:   # Buscar por mes y año
-            print("")
+            print()
 
             mes = input("Indique mes: ")
-            print("")
+            print()
 
             año = input("Indique año: ")
-            print("")
+            print()
 
             print(f"Registros del mes {mes} de {año.rjust(3, '0').rjust(4, '2')}")
-            print("")
+            print()
 
             buscar_registro_mes(mes.rjust(2, '0'), año.rjust(3, '0').rjust(4, '2'))
-            print("")
+            print()
 
         elif opcion == 3:   # Buscar por año
-            print("")
+            print()
 
             año = input("Idique el año: ")
-            print("")
+            print()
 
             print(f"Registros del año {año.rjust(3, '0').rjust(4, '2')}")
-            print("")
+            print()
 
             buscar_registro_año(año.rjust(3, '0').rjust(4, '2'))
 
@@ -1954,7 +1954,7 @@ def buscar_registro_fecha(dia: str, mes: str, año: str):
         print("{:<9} {:<27} {:<27} {:<11} {:<15} {:<15} {:<30} {:<10} {:<6}".format(f"{i_d}".rjust(8, '0'), cat[:27], des[:27], f"{tra}"[:10], ing, egr, obs[:30], f'{dia}/{mes}/{año}', f'{user}'))
 
     print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
-    print("")
+    print()
     input("Presione la tecla enter para continuar... ")
 
 
@@ -1992,7 +1992,7 @@ def buscar_registro_mes(mes: str, año: str):
         print("{:<9} {:<27} {:<27} {:<11} {:<15} {:<15} {:<30} {:<10} {:<6}".format(f"{i_d}".rjust(8, '0'), cat[:27], des[:27], f"{tra}"[:10], ing, egr, obs[:30], f'{dia}/{mes}/{año}', f'{user}'))
 
     print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
-    print("")
+    print()
     input("Presione la tecla enter para continuar... ")
 
 
@@ -2027,7 +2027,7 @@ def buscar_registro_año(año):
         print("{:<9} {:<27} {:<27} {:<11} {:<15} {:<15} {:<30} {:<10} {:<6}".format(f"{i_d}".rjust(8, '0'), cat[:27], des[:27], f"{tra}"[:10], ing, egr, obs[:30], f'{dia}/{mes}/{año}', f'{user}'))
 
     print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
-    print("")
+    print()
     input("Presione la tecla enter para continuar... ")
 
 
@@ -2038,25 +2038,25 @@ def opcion_menu_modif_registro() -> int:                                        
 
     :rtype: int
     """
-    print("")
+    print()
     print("Seleccione una acción")
-    print("")
+    print()
     print("      1. Modificar descripción")
     print("      2. Modificar número de transacción")
     print("      3. Modificar ingreso")
     print("      4. Modificar egreso")
     print("      5. Modificar observación")
     print("      0. Volver")
-    print("")
+    print()
     print("  *** La categoría no puede modificarse. Se debe eliminar el registro y volver a registrarlo correctamente")
-    print("")
+    print()
     accion = -1
     try:
         accion = int(input("Ingrese una opción: "))
         while accion < 0 or accion > 5:
-            print("")
+            print()
             print("Opción incorrecta.")
-            print("")
+            print()
             accion = int(input("Ingrese una opción: "))
     except ValueError: 
         print("Opción incorrecta.")
@@ -2097,9 +2097,9 @@ def menu_modif_registro(id: int, idu: int):                                     
         opcion = opcion_menu_modif_registro()
 
         if opcion == 1:     # Modificar descripción
-            print("")
+            print()
             string = input("Ingrese la nueva descripción: ")
-            print("")
+            print()
 
             guardar_historial(id, idu)
 
@@ -2111,9 +2111,9 @@ def menu_modif_registro(id: int, idu: int):                                     
             string = ""
 
         elif opcion == 2:   # Modificar transacción
-            print("")
+            print()
             string = input("Ingrese el nuevo número de transacción: ")
-            print("")
+            print()
             
             guardar_historial(id, idu)
             
@@ -2126,9 +2126,9 @@ def menu_modif_registro(id: int, idu: int):                                     
         
         elif opcion == 3:   # Modificar ingreso
             try:
-                print("")
+                print()
                 floating = float(input("Ingrese el nuevo monto de ingreso: $ "))
-                print("")
+                print()
              
                 guardar_historial(id, idu)
              
@@ -2140,7 +2140,7 @@ def menu_modif_registro(id: int, idu: int):                                     
                 floating = float(0)
             
             except ValueError:
-                print("")
+                print()
                 print("         ERROR. El monto debe ser numérico.")
             except:
                 mant.log_error()
@@ -2149,9 +2149,9 @@ def menu_modif_registro(id: int, idu: int):                                     
         
         elif opcion == 4:   # Modificar egreso
             try:
-                print("")
+                print()
                 floating = float(input("Ingrese el nuevo monto de egreso: $ "))
-                print("")
+                print()
         
                 guardar_historial(id, idu)
         
@@ -2163,7 +2163,7 @@ def menu_modif_registro(id: int, idu: int):                                     
                 floating = float(0)
         
             except ValueError:
-                print("")
+                print()
                 print("         ERROR. El monto debe ser numérico.")
             except:
                 mant.log_error()
@@ -2171,9 +2171,9 @@ def menu_modif_registro(id: int, idu: int):                                     
                 print()
         
         elif opcion == 5:   # Modificar observación
-            print("")
+            print()
             string = input("Ingrese la nueva observación: ")
-            print("")
+            print()
         
             guardar_historial(id, idu)
         
@@ -2194,26 +2194,26 @@ def modif_registro(idu: int):
     :type idu: int
     """
     id = 0
-    print("")
+    print()
     
     try:
         id = int(input("Indique el número del registro que desea modificar: "))
         cerrada = es_cerrada(id)
     
         if cerrada == 0:
-            print("")
+            print()
             mostrar_registro(id)
     
-            print("")
+            print()
             menu_modif_registro(id, idu)
     
         elif cerrada == 1:
-            print("")
+            print()
             print("         ERROR. No es posible modificar registros de cajas cerradas")
-            print("")
+            print()
     
     except ValueError:
-        print("")
+        print()
         print("         ERROR. El número de registro debe ser numérico.")
     except:
         mant.log_error()
@@ -2314,7 +2314,7 @@ def mostrar_registro(id: int):
         print("{:<9} {:<27} {:<27} {:<11} {:<15} {:<15} {:<30} {:<10} {:<6}".format(f"{i_d}".rjust(8, '0'), cat[:27], des[:27], f"{tra}"[:10], ing, egr, obs[:30], f'{dia}/{mes}/{año}', f'{user}'))
 
     print("--------------------------------------------------------------------------------------------------------------------------------------------------------------")
-    print("")
+    print()
 
 
 def eliminar_registro(idu: int):
@@ -2329,7 +2329,7 @@ def eliminar_registro(idu: int):
     id = 0
     msj = " "
     i_d, nom, ape, tel, dom, use, pas, pri, act = mant.buscar_usuario_por_id(idu)
-    print("")
+    print()
     
     if pri >= 4:
         try:
@@ -2337,7 +2337,7 @@ def eliminar_registro(idu: int):
             cerrada = es_cerrada(id)
     
             if cerrada == 0: 
-                print("")
+                print()
                 mostrar_registro(id)
                 msj = ""
     
@@ -2354,47 +2354,47 @@ def eliminar_registro(idu: int):
                         conn.commit()
                         conn.close()
                         delete_row("id", id)
-                        print("")
+                        print()
                         print("Registro eliminado exitosamente.")
-                        print("")
+                        print()
                         return
                     
                     elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
                         msj = "N"
-                        print("")
+                        print()
                         print("No se han realizado cambios en el registro.")
-                        print("")
+                        print()
                         return
                     else:
-                        print("")
+                        print()
                         print("         ERROR. Debe indicar S para eliminar o N para cancelar.")
-                        print("")
+                        print()
             
             elif cerrada == 1:
-                print("")
+                print()
                 print("         ERROR. No es posible modificar registros de cajas cerradas")
-                print("")
+                print()
         
         except ValueError:
-            print("")
+            print()
             print("         ERROR. El dato solicitado debe ser de tipo numérico.")
-            print("")
+            print()
         except IndexError:
-            print("")
+            print()
             print("         ERROR. Indique un número de registro válido.")
-            print("")
+            print()
         except:
             mant.log_error()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
-            print("")
+            print()
     
     else:
         print("         ERROR. No posee los privilegios necesarios para realizar esta operación. Comuníquese con un admnistrador.")
-        print("")
+        print()
         print("No se han realizado cambios en el registro.")
-        print("")
+        print()
         getpass("Presione enter para continuar...")
-        print("")
+        print()
 
 
 def delete_row(columna: str, valor: str | int | float | bool):
@@ -2503,20 +2503,20 @@ def opcion_menu_caja_mensual() -> int:                                          
 
     :rtype: int
     """
-    print("")
+    print()
     print("********** Acciones disponibles **********")
-    print("")
+    print()
     print("   1. Imprimir caja mensual detallada")
     print("   2. Imprimir caja mensual comprimida")
     print("   3. Imprimir cobros por cobrador")
     print("   0. Volver")
-    print("")
+    print()
     try:
         opcion = int(input("Ingrese una opción: "))
         while opcion < 0 or opcion > 3:
-            print("")
+            print()
             print("Opción incorrecta.")
-            print("")
+            print()
             opcion = int(input("Ingrese una opción: "))
     except ValueError: 
         print("Opción incorrecta.")
@@ -2548,7 +2548,7 @@ def menu_caja_mensual():                                                        
     
         if opcion == 1:     # Imprimir caja mensual detallada
             mes = 0
-            print("")
+            print()
     
             try:
                 while mes < 1 or mes > 12:
@@ -2556,7 +2556,7 @@ def menu_caja_mensual():                                                        
     
                     if mes < 1 or mes > 12:
                         print("         ERROR. Mes incorrecto.")
-                        print("")
+                        print()
     
                 año = int(input("Ingrese el año: "))
     
@@ -2573,7 +2573,7 @@ def menu_caja_mensual():                                                        
     
         elif opcion == 2:   # Imprimir caja mensual comprimida
             mes = 0
-            print("")
+            print()
     
             try:
                 while mes < 1 or mes > 12:
@@ -2581,7 +2581,7 @@ def menu_caja_mensual():                                                        
     
                     if mes < 1 or mes > 12:
                         print("         ERROR. Mes incorrecto.")
-                        print("")
+                        print()
     
                 año = int(input("Ingrese el año: "))
     
@@ -2598,7 +2598,7 @@ def menu_caja_mensual():                                                        
     
         elif opcion == 3:   # Imprimir cobros por cobrador
             mes = 0
-            print("")
+            print()
     
             try:
                 while mes < 1 or mes > 12:
@@ -2606,7 +2606,7 @@ def menu_caja_mensual():                                                        
     
                     if mes < 1 or mes > 12:
                         print("         ERROR. Mes incorrecto.")
-                        print("")
+                        print()
     
                 año = int(input("Ingrese el año: "))
     
@@ -2632,7 +2632,7 @@ def reg_cobros_federacion(idu: int):
     ingreso, un egreso en concepto de alivio de caja.
     """
     print("********** Registrar cobros de Federación **********")
-    print("")
+    print()
     
     categoria_ing = "Mantenimiento Federación"
     descripcion_ing = "Oficina Córdoba 2915"
@@ -2642,12 +2642,12 @@ def reg_cobros_federacion(idu: int):
     try:
         while ingreso == 0:
             ingreso = float(input("Monto: $ "))
-            print("")
+            print()
     
     except ValueError:
-        print("")
+        print()
         print("         ERROR. El monto debe ser numérico. No se registró ningún movimiento.")
-        print("")
+        print()
         return
     except:
         mant.log_error()
@@ -2656,7 +2656,7 @@ def reg_cobros_federacion(idu: int):
         return
     
     observacion_ing = input("Observaciones: ")
-    print("")
+    print()
     
     dia = obtener_dia()
     mes = obtener_mes()
@@ -2669,7 +2669,7 @@ def reg_cobros_federacion(idu: int):
     
     ult_reg_list = ult_reg()
     print("Se registró: ", ult_reg_list[1], " - ", ult_reg_list[2], " - ","$", ult_reg_list[4], " - ", ult_reg_list[6], " - " "NÚMERO DE REGISTRO: ", f"{ult_reg_list[0]}".rjust(8, '0'))
-    print("")
+    print()
     
     categoria_egr = "Alivios de caja"
     descripcion_egr = "Cobros de Federación"
@@ -2684,7 +2684,7 @@ def reg_cobros_federacion(idu: int):
     
     ult_reg_list = ult_reg()
     print("Se registró: ", ult_reg_list[1], " - ", ult_reg_list[2], " - ","$", ult_reg_list[5], " - ", ult_reg_list[6], " - " "NÚMERO DE REGISTRO: ", f"{ult_reg_list[0]}".rjust(8, '0'))
-    print("")
+    print()
     
     return
 
@@ -2697,7 +2697,7 @@ def reg_bonif_mant(idu: int):
     - 
     """
     print("********** Registrar bonificación de mantenimiento **********")
-    print("")
+    print()
     
     transaccion = "BONIF"
     categoria = "Bonificación mantenimiento"
@@ -2726,9 +2726,9 @@ def reg_bonif_mant(idu: int):
 
         
         except ValueError:
-            print("")
+            print()
             print("         ERROR. El dato solicitado debe ser numérico.")
-            print("")
+            print()
             oper = ''
         except sql.errors.SyntaxError:
             print("         ERROR. La operación indicada no existe.")
@@ -2747,12 +2747,12 @@ def reg_bonif_mant(idu: int):
     try:
         while egreso == 0:
             egreso = float(input("Monto: $ "))
-            print("")
+            print()
     
     except ValueError:
-        print("")
+        print()
         print("         ERROR. El monto debe ser numérico. No se registró ningún movimiento.")
-        print("")
+        print()
         return
     except:
         mant.log_error()
@@ -2761,7 +2761,7 @@ def reg_bonif_mant(idu: int):
         return
     
     observacion = input("Observaciones: ")
-    print("")
+    print()
     
     descripcion = mant.reemplazar_comilla(descripcion)
     transaccion = mant.reemplazar_comilla(transaccion)
@@ -2798,11 +2798,11 @@ def cierre_caja():
     fyh = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     
     print("********** Cierre de caja **********")
-    print("")
+    print()
     print(f"Fecha: {fecha}")
     print()
     print(f"Número de cierre: {str(contador).rjust(6, '0')}")
-    print("")
+    print()
     
     loop = -1
     while loop == -1:
@@ -2835,14 +2835,14 @@ def cierre_caja():
             return
     
     try:
-        print("")
+        print()
         print(" ***** REALIZANDO ACCIONES DE CAJA. POR FAVOR NO CIERRE EL SISTEMA NI APAGUE EL EQUIPO *****")
-        print("")
+        print()
 
         ##### GENERANDO REPORTE #####
         rep.report_caja_diaria(saldo_final)
         print("Reporte generado [OK]")
-        print("")
+        print()
 
         ##### CERRANDO REGISTROS ####
         with sql.connect(mant.DATABASE) as conn:

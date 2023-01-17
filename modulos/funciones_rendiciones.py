@@ -29,29 +29,29 @@ def opcion_menu() -> int:                                                       
 
     :rtype: int
     """
-    print("")
+    print()
     print("********** Acciones disponibles **********")
-    print("")
+    print()
     print("   1. Registrar cobro")
     print("   2. Emitir recibos")
     print("   3. Ingresar pagos por adelantado")
     print("   4. Registrar débito automático")
     print("   5. Reimprimir recibo (actualiza importe)")
     print("   0. Salir")
-    print("")
+    print()
     try:
         opcion = int(input("Ingrese una opción: "))
         while opcion < 0 or opcion > 5:
-            print("")
+            print()
             print("Opción incorrecta.")
-            print("")
+            print()
             opcion = int(input("Ingrese una opción: "))
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
     except:
         mant.log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         print()
         opcion = -1
@@ -109,7 +109,7 @@ def ingresar_cobro(idu: int):
     """
     ndr = 0
     msj = ''
-    print("")
+    print()
     
     loop = -1
     while loop == -1:
@@ -118,22 +118,22 @@ def ingresar_cobro(idu: int):
             try:
                 ndr = int(input("Indique el nro. de recibo a ingresar: "))
                 msj = ''
-                print("")    
+                print()    
                 nro, ope, per, año, pag = obtener_datos_recibo(ndr)
     
             except ValueError:
-                print("")
+                print()
                 print("         ERROR. El dato solicitado debe ser de tipo numérico.")
-                print("")
+                print()
                 ndr = 0
             except TypeError:
-                print("")
+                print()
                 print("         ERROR. Número de recibo inválido. No se han realizado cambios en el registro.")
-                print("")
+                print()
                 return
             except:
                 mant.log_error()
-                print("")
+                print()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 print()
                 return
@@ -153,7 +153,7 @@ def ingresar_cobro(idu: int):
             return
         except:
             mant.log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             print()
             return
@@ -172,22 +172,22 @@ def ingresar_cobro(idu: int):
         if pag == 1:
             print("El recibo ya se encuentra ingresado en sistema.")
             msj = ''
-            print("")
+            print()
             while msj == '':
                 msj = input(f"¿Desea ingresar otro pago? (S/N) ")
         
                 if msj == 'S' or msj == 's' or msj == 'Si' or msj == 'SI' or msj == 'sI' or msj == 'si':
-                    print("")
+                    print()
                     ndr = 0
                     loop = -1
         
                 elif msj == 'N' or msj == 'n' or msj == 'No' or msj == 'NO' or msj == 'nO' or msj == 'no':
-                    print("")
+                    print()
                     return
                 else:
-                    print("")
+                    print()
                     print("Debe ingresar S para confirmar o N para cancelar.")
-                    print("")
+                    print()
                     msj = ''
         
         elif pag == 0:
@@ -195,21 +195,21 @@ def ingresar_cobro(idu: int):
             if cob == 6:
                 print("         ERROR. La operación tiene habilitado el débito automático. Para registrar el pago seleccione la opción correcta en el menú principal.")
                 msj = ''
-                print("")
+                print()
                 
                 while msj == '':
                     msj = input(f"¿Desea ingresar otro pago? (S/N) ")
                     if msj == 'S' or msj == 's' or msj == 'Si' or msj == 'SI' or msj == 'sI' or msj == 'si':
-                        print("")
+                        print()
                         ndr = 0
                         loop = -1
                     elif msj == 'N' or msj == 'n' or msj == 'No' or msj == 'NO' or msj == 'nO' or msj == 'no':
-                        print("")
+                        print()
                         return
                     else:
-                        print("")
+                        print()
                         print("Debe ingresar S para confirmar o N para cancelar.")
-                        print("")
+                        print()
                         msj = ''
             
             else:
@@ -224,13 +224,13 @@ def ingresar_cobro(idu: int):
                         rendicion = int(input("Indique el número de rendición: "))
             
                     except ValueError:
-                        print("")
+                        print()
                         print("Número de rendición inválido. No se han realizado cambios en el registro.")
-                        print("")
+                        print()
                         return
                     except:
                         mant.log_error()
-                        print("")
+                        print()
                         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                         print()
                         return
@@ -248,7 +248,7 @@ def ingresar_cobro(idu: int):
                                 act_periodo(per, ope, año)
                                 registrar_comision_mant(cob, rendicion, ndr, val) 
             
-                            print("")
+                            print()
                             cod, pan, pis, fil, num, cat, ocu, fall = obtener_datos_nicho(nic)
                             categoria = f"Mantenimiento {obtener_panteon(pan)}"
                             descripcion = f"{caja.obtener_nom_cobrador(cob)}"
@@ -293,7 +293,7 @@ def ingresar_cobro(idu: int):
                                                 loop = -1
                                             except:
                                                 mant.log_error()
-                                                print("")
+                                                print()
                                                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                                                 print()
                                                 return
@@ -319,7 +319,7 @@ def ingresar_cobro(idu: int):
                                             deb_aut = 1
                                         except:
                                             mant.log_error()
-                                            print("")
+                                            print()
                                             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                                             print()
                                             return
@@ -330,31 +330,31 @@ def ingresar_cobro(idu: int):
                             print("Pago ingresado exitosamente")
             
                         elif msj == 'N' or msj == 'n' or msj == 'No' or msj == 'NO' or msj == 'nO' or msj == 'no':
-                            print("")
+                            print()
                             print("No se han hecho cambios en el registro.")
                         else:
-                            print("")
+                            print()
                             print("Debe ingresar S para confirmar o N para cancelar.")
-                            print("")
+                            print()
                             msj = ''
             
                     msj = ''
-                    print("")
+                    print()
                     while msj == '':
                         msj = input(f"¿Desea ingresar otro pago? (S/N) ")
             
                         if msj == 'S' or msj == 's' or msj == 'Si' or msj == 'SI' or msj == 'sI' or msj == 'si':
-                            print("")
+                            print()
                             ndr = 0
                             loop = -1
             
                         elif msj == 'N' or msj == 'n' or msj == 'No' or msj == 'NO' or msj == 'nO' or msj == 'no':
-                            print("")
+                            print()
                             return
                         else:
-                            print("")
+                            print()
                             print("Debe ingresar S para confirmar o N para cancelar.")
-                            print("")
+                            print()
                             msj = ''
 
 
@@ -568,7 +568,7 @@ def emitir_recibos():
     facturacion = menu_facturacion()
     
     if facturacion == "ERROR":
-        print("")
+        print()
         print("         ERROR. El período de facturación no corresponde con el mes.")
     
     elif facturacion == "VOLVER":
@@ -578,7 +578,7 @@ def emitir_recibos():
     elif facturacion == "documentos":
         mes = datetime.now().strftime('%m')
         str_mes_siguiente, int_mes_siguiente = obtener_mes_siguiente(mes)
-        print("")
+        print()
         msj = ""
     
         while msj != "S" and msj != "N":
@@ -586,9 +586,9 @@ def emitir_recibos():
     
             if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
                 msj = "S"
-                print("")
+                print()
                 print("POR FAVOR, NO CIERRE LA APLICACIÓN NI APAGUE EL SISTEMA MIENTRAS SE REALIZAN LAS ACCIONES SOLICITADAS")
-                print("")
+                print()
                 print("Emitiendo recibos...")
                 lista_recibos = rep.recibos_documentos()
                 print()
@@ -599,14 +599,14 @@ def emitir_recibos():
             
             elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
                 msj = "N"
-                print("")
+                print()
                 print("No se han emitido recibos.")
-                print("")
+                print()
                 return
             else:
-                print("")
+                print()
                 print("         ERROR. Debe indicar S para emitir o N para cancelar.")
-                print("")
+                print()
     
     else:
         cobrador = menu_cobradores()
@@ -616,16 +616,16 @@ def emitir_recibos():
     
         ncobrador = caja.obtener_nom_cobrador(cobrador)
         periodo = obtener_periodo()
-        print("")
+        print()
     
         msj = input(f"¿Emitir recibos de {periodo}, de {facturacion.upper()} - {ncobrador}? (S/N) ")
         while msj != "S" and msj != "N":
     
             if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
                 msj = "S"
-                print("")
+                print()
                 print("POR FAVOR, NO CIERRE LA APLICACIÓN NI APAGUE EL SISTEMA MIENTRAS SE REALIZAN LAS ACCIONES SOLICITADAS")
-                print("")
+                print()
                 print("Emitiendo recibos...")
                 recibos = buscar_recibos(facturacion, cobrador)
 
@@ -637,7 +637,7 @@ def emitir_recibos():
                     thread2.start()
                     thread1.join()
                     thread2.join()
-                    print("")
+                    print()
                     return
 
                 # Débito automático
@@ -648,21 +648,21 @@ def emitir_recibos():
                     thread2.start()
                     thread1.join()
                     thread2.join()
-                    print("")
+                    print()
                     return
     
             elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
                 msj = "N"
-                print("")
+                print()
                 print("No se han emitido recibos.")
-                print("")
+                print()
                 return
             else:
-                print("")
+                print()
                 print("         ERROR. Debe indicar S para emitir o N para cancelar.")
-                print("")
+                print()
                 msj = input(f"¿Imprimir recibos de {periodo}, de {facturacion} - {ncobrador}? (S/N) ")
-                print("")
+                print()
             
 
 def ingresar_adelantos(idu: int):
@@ -683,7 +683,7 @@ def ingresar_adelantos(idu: int):
     :param idu: ID de usuario.
     :type idu: int
     """
-    print("")
+    print()
     try:
         oper = int(input("Indique el número de operación: "))
     
@@ -692,11 +692,11 @@ def ingresar_adelantos(idu: int):
         return
     except:
         mant.log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         print()
         return
-    print("")
+    print()
     
     try:
         i_d, soc, nic, fac, cob, tar, rut, ult, u_a, fec, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = obtener_datos_op(oper)
@@ -720,7 +720,7 @@ def ingresar_adelantos(idu: int):
         return
     except:
         mant.log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         print()
         return
@@ -738,7 +738,7 @@ def ingresar_adelantos(idu: int):
         return
     except:
         mant.log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         print()
         return
@@ -779,7 +779,7 @@ def ingresar_adelantos(idu: int):
         return
     except:
         mant.log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         print()
         return
@@ -789,7 +789,7 @@ def ingresar_adelantos(idu: int):
     
     elif fac == 'nob':
         valor_total = val_mant_nob * cant
-    print("")
+    print()
     
     try:
         rendicion = int(input("Indique el número de rendición: "))
@@ -799,15 +799,15 @@ def ingresar_adelantos(idu: int):
         return
     except:
         mant.log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         print()
         return
-    print("")
+    print()
     
     operacion = str(oper).rjust(7, "0")
     print(f"Se registrará el ingreso de $ {valor_total:.2f} correspondiente al pago de {cant} cuotas de la operación {operacion}")
-    print("")
+    print()
     
     msj = ""
     while msj != "S" and msj != "N":
@@ -868,7 +868,7 @@ def ingresar_adelantos(idu: int):
                             loop = -1
                         except:
                             mant.log_error()
-                            print("")
+                            print()
                             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                             print()
                             return
@@ -894,7 +894,7 @@ def ingresar_adelantos(idu: int):
                         deb_aut = 1
                     except:
                         mant.log_error()
-                        print("")
+                        print()
                         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                         print()
                         return
@@ -914,7 +914,7 @@ def ingresar_adelantos(idu: int):
 
             mant.run_query(query)
 
-            print("")
+            print()
             print("Adelanto de cuotas registrado exitosamente. Generando recibo, por favor aguarde...")
 
             parameters = str((oper, periodo_hasta, año_hasta, 1))
@@ -951,19 +951,19 @@ def ingresar_adelantos(idu: int):
 
                     mant.edit_registro('operaciones', 'cuotas_favor', int(c_f)+cant_deud-counter, oper)
 
-            print("")
+            print()
             return
 
         elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
             msj = "N"
-            print("")
+            print()
             print("No se han realizado cambios en el registro.")
-            print("")
+            print()
             return
         else:
-            print("")
+            print()
             print("         ERROR. Debe indicar S para eliminar o N para cancelar.")
-            print("")
+            print()
 
 
 def registrar_debito_automatico(idu: int):
@@ -984,7 +984,7 @@ def registrar_debito_automatico(idu: int):
     msj = ''
     month = datetime.now().strftime('%m')
     year = datetime.now().strftime('%Y')
-    print("")
+    print()
     
     while ndr == 0:
         try:
@@ -995,13 +995,13 @@ def registrar_debito_automatico(idu: int):
             return
         except:
             mant.log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             print()
             return
     
         msj = ''
-        print("")
+        print()
         try:
             nro_rec, ope, per, año, pag = obtener_datos_recibo(ndr)
     
@@ -1011,7 +1011,7 @@ def registrar_debito_automatico(idu: int):
             return
         except:
             mant.log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             print()
             return
@@ -1031,7 +1031,7 @@ def registrar_debito_automatico(idu: int):
             return
         except:
             mant.log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             print()
             return
@@ -1054,43 +1054,43 @@ def registrar_debito_automatico(idu: int):
         if pag == 1:
             print("El recibo ya se encuentra ingresado en sistema.")
             msj = ''
-            print("")
+            print()
             while msj == '':
                 msj = input(f"¿Desea ingresar otro pago? (S/N) ")
     
                 if msj == 'S' or msj == 's' or msj == 'Si' or msj == 'SI' or msj == 'sI' or msj == 'si':
-                    print("")
+                    print()
                     ndr = 0      
     
                 elif msj == 'N' or msj == 'n' or msj == 'No' or msj == 'NO' or msj == 'nO' or msj == 'no':
-                    print("")
+                    print()
                     return
                 else:
-                    print("")
+                    print()
                     print("Debe ingresar S para confirmar o N para cancelar.")
-                    print("")
+                    print()
                     msj = ''
     
         elif pag == 0:
             if cob != 6:
                 print("         ERROR. La operación no tiene habilitado el débito automático. Para registrar el pago seleccione la opción correcta en el menú principal.")
                 msj = ''
-                print("")
+                print()
     
                 while msj == '':
                     msj = input(f"¿Desea ingresar otro pago? (S/N) ")
     
                     if msj == 'S' or msj == 's' or msj == 'Si' or msj == 'SI' or msj == 'sI' or msj == 'si':
-                        print("")
+                        print()
                         ndr = 0      
     
                     elif msj == 'N' or msj == 'n' or msj == 'No' or msj == 'NO' or msj == 'nO' or msj == 'no':
-                        print("")
+                        print()
                         return
                     else:
-                        print("")
+                        print()
                         print("Debe ingresar S para confirmar o N para cancelar.")
-                        print("")
+                        print()
                         msj = ''
     
             elif cob == 6:
@@ -1101,7 +1101,7 @@ def registrar_debito_automatico(idu: int):
                     if msj == 'S' or msj == 's' or msj == 'Si' or msj == 'SI' or msj == 'sI' or msj == 'si':
                         set_pago(ndr)
                         act_periodo(per, ope, año)
-                        print("")
+                        print()
                         cod, pan, pis, fil, num, cat, ocu, fall = obtener_datos_nicho(nic)
                         categoria = f"Mantenimiento {obtener_panteon(pan)}"
                         socio = f"{soc}".rjust(6, '0')
@@ -1116,68 +1116,68 @@ def registrar_debito_automatico(idu: int):
                         mant.run_query(query)
     
                         print("Pago ingresado exitosamente")
-                        print("")
+                        print()
                         msj = ''
     
                         while msj == '':
                             msj = input("Enviar recibo por email? (S/N) ")
-                            print("")
+                            print()
     
                             if msj == 'S' or msj == 's' or msj == 'Si' or msj == 'SI' or msj == 'sI' or msj == 'si':
                                 try:
                                     print("Enviando email. Por favor aguarde...")
-                                    print("")
+                                    print()
                                     email.envio_de_recibo(soc, id_op, per, nro_nicho, pan, t04, cobrador, nro_rec)
                                     print("Email enviado exitosamente")
-                                    print("")
+                                    print()
     
                                 except FileNotFoundError:
                                     print("ERROR: No es posible encontrar el recibo.")
-                                    print("")
+                                    print()
                                     getpass("Presione enter para continuar...")
                                 except SMTPAuthenticationError:
                                     print("ERROR: Los datos de acceso al servidor son incorrectos. El recibo no ha sido enviado.")
-                                    print("")
+                                    print()
                                     getpass("Presione enter para continuar...")
                                 except gaierror:
                                     print("ERROR: No fue posible conectarse a internet. El recibo no ha sido enviado.")
-                                    print("")
+                                    print()
                                     getpass("Presione enter para continuar...")
                                 except:
                                     mant.log_error()
                                     print("         ERROR. El recibo no ha sido enviado. Póngase en contacto con el administrador.")
-                                    print("")
+                                    print()
                                     getpass("Presione enter para continuar...")
     
                             elif msj == 'N' or msj == 'n' or msj == 'No' or msj == 'NO' or msj == 'nO' or msj == 'no':
-                                print("")
+                                print()
                                 print("El recibo no ha sido enviado.")
     
                     elif msj == 'N' or msj == 'n' or msj == 'No' or msj == 'NO' or msj == 'nO' or msj == 'no':
-                        print("")
+                        print()
                         print("No se han hecho cambios en el registro.")
                     else:
-                        print("")
+                        print()
                         print("Debe ingresar S para confirmar o N para cancelar.")
-                        print("")
+                        print()
                         msj = ''
     
                 msj = ''
-                print("")
+                print()
                 while msj == '':
                     msj = input(f"¿Desea ingresar otro pago? (S/N) ")
     
                     if msj == 'S' or msj == 's' or msj == 'Si' or msj == 'SI' or msj == 'sI' or msj == 'si':
-                        print("")
+                        print()
                         ndr = 0      
     
                     elif msj == 'N' or msj == 'n' or msj == 'No' or msj == 'NO' or msj == 'nO' or msj == 'no':
-                        print("")
+                        print()
                         return
                     else:
-                        print("")
+                        print()
                         print("Debe ingresar S para confirmar o N para cancelar.")
-                        print("")
+                        print()
                         msj = ''
 
 
@@ -1197,7 +1197,7 @@ def reimprimir_recibo():
             ndr = 0
         except:
             mant.log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             print()
             return
@@ -1217,12 +1217,12 @@ def reimprimir_recibo():
         print()
     
     except TypeError:
-        print("")
+        print()
         print("         ERROR. Número de recibo inválido.")
-        print("")
+        print()
     except:
         mant.log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         print()
     
@@ -1315,22 +1315,22 @@ def opcion_menu_facturacion() -> int:
 
     :rtype: int
     """
-    print("")
+    print()
     print("********** Elija una distribución **********")
-    print("")
+    print()
     print("   1. Bicon")
     print("   2. NOB")
     print("   3. Documentos")
     print("   0. Volver")
-    print("")
+    print()
     opcion = -1
     while opcion -1:
         try:
             opcion = int(input("Ingrese una opción: "))
             if opcion < 0 or opcion > 3:
-                print("")
+                print()
                 print("Opción incorrecta.")
-                print("")
+                print()
                 opcion = -1
             else:
                 return opcion
@@ -1339,7 +1339,7 @@ def opcion_menu_facturacion() -> int:
             opcion = -1
         except:
             mant.log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             print()
             opcion = -1
@@ -1418,7 +1418,7 @@ def menu_cobradores() -> int:
             loop = -1
         except:
             mant.log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             print()
             return

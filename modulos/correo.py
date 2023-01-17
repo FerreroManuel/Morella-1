@@ -223,7 +223,7 @@ def aviso_de_mora(id_operacion: int):
             pass
         except:
             mant.log_error()
-            print("")
+            print()
             print("         ERROR. Comuníquese con el administrador...")
             print()
             pass

@@ -9,8 +9,8 @@ os.system('mode con: cols=160 lines=9999')
 
 try:
     print(f"Morella v{func.VERSION} - MF! Soluciones informáticas.")
-    print("")
-    print("")
+    print()
+    print()
     print("   #############################################")
     print("   #############################################")
     print("   #####                                   #####")
@@ -23,7 +23,7 @@ try:
     idu = -1 
 
     while idu < 0:
-        print("")
+        print()
         try:
             idu, nom, ape, tel, dom, use, pas, pri, act = func.iniciar_sesion()
         except KeyboardInterrupt:
@@ -53,11 +53,11 @@ try:
                 print()
                 print()
                 print("********** Acciones disponibles **********")
-                print("")
+                print()
                 print("   1. Restaurar cuenta ADMIN")
                 print("   2. Mantenimiento de ruta a base de datos")
                 print("   0. Salir")
-                print("")
+                print()
                 loop = -1
                 cerrar = 0
                 while loop == -1:
@@ -66,7 +66,7 @@ try:
                         print()
                         while opcion < 0 or opcion > 2:
                             print("Opción incorrecta.")
-                            print("")
+                            print()
                             loop = opcion = int(input("Ingrese una opción: "))
                             print()
                     except ValueError:
@@ -76,7 +76,7 @@ try:
                         print()
                     except:
                         func.log_error()
-                        print("")
+                        print()
                         func.getpass("         ERROR. Información al respecto en el log de errores...  Presione enter para continuar con el inicio de sesión...")
                         print()
                 if opcion == 1:
@@ -87,7 +87,7 @@ try:
                         print()
                     except:
                         func.log_error()
-                        print("")
+                        print()
                         func.getpass("         ERROR. Información al respecto en el log de errores...  Presione enter para continuar con el inicio de sesión...")
                         print()
                     cerrar = 1
@@ -105,7 +105,7 @@ try:
                 func.mant_database()
             except:
                 func.log_error()
-                print("")
+                print()
                 func.getpass("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
 
     if idu > 0:
@@ -115,9 +115,9 @@ try:
 
         else:
             print("         ERROR. No posee los privilegios necesarios para realizar esta operación. Comuníquese con un admnistrador.")
-            print("")
+            print()
             func.getpass("Presione enter para continuar...")
-            print("")
+            print()
 
     ########## CERRANDO CONSOLA ##########
     func.cerrar_consola()
@@ -125,6 +125,6 @@ try:
     os.system('color 0E')   # Colores del módulo (Amarillo sobre negro)
 except:
     func.log_error()
-    print("")
+    print()
     func.getpass("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
     print()

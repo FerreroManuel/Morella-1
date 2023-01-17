@@ -69,7 +69,7 @@ def iniciar_sesion() -> tuple:
                     i_d = -1
                     nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
                     return i_d, nom, ape, tel, dom, use, pas, pri, act
-                print("")
+                print()
                 print
                 pw = getpass("Contraseña: ")
             if pw == pas:
@@ -97,32 +97,32 @@ def iniciar_sesion() -> tuple:
                         pw = ""
                 return i_d, nom, ape, tel, dom, use, pas, pri, act
         elif act == 2:
-            print("")
+            print()
             print("Su usuario se encuentra bloqueado. Comuníquese con un administrador.")
             i_d = -1
             nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
             return i_d, nom, ape, tel, dom, use, pas, pri, act
         else:
-            print("")
+            print()
             print("Usuario inactivo.")
             i_d = -1
             nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
             return i_d, nom, ape, tel, dom, use, pas, pri, act
     except TypeError:
-        print("")
+        print()
         print("Usuario inexistente.")
         i_d = -1
         nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
         return i_d, nom, ape, tel, dom, use, pas, pri, act
     except sql.OperationalError:
-        print("")
+        print()
         print("Usuario inexistente.")
         i_d = -1
         nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
         return i_d, nom, ape, tel, dom, use, pas, pri, act
     except:
         log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         i_d = -1
         nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
@@ -381,7 +381,7 @@ def mostrar_precios_venta(ret: bool = False):
         print("{:<4} {:<40} {:<15} {:<15} {:<15}".format(f'{i_d}'.rjust(2, " "), nom, f'{pre:.2f}'.rjust(11, ' '), f'{ant:.2f}'.rjust(11, ' '), f'{cuo:.2f}'.rjust(11, ' ')))
 
     print("------------------------------------------------------------------------------------------")
-    print("")
+    print()
 
     if ret == False:
         input("Presione la tecla enter para continuar... ")
@@ -416,7 +416,7 @@ def mostrar_precios_mant(ret: bool = False):
         print("{:<4} {:<40} {:<15} {:<15}".format(f'{i_d}'.rjust(2, " "), cat, f'{val_mant_bic:.2f}'.rjust(11, ' '), f'{val_mant_nob:.2f}'.rjust(11, ' ')))
 
     print("--------------------------------------------------------------------------")
-    print("")
+    print()
 
     if ret == False:
         input("Presione la tecla enter para continuar... ")
@@ -451,7 +451,7 @@ def mostrar_cuentas_mail(ret: bool = False):
         print("{:<4} {:<20} {:<40} {:<40} {:<40}".format(f'{i_d}'.rjust(2, " "), etiq, mail, server, user))
 
     print("------------------------------------------------------------------------------------------------------------------------------------------------")
-    print("")
+    print()
 
     if ret == False:
         input("Presione la tecla enter para continuar... ")
@@ -801,9 +801,9 @@ def opcion_menu() -> int:                                                       
 
     :rtype: int
     """
-    print("")
+    print()
     print("********** Acciones disponibles **********")
-    print("")
+    print()
     print("   1. Mantenimiento de usuarios")
     print("   2. Mantenimiento de panteones")
     print("   3. Mantenimiento de nichos")
@@ -813,20 +813,20 @@ def opcion_menu() -> int:                                                       
     print("   7. Mantenimiento de mails")
     print("   8. Mantenimiento de datos de FiServ")
     print("   0. Salir")
-    print("")
+    print()
     try:
         opcion = int(input("Ingrese una opción: "))
         while opcion < 0 or opcion > 8:
-            print("")
+            print()
             print("Opción incorrecta.")
-            print("")
+            print()
             opcion = int(input("Ingrese una opción: "))
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
     except:
         log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         opcion -1
     return opcion
@@ -871,29 +871,29 @@ def opcion_menu_usuarios() -> int:                                              
 
     :rtype: int
     """
-    print("")
+    print()
     print("********** Acciones disponibles **********")
-    print("")
+    print()
     print("   1. Ver usuarios")
     print("   2. Crear nuevo usuario")
     print("   3. Modificar usuario")
     print("   4. Activar usuario")
     print("   5. Inactivar usuario")
     print("   0. Volver")
-    print("")
+    print()
     try:
         opcion = int(input("Ingrese una opción: "))
         while opcion < 0 or opcion > 5:
-            print("")
+            print()
             print("Opción incorrecta.")
-            print("")
+            print()
             opcion = int(input("Ingrese una opción: "))
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
     except:
         log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         opcion -1
     return opcion
@@ -963,7 +963,7 @@ def mostrar_usuarios(idu: int):
             print("{:<7} {:<30} {:<25} {:<30} {:<6} {:<10}".format(use, f"{ape} {nom}"[0:30], f"{tel}"[0:25], dom[0:30], f"  {pri}  ", estado))
 
         print("-".rjust(113, '-'))
-        print("")
+        print()
 
 
 def crear_usuario(idu: int):
@@ -1015,7 +1015,7 @@ def crear_usuario(idu: int):
             return
         except:
             log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             return 
 
@@ -1060,9 +1060,9 @@ def opcion_modificar_usuarios() -> int:                                         
 
     :rtype: int
     """
-    print("")
+    print()
     print("********** Acciones disponibles **********")
-    print("")
+    print()
     print("   1. Modificar nombre")
     print("   2. Modificar apellido")
     print("   3. Modificar teléfono")
@@ -1070,20 +1070,20 @@ def opcion_modificar_usuarios() -> int:                                         
     print("   5. Modificar contraseña")
     print("   6. Modificar privilegios")
     print("   0. Volver")
-    print("")
+    print()
     try:
         opcion = int(input("Ingrese una opción: "))
         while opcion < 0 or opcion > 6:
-            print("")
+            print()
             print("Opción incorrecta.")
-            print("")
+            print()
             opcion = int(input("Ingrese una opción: "))
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
     except:
         log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         opcion -1
     return opcion
@@ -1148,7 +1148,7 @@ def modificar_usuario(idu: int):
                 return
             except:
                 log_error()
-                print("")
+                print()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 return
             print()
@@ -1169,7 +1169,7 @@ def modificar_usuario(idu: int):
                         return
                     except:
                         log_error()
-                        print("")
+                        print()
                         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                         return
             
@@ -1211,7 +1211,7 @@ def modificar_usuario(idu: int):
                 return
             except:
                 log_error()
-                print("")
+                print()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 return
             print()
@@ -1232,7 +1232,7 @@ def modificar_usuario(idu: int):
                         return
                     except:
                         log_error()
-                        print("")
+                        print()
                         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                         return
             
@@ -1274,7 +1274,7 @@ def modificar_usuario(idu: int):
                 return
             except:
                 log_error()
-                print("")
+                print()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 return
             print()
@@ -1295,7 +1295,7 @@ def modificar_usuario(idu: int):
                         return
                     except:
                         log_error()
-                        print("")
+                        print()
                         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                         return
             
@@ -1320,7 +1320,7 @@ def modificar_usuario(idu: int):
                 return
             except:
                 log_error()
-                print("")
+                print()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 return
             print()
@@ -1341,7 +1341,7 @@ def modificar_usuario(idu: int):
                         return
                     except:
                         log_error()
-                        print("")
+                        print()
                         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                         return
             
@@ -1430,7 +1430,7 @@ def modificar_usuario(idu: int):
                         return
                     except:
                         log_error()
-                        print("")
+                        print()
                         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                         return
                     print()
@@ -1479,7 +1479,7 @@ def modificar_usuario(idu: int):
                     return
                 except:
                     log_error()
-                    print("")
+                    print()
                     input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                     return
             
@@ -1507,7 +1507,7 @@ def modificar_usuario(idu: int):
                     except:
                         log_error()
                         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
-                        print("")
+                        print()
                         return
             
                 try:
@@ -1519,7 +1519,7 @@ def modificar_usuario(idu: int):
                     return
                 except:
                     log_error()
-                    print("")
+                    print()
                     input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                     return
                 print()
@@ -1537,7 +1537,7 @@ def modificar_usuario(idu: int):
                         return
                     except:
                         log_error()
-                        print("")
+                        print()
                         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                         return
             
@@ -1574,7 +1574,7 @@ def activar_usuario(idu: int):
             return
         except:
             log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             return
 
@@ -1591,7 +1591,7 @@ def activar_usuario(idu: int):
                 return
             except:
                 log_error()
-                print("")
+                print()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 return
 
@@ -1609,15 +1609,15 @@ def activar_usuario(idu: int):
 
             elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
                 msj = "N"
-                print("")
+                print()
                 print("No se han realizado cambios en el registro.")
-                print("")
+                print()
                 return
 
             else:
-                print("")
+                print()
                 print("         ERROR. Debe indicar S para inactivar o N para cancelar.")
-                print("")
+                print()
 
 
 def inactivar_usuario(idu: int):
@@ -1646,7 +1646,7 @@ def inactivar_usuario(idu: int):
             return
         except:
             log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             return
 
@@ -1663,7 +1663,7 @@ def inactivar_usuario(idu: int):
                 return
             except:
                 log_error()
-                print("")
+                print()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 return
 
@@ -1680,15 +1680,15 @@ def inactivar_usuario(idu: int):
 
             elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
                 msj = "N"
-                print("")
+                print()
                 print("No se han realizado cambios en el registro.")
-                print("")
+                print()
                 return
 
             else:
-                print("")
+                print()
                 print("         ERROR. Debe indicar S para inactivar o N para cancelar.")
-                print("")
+                print()
 
 
 
@@ -1722,27 +1722,27 @@ def opcion_menu_panteones() -> int:                                             
 
     :rtype: int
     """
-    print("")
+    print()
     print("********** Acciones disponibles **********")
-    print("")
+    print()
     print("   1. Agregar nuevo panteón")
     print("   2. Editar un panteón")
     print("   3. Eliminar un panteón")
     print("   0. Volver")
-    print("")
+    print()
     try:
         opcion = int(input("Ingrese una opción: "))
         while opcion < 0 or opcion > 3:
-            print("")
+            print()
             print("Opción incorrecta.")
-            print("")
+            print()
             opcion = int(input("Ingrese una opción: "))
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
     except:
         log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         opcion = -1
     return opcion
@@ -1828,14 +1828,14 @@ def agregar_panteon(idu: int):
 
             elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
                 msj = "N"
-                print("")
+                print()
                 print("No se han realizado cambios en el registro.")
-                print("")
+                print()
                 return
             else:
-                print("")
+                print()
                 print("         ERROR. Debe indicar S para dar de alta el panteón o N para cancelar.")
-                print("")
+                print()
 
 
 def editar_panteon(idu: int):
@@ -1889,9 +1889,9 @@ def opcion_menu_nichos() -> int:                                                
 
     :rtype: int
     """
-    print("")
+    print()
     print("********** Acciones disponibles **********")
-    print("")
+    print()
     print("   1. Agregar un nicho")
     print("   2. Ocupar un nicho")
     print("   3. Cambiar categoría de un nicho")
@@ -1899,20 +1899,20 @@ def opcion_menu_nichos() -> int:                                                
     print("   5. Agregar una categoría")
     print("   6. Eliminar una categoría")
     print("   0. Volver")
-    print("")
+    print()
     try:
         opcion = int(input("Ingrese una opción: "))
         while opcion < 0 or opcion > 6:
-            print("")
+            print()
             print("Opción incorrecta.")
-            print("")
+            print()
             opcion = int(input("Ingrese una opción: "))
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
     except:
         log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         opcion = -1
     return opcion
@@ -1988,7 +1988,7 @@ def alta_nicho(idu: int, ret: bool = False):
             return
         except:
             log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             return
 
@@ -2005,7 +2005,7 @@ def alta_nicho(idu: int, ret: bool = False):
                 return
             except:
                 log_error()
-                print("")
+                print()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 return
 
@@ -2033,7 +2033,7 @@ def alta_nicho(idu: int, ret: bool = False):
             return
         except:
             log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             return
 
@@ -2050,7 +2050,7 @@ def alta_nicho(idu: int, ret: bool = False):
             return
         except:
             log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             return
 
@@ -2073,7 +2073,7 @@ def alta_nicho(idu: int, ret: bool = False):
             return
         except:
             log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             return
 
@@ -2091,7 +2091,7 @@ def alta_nicho(idu: int, ret: bool = False):
                 return
             except:
                 log_error()
-                print("")
+                print()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 return
 
@@ -2140,7 +2140,7 @@ def alta_nicho(idu: int, ret: bool = False):
 
                 except:
                     log_error()
-                    print("")
+                    print()
                     input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
 
                     if ret == False:
@@ -2150,14 +2150,14 @@ def alta_nicho(idu: int, ret: bool = False):
 
             elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
                 msj = "N"
-                print("")
+                print()
                 print("No se han realizado cambios en el registro.")
-                print("")
+                print()
                 return
             else:
-                print("")
+                print()
                 print("         ERROR. Debe indicar S para dar de alta el nicho o N para cancelar.")
-                print("")
+                print()
 
 
 def ocupar_nicho(idu: int):
@@ -2194,7 +2194,7 @@ def ocupar_nicho(idu: int):
             return
         except:
             log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             return
         
@@ -2228,19 +2228,19 @@ def ocupar_nicho(idu: int):
                             return
                         elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
                             msj = "N"
-                            print("")
+                            print()
                             print("No se han realizado cambios en el registro.")
-                            print("")
+                            print()
                             return
                         else:
-                            print("")
+                            print()
                             print("         ERROR. Debe indicar S para desocupar el nicho o N para cancelar.")
-                            print("")
+                            print()
                 
                 else:
-                    print("")
+                    print()
                     print("         ERROR. Debe indicar S para modificar los datos del fallecido o N para cancelar.")
-                    print("")
+                    print()
 
         else:
             fallecido = input("Ingrese los datos del fallecido: ")
@@ -2285,7 +2285,7 @@ def cambiar_cat_nicho(idu: int):
             return
         except:
             log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             return
     
@@ -2311,7 +2311,7 @@ def cambiar_cat_nicho(idu: int):
             return
         except:
             log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             return
         
@@ -2329,7 +2329,7 @@ def cambiar_cat_nicho(idu: int):
                 return
             except:
                 log_error()
-                print("")
+                print()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 return
         
@@ -2348,15 +2348,15 @@ def cambiar_cat_nicho(idu: int):
             
             elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
                 msj = "N"
-                print("")
+                print()
                 print("No se han realizado cambios en el registro.")
-                print("")
+                print()
                 return
             
             else:
-                print("")
+                print()
                 print("         ERROR. Debe indicar S para cambiar la categoría del nicho o N para cancelar.")
-                print("")
+                print()
 
 
 def eliminar_nicho(idu: int):
@@ -2392,7 +2392,7 @@ def eliminar_nicho(idu: int):
             return
         except:
             log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             return
     
@@ -2412,14 +2412,14 @@ def eliminar_nicho(idu: int):
                     return
                 elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
                     msj = "N"
-                    print("")
+                    print()
                     print("No se han realizado cambios en el registro.")
-                    print("")
+                    print()
                     return
                 else:
-                    print("")
+                    print()
                     print("         ERROR. Debe indicar S para eliminar el nicho o N para cancelar.")
-                    print("")
+                    print()
         
         elif len(operacion) == 1:
             i_d, soc, nic, fac, cob, tar, rut, ult, u_a, fec, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = operacion[0]
@@ -2470,7 +2470,7 @@ def agregar_categoria(idu: int):
             return
         except:
             log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             return
         print()
@@ -2483,7 +2483,7 @@ def agregar_categoria(idu: int):
             return
         except:
             log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             return
         print()
@@ -2501,7 +2501,7 @@ def agregar_categoria(idu: int):
             print()
         except:
             log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             print()
         print()
@@ -2546,7 +2546,7 @@ def eliminar_categoria(idu: int):
             return
         except:
             log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             return
         
@@ -2564,7 +2564,7 @@ def eliminar_categoria(idu: int):
                 return
             except:
                 log_error()
-                print("")
+                print()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 return
         
@@ -2581,14 +2581,14 @@ def eliminar_categoria(idu: int):
                 return
             elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
                 msj = "N"
-                print("")
+                print()
                 print("No se han realizado cambios en el registro.")
-                print("")
+                print()
                 return
             else:
-                print("")
+                print()
                 print("         ERROR. Debe indicar S para eliminar la categoría o N para cancelar.")
-                print("")
+                print()
 
 
 def opcion_menu_cobradores() -> int:                                                                # OPCIÓN MENÚ DE COBRADORES
@@ -2598,27 +2598,27 @@ def opcion_menu_cobradores() -> int:                                            
 
     :rtype: int
     """
-    print("")
+    print()
     print("********** Acciones disponibles **********")
-    print("")
+    print()
     print("   1. Agregar un cobrador")
     print("   2. Editar un cobrador")
     print("   3. Eliminar un cobrador")
     print("   0. Volver")
-    print("")
+    print()
     try:
         opcion = int(input("Ingrese una opción: "))
         while opcion < 0 or opcion > 3:
-            print("")
+            print()
             print("Opción incorrecta.")
-            print("")
+            print()
             opcion = int(input("Ingrese una opción: "))
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
     except:
         log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         opcion = -1
     return opcion
@@ -2704,14 +2704,14 @@ def alta_cobrador(idu: int):
 
             elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
                 msj = "N"
-                print("")
+                print()
                 print("No se han realizado cambios en el registro.")
-                print("")
+                print()
                 return
             else:
-                print("")
+                print()
                 print("         ERROR. Debe indicar S para dar de alta el cobrador o N para cancelar.")
-                print("")
+                print()
 
 
 def editar_cobrador(idu: int):
@@ -2765,27 +2765,27 @@ def opcion_menu_centros_egresos() -> int:                                       
 
     :rtype: int
     """
-    print("")
+    print()
     print("********** Acciones disponibles **********")
-    print("")
+    print()
     print("   1. Agregar centro de egreso")
     print("   2. Modificar centro de egreso")
     print("   2. Eliminar centro de egreso")
     print("   0. Volver")
-    print("")
+    print()
     try:
         opcion = int(input("Ingrese una opción: "))
         while opcion < 0 or opcion > 3:
-            print("")
+            print()
             print("Opción incorrecta.")
-            print("")
+            print()
             opcion = int(input("Ingrese una opción: "))
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
     except:
         log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         opcion = -1
     return opcion
@@ -2886,26 +2886,26 @@ def opcion_menu_precios() -> int:                                               
 
     :rtype: int
     """
-    print("")
+    print()
     print("********** Acciones disponibles **********")
-    print("")
+    print()
     print("   1. Precios de venta")
     print("   2. Precios de mantenimiento")
     print("   0. Volver")
-    print("")
+    print()
     try:
         opcion = int(input("Ingrese una opción: "))
         while opcion < 0 or opcion > 2:
-            print("")
+            print()
             print("Opción incorrecta.")
-            print("")
+            print()
             opcion = int(input("Ingrese una opción: "))
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
     except:
         log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         opcion = -1
     return opcion
@@ -2938,27 +2938,27 @@ def opcion_menu_precios_venta() -> int:                                         
 
     :rtype: int
     """
-    print("")
+    print()
     print("********** Acciones disponibles **********")
-    print("")
+    print()
     print("   1. Ver precios de venta")
     print("   2. Modificar manualmente")
     print("   3. Actualizar por porcentaje")
     print("   0. Volver")
-    print("")
+    print()
     try:
         opcion = int(input("Ingrese una opción: "))
         while opcion < 0 or opcion > 3:
-            print("")
+            print()
             print("Opción incorrecta.")
-            print("")
+            print()
             opcion = int(input("Ingrese una opción: "))
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
     except:
         log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         opcio = -1
     return opcion
@@ -3035,7 +3035,7 @@ def editar_precios_venta_manual(idu: int):
             return
         except:
             log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             return
 
@@ -3077,7 +3077,7 @@ def editar_precios_venta_porcent(idu: int):
             return
         except:
             log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             return
     
@@ -3131,7 +3131,7 @@ def alta_precio(idu: int):       # OPCIÓN INAHABILITADA
                 return
             except:
                 log_error()
-                print("")
+                print()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 return
         
@@ -3186,7 +3186,7 @@ def eliminar_precio(idu):   # OPCIÓN INAHABILITADA
                 return
             except:
                 log_error()
-                print("")
+                print()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 return
         
@@ -3204,14 +3204,14 @@ def eliminar_precio(idu):   # OPCIÓN INAHABILITADA
         
                 elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
                     msj = "N"
-                    print("")
+                    print()
                     print("No se han realizado cambios en el registro.")
-                    print("")
+                    print()
                     return
                 else:
-                    print("")
+                    print()
                     print("         ERROR. Debe indicar S para eliminar el precio o N para cancelar.")
-                    print("")
+                    print()
 
 
 def opcion_menu_precios_mant() -> int:                                                              # OPCIÓN MENÚ PRECIOS DE MANTENIMIENTO
@@ -3221,27 +3221,27 @@ def opcion_menu_precios_mant() -> int:                                          
 
     :rtype: int
     """    
-    print("")
+    print()
     print("********** Acciones disponibles **********")
-    print("")
+    print()
     print("   1. Ver precios de mantenimiento")
     print("   2. Modificar manualmente")
     print("   3. Actualizar por porcentaje")
     print("   0. Volver")
-    print("")
+    print()
     try:
         opcion = int(input("Ingrese una opción: "))
         while opcion < 0 or opcion > 3:
-            print("")
+            print()
             print("Opción incorrecta.")
-            print("")
+            print()
             opcion = int(input("Ingrese una opción: "))
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
     except:
         log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         opcion = -1
     return opcion
@@ -3307,7 +3307,7 @@ def editar_precios_mant_manual(idu: int):
             return
         except:
             log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             return
     
@@ -3319,7 +3319,7 @@ def editar_precios_mant_manual(idu: int):
             return
         except:
             log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             return
     
@@ -3331,7 +3331,7 @@ def editar_precios_mant_manual(idu: int):
             return
         except:
             log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             return
         print()
@@ -3363,14 +3363,14 @@ def editar_precios_mant_porcent(idu: int):
     elif pri >= 2:
         print("*** Actualizar precios de mantenimiento por porcentaje ***")
         print()
-        print("")
+        print()
         print("Elija una distribución:")
-        print("")
+        print()
         print("   1. Bicon")
         print("   2. NOB")
         print("   3. Todas")
         print("   0. Volver")
-        print("")
+        print()
     
         opcion = -1
         while opcion == -1:
@@ -3378,9 +3378,9 @@ def editar_precios_mant_porcent(idu: int):
                 opcion = int(input("Ingrese una opción: "))
     
                 if opcion < 0 or opcion > 3:
-                    print("")
+                    print()
                     print("Opción incorrecta.")
-                    print("")
+                    print()
                     opcion = -1
     
                 elif opcion == 1:
@@ -3400,7 +3400,7 @@ def editar_precios_mant_porcent(idu: int):
                 opcion = -1
             except:
                 log_error()
-                print("")
+                print()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 print()
                 opcion = -1
@@ -3415,7 +3415,7 @@ def editar_precios_mant_porcent(idu: int):
             return
         except:
             log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             return
     
@@ -3438,28 +3438,28 @@ def opcion_menu_mails() -> int:                                                 
 
     :rtype: int
     """
-    print("")
+    print()
     print("********** Acciones disponibles **********")
-    print("")
+    print()
     print("   1. Ver cuentas de mail")
     print("   2. Agregar una cuenta de mail")
     print("   3. Editar una cuenta de mail")
     print("   4. Eliminar una cuenta de mail")
     print("   0. Volver")
-    print("")
+    print()
     try:
         opcion = int(input("Ingrese una opción: "))
         while opcion < 0 or opcion > 4:
-            print("")
+            print()
             print("Opción incorrecta.")
-            print("")
+            print()
             opcion = int(input("Ingrese una opción: "))
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
     except:
         log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         opcion = -1
     return opcion
@@ -3585,7 +3585,7 @@ def alta_mail(idu: int):
                 print()
             except:
                 log_error()
-                print("")
+                print()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 print()
     
@@ -3602,29 +3602,29 @@ def opcion_editar_mail() -> int:                                                
 
     :rtype: int
     """
-    print("")
+    print()
     print("********** Acciones disponibles **********")
-    print("")
+    print()
     print("   1. Modificar etiqueta")
     print("   2. Modificar cuenta mail")
     print("   3. Modificar servidor SMTP")
     print("   4. Modificar usuario SMTP")
     print("   5. Modificar contraseña")
     print("   0. Volver")
-    print("")
+    print()
     try:
         opcion = int(input("Ingrese una opción: "))
         while opcion < 0 or opcion > 5:
-            print("")
+            print()
             print("Opción incorrecta.")
-            print("")
+            print()
             opcion = int(input("Ingrese una opción: "))
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
     except:
         log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         opcion = -1
     return opcion
@@ -3687,7 +3687,7 @@ def editar_mail(idu: int):                                                      
                     return
                 except:
                     log_error()
-                    print("")
+                    print()
                     input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                     return
                 print()
@@ -3715,7 +3715,7 @@ def editar_mail(idu: int):                                                      
                     return
                 except:
                     log_error()
-                    print("")
+                    print()
                     input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                     return
                 print()
@@ -3743,7 +3743,7 @@ def editar_mail(idu: int):                                                      
                     return
                 except:
                     log_error()
-                    print("")
+                    print()
                     input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                     return
                 print()
@@ -3800,7 +3800,7 @@ def editar_mail(idu: int):                                                      
                     return
                 except:
                     log_error()
-                    print("")
+                    print()
                     input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                     return
                 print()
@@ -3854,7 +3854,7 @@ def eliminar_mail(idu: int):
             return
         except:
             log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             return
     
@@ -3872,14 +3872,14 @@ def eliminar_mail(idu: int):
     
             elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
                 msj = "N"
-                print("")
+                print()
                 print("No se han realizado cambios en el registro.")
-                print("")
+                print()
                 return
             else:
-                print("")
+                print()
                 print("         ERROR. Debe indicar S para eliminar la cuenta o N para cancelar.")
-                print("")
+                print()
 
 
 def opcion_menu_fiserv() -> int:                                                                    # OPCIÓN MENÚ FISERV
@@ -3889,25 +3889,25 @@ def opcion_menu_fiserv() -> int:                                                
 
     :rtype: int
     """
-    print("")
+    print()
     print("********** Acciones disponibles **********")
-    print("")
+    print()
     print("   1. Modificar número de comercio")
     print("   0. Volver")
-    print("")
+    print()
     try:
         opcion = int(input("Ingrese una opción: "))
         while opcion < 0 or opcion > 1:
-            print("")
+            print()
             print("Opción incorrecta.")
-            print("")
+            print()
             opcion = int(input("Ingrese una opción: "))
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
     except:
         log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         opcion = -1
     return opcion
@@ -3966,7 +3966,7 @@ def editar_nro_comercio_fiserv():
             return
         except:
             log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             return
 
@@ -4156,51 +4156,51 @@ def cerrar_consola():
     la consola y no iniciando el archivo ejecutable, el mismo sepa
     que ya finalizó la ejecución.
     """
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
-    print("")
+    print()
+    print()
+    print()
+    print()
+    print()
+    print()
+    print()
+    print()
+    print()
+    print()
+    print()
+    print()
+    print()
+    print()
+    print()
+    print()
+    print()
+    print()
+    print()
+    print()
+    print()
+    print()
+    print()
+    print()
+    print()
+    print()
+    print()
+    print()
+    print()
+    print()
+    print()
+    print()
+    print()
+    print()
+    print()
+    print()
+    print()
+    print()
+    print()
     print(" -----------------------------")
     print("| Ya puede cerrar la consola. |")
     print(" -----------------------------")
-    print("")
-    print("")
-    print("")
-    print("")
+    print()
+    print()
+    print()
+    print()
 
 

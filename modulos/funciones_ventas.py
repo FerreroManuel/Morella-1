@@ -168,12 +168,12 @@ def obtener_precio_venta(id_cat: int, pis: str, fil: str) -> tuple:
     
             except ValueError:
                 print()
-                print("")
+                print()
                 print()
                 loop = -1
             except:
                 mant.log_error()
-                print("")
+                print()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 loop = -1
     
@@ -300,9 +300,9 @@ def opcion_menu() -> int:                                                       
 
     :rtype: int
     """
-    print("")
+    print()
     print("********** Acciones disponibles **********")
-    print("")
+    print()
     print("   1. Venta de nicho")
     print("   2. Ingresar nuevo socio")
     print("   3. Modificar datos de socio")
@@ -310,20 +310,20 @@ def opcion_menu() -> int:                                                       
     print("   5. Ver datos de operación")
     print("   6. Modificar datos de operación")
     print("   0. Salir")
-    print("")
+    print()
     try:
         opcion = int(input("Ingrese una opción: "))
         while opcion < 0 or opcion > 6:
-            print("")
+            print()
             print("Opción incorrecta.")
-            print("")
+            print()
             opcion = int(input("Ingrese una opción: "))
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
     except:
         mant.log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         print()
         return
@@ -393,14 +393,14 @@ def venta_nicho(idu: int):
         print("   1. Crear un nuevo socio")
         print("   2. Utilizar un socio existente")
         print("   0. Volver")
-        print("")
+        print()
     
         try:
             opcion = int(input("Ingrese una opción: "))
             while opcion < 0 or opcion > 2:
-                print("")
+                print()
                 print("Opción incorrecta.")
-                print("")
+                print()
                 opcion = int(input("Ingrese una opción: "))
         
         except ValueError: 
@@ -408,7 +408,7 @@ def venta_nicho(idu: int):
             opcion = -1
         except:
             mant.log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             print()
             return
@@ -440,7 +440,7 @@ def venta_nicho(idu: int):
                     loop = -1
                 except:
                     mant.log_error()
-                    print("")
+                    print()
                     input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                     print()
                     return
@@ -494,7 +494,7 @@ def venta_nicho(idu: int):
                 loop = -1
             except:
                 mant.log_error()
-                print("")
+                print()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 print()
                 return
@@ -611,7 +611,7 @@ def crear_socio(idu: int, ret: bool= True) -> tuple | None:
                 loop = -1
             except:
                 mant.log_error()
-                print("")
+                print()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 print()
                 return
@@ -697,7 +697,7 @@ def crear_socio(idu: int, ret: bool= True) -> tuple | None:
                 loop = -1
             except:
                 mant.log_error()
-                print("")
+                print()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 print()
                 return
@@ -750,9 +750,9 @@ def opcion_menu_editar_socio() -> int:                                          
 
     :rtype: int
     """
-    print("")
+    print()
     print("********** Acciones disponibles **********")
-    print("")
+    print()
     print("   1. Editar nombre")
     print("   2. Editar documento")
     print("   3. Editar telefonos")
@@ -762,20 +762,20 @@ def opcion_menu_editar_socio() -> int:                                          
     print("   7. Editar fecha de nacimiento")
     print("   8. Cambiar estado de socio")
     print("   0. Volver")
-    print("")
+    print()
     try:
         opcion = int(input("Ingrese una opción: "))
         while opcion < 0 or opcion > 8:
-            print("")
+            print()
             print("Opción incorrecta.")
-            print("")
+            print()
             opcion = int(input("Ingrese una opción: "))
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
     except:
         mant.log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         print()
         return
@@ -792,9 +792,9 @@ def menu_editar_socio(idu: int):                                                
     :type idu: int
     """
     loop = -1
-    print("")
+    print()
     print("********** Modificar datos de socio **********")
-    print("")
+    print()
     while loop == -1:
         try:
             loop = id_socio = int(input("Indique nro. de socio o ingrese 0 para buscar: "))
@@ -813,7 +813,7 @@ def menu_editar_socio(idu: int):                                                
             loop = -1
         except:
             mant.log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             print()
             return
@@ -827,7 +827,7 @@ def menu_editar_socio(idu: int):                                                
             return
         except:
             mant.log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             print()
             return
@@ -947,7 +947,7 @@ def edit_dni(idu: int, id_soc: int):
                 loop = -1
             except:
                 mant.log_error()
-                print("")
+                print()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 print()
                 return
@@ -999,7 +999,7 @@ def edit_tel(idu: int, id_soc: int):
                 loop = -1
             except:
                 mant.log_error()
-                print("")
+                print()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 print()
                 return
@@ -1140,7 +1140,7 @@ def edit_loc(idu: int, id_soc: int):
                 loop = -1
             except:
                 mant.log_error()
-                print("")
+                print()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 print()
                 return
@@ -1354,7 +1354,7 @@ def crear_op(idu: int, id_socio: int, ret: bool= False) -> int | None:
                 exist = ""
             except:
                 mant.log_error()
-                print("")
+                print()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 print()
                 return -1
@@ -1389,7 +1389,7 @@ def crear_op(idu: int, id_socio: int, ret: bool= False) -> int | None:
             
             except:
                 mant.log_error()
-                print("")
+                print()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 print()
                 return -1
@@ -1424,7 +1424,7 @@ def crear_op(idu: int, id_socio: int, ret: bool= False) -> int | None:
                         print()
                     except:
                         mant.log_error()
-                        print("")
+                        print()
                         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                         print()
                         return -1
@@ -1462,7 +1462,7 @@ def crear_op(idu: int, id_socio: int, ret: bool= False) -> int | None:
                     loop = -1
                 except:
                     mant.log_error()
-                    print("")
+                    print()
                     input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                     print()
                     return        
@@ -1474,14 +1474,14 @@ def crear_op(idu: int, id_socio: int, ret: bool= False) -> int | None:
                 if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
                     msj = "S"
                     deb_aut = 1
-                    print("")
+                    print()
                     pass
                 
                 elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
                     msj = "N"
                     tarjeta = None
                     deb_aut = 0
-                    print("")
+                    print()
                     pass
                 else:
                     print()
@@ -1507,7 +1507,7 @@ def crear_op(idu: int, id_socio: int, ret: bool= False) -> int | None:
                 deb_aut = 1
             except:
                 mant.log_error()
-                print("")
+                print()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 print()
                 return
@@ -1541,7 +1541,7 @@ def crear_op(idu: int, id_socio: int, ret: bool= False) -> int | None:
                         return
                     except:
                         mant.log_error()
-                        print("")
+                        print()
                         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                         print()
                         return
@@ -1630,9 +1630,9 @@ def opcion_menu_buscar_op() -> int:                                             
 
     :rtype: int
     """
-    print("")
+    print()
     print("********** Acciones disponibles **********")
-    print("")
+    print()
     print("   1. Buscar por nro. de socio")
     print("   2. Buscar por nombre de socio")
     print("   3. Buscar por documento")
@@ -1641,14 +1641,14 @@ def opcion_menu_buscar_op() -> int:                                             
     print("   6. Buscar por domicilio alternativo")
     print("   7. Buscar por nro. de operación de Cobol")
     print("   0. Volver")
-    print("")
+    print()
     try:
         opcion = int(input("Ingrese una opción: "))
         print()
         while opcion < 0 or opcion > 7:
-            print("")
+            print()
             print("Opción incorrecta.")
-            print("")
+            print()
             opcion = int(input("Ingrese una opción: "))
             print()
     except ValueError: 
@@ -1657,7 +1657,7 @@ def opcion_menu_buscar_op() -> int:                                             
         opcion = -1
     except:
         mant.log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         print()
         return
@@ -1702,7 +1702,7 @@ def menu_buscar_op():                                                           
                 return
             except:
                 mant.log_error()
-                print("")
+                print()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 print()
                 return
@@ -1730,7 +1730,7 @@ def menu_buscar_op():                                                           
                 return
             except:
                 mant.log_error()
-                print("")
+                print()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 print()
                 return
@@ -1774,7 +1774,7 @@ def menu_buscar_op():                                                           
                 return
             except:
                 mant.log_error()
-                print("")
+                print()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 print()
                 return
@@ -1790,9 +1790,9 @@ def ver_operacion():
     saberlo, puede ingresar cero y abrir el menú de búsqueda.
     """
     loop = -1
-    print("")
+    print()
     print("********** Ver datos de operación **********")
-    print("")
+    print()
     
     while loop == -1:
         try:
@@ -1814,7 +1814,7 @@ def ver_operacion():
             loop = -1
         except:
             mant.log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             print()
             return
@@ -1828,7 +1828,7 @@ def ver_operacion():
         return
     except:
         mant.log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         print()
         return
@@ -1845,7 +1845,7 @@ def ver_operacion():
             dat_comp = None
         except:
             mant.log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             print()
             return
@@ -1860,7 +1860,7 @@ def ver_operacion():
         cod_nic = 'n/d'
     except:
         mant.log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         print()
         return
@@ -1974,9 +1974,9 @@ def opcion_menu_editar_op() -> int:                                             
 
     :rtype: int
     """
-    print("")
+    print()
     print("********** Acciones disponibles **********")
-    print("")
+    print()
     print("   1. Transferir operación a otro asociado")
     print("   2. Cambiar nicho")
     print("   3. Cambiar cobrador")
@@ -1987,20 +1987,20 @@ def opcion_menu_editar_op() -> int:                                             
     print("   8. Editar domicilio alternativo")
     print("   9. Cambiar estado de cobro")
     print("   0. Volver")
-    print("")
+    print()
     try:
         opcion = int(input("Ingrese una opción: "))
         while opcion < 0 or opcion > 9:
-            print("")
+            print()
             print("Opción incorrecta.")
-            print("")
+            print()
             opcion = int(input("Ingrese una opción: "))
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
     except:
         mant.log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         print()
         return
@@ -2020,9 +2020,9 @@ def menu_editar_op(idu: int):                                                   
     :type idu: int
     """
     loop = -1
-    print("")
+    print()
     print("********** Modificar datos de operación **********")
-    print("")
+    print()
     
     while loop == -1:
         try:
@@ -2044,7 +2044,7 @@ def menu_editar_op(idu: int):                                                   
             loop = -1
         except:
             mant.log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             print()
             return
@@ -2060,7 +2060,7 @@ def menu_editar_op(idu: int):                                                   
             return
         except:
             mant.log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             print()
             return
@@ -2149,7 +2149,7 @@ def transferir_op(idu: int, id_op: int):
         print("   1. Crear un nuevo socio")
         print("   2. Utilizar un socio existente")
         print("   0. Volver")
-        print("")
+        print()
 
         loop = -1
         while loop == -1:
@@ -2157,19 +2157,19 @@ def transferir_op(idu: int, id_op: int):
                 loop = opcion = int(input("Ingrese una opción: "))
 
                 if opcion < 0 or opcion > 2:
-                    print("")
+                    print()
                     print("Opción incorrecta.")
-                    print("")
+                    print()
                     loop = -1
 
             except ValueError: 
                 print("Opción incorrecta.")
-                print("")
+                print()
                 opcion = -1
                 loop = -1
             except:
                 mant.log_error()
-                print("")
+                print()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 print()
                 return
@@ -2219,7 +2219,7 @@ def transferir_op(idu: int, id_op: int):
                     loop = -1
                 except:
                     mant.log_error()
-                    print("")
+                    print()
                     input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                     print()
                     return
@@ -2233,7 +2233,7 @@ def transferir_op(idu: int, id_op: int):
             return
         except:
             mant.log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             print()
             return
@@ -2247,7 +2247,7 @@ def transferir_op(idu: int, id_op: int):
             return
         except:
             mant.log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             print()
             return
@@ -2269,7 +2269,7 @@ def transferir_op(idu: int, id_op: int):
             elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
                 msj = "N"
                 print("No se han realizado cambios en el registro")
-                print("")
+                print()
             else:
                 print()
                 print("         ERROR. Debe indicar S para transferir o N para cancelar.")
@@ -2339,7 +2339,7 @@ def cambiar_nicho(idu: int, id_op: int):
                 print("   1. Crear un nuevo nicho")
                 print("   2. Desasociar el nicho actual")
                 print("   0. Volver")
-                print("")
+                print()
 
                 loop = -1
                 while loop == -1:
@@ -2347,19 +2347,19 @@ def cambiar_nicho(idu: int, id_op: int):
                         loop = opcion = int(input("Ingrese una opción: "))
                         
                         if opcion < 0 or opcion > 2:
-                            print("")
+                            print()
                             print("Opción incorrecta.")
-                            print("")
+                            print()
                             loop = -1
 
                     except ValueError: 
                         print("Opción incorrecta.")
-                        print("")
+                        print()
                         opcion = -1
                         loop = -1
                     except:
                         mant.log_error()
-                        print("")
+                        print()
                         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                         print()
                         return
@@ -2374,7 +2374,7 @@ def cambiar_nicho(idu: int, id_op: int):
                     return
                 except:
                     mant.log_error()
-                    print("")
+                    print()
                     input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                     print()
                     return
@@ -2405,7 +2405,7 @@ def cambiar_nicho(idu: int, id_op: int):
                     elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
                         msj = "N"
                         print("No se han realizado cambios en el registro")
-                        print("")
+                        print()
                         return
                     else:
                         print()
@@ -2425,7 +2425,7 @@ def cambiar_nicho(idu: int, id_op: int):
             return
         except:
             mant.log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             print()
             return
@@ -2457,7 +2457,7 @@ def cambiar_nicho(idu: int, id_op: int):
             elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
                 msj = "N"
                 print("No se han realizado cambios en el registro")
-                print("")
+                print()
             else:
                 print()
                 print("         ERROR. Debe indicar S para cambiar el nicho o N para cancelar.")
@@ -2538,7 +2538,7 @@ def editar_ruta(idu: int, id_op: int):
             return
         except:
             mant.log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             print()
             return
@@ -2581,7 +2581,7 @@ def editar_tarjeta(idu: int, id_op: int):
             return
         except:
             mant.log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             print()
             return
@@ -2631,7 +2631,7 @@ def editar_op_cobol(idu: int, id_op: int):
                 return
             except:
                 mant.log_error()
-                print("")
+                print()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 print()
                 return

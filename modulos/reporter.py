@@ -1915,12 +1915,12 @@ def recibos(facturacion: str, recibos: list):
         os.chdir(ruta)
     
     except UnboundLocalError:
-        print("")
+        print()
         print("No se encontraron recibos impagos.")
-        print("")
+        print()
     except:
         mant.log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         print()
         return
@@ -2137,7 +2137,7 @@ def listado_recibos(id_cobrador: int, recibos: list):
                              pass
                         except:
                            mant.log_error()
-                           print("")
+                           print()
                            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                            print()
                            return
@@ -2160,7 +2160,7 @@ def listado_recibos(id_cobrador: int, recibos: list):
                             pass
                         except:
                             mant.log_error()
-                            print("")
+                            print()
                             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                             print()
                             return
@@ -2208,12 +2208,12 @@ def listado_recibos(id_cobrador: int, recibos: list):
         os.chdir(ruta)
     
     except UnboundLocalError:
-        print("")
+        print()
         print("No se encontraron recibos impagos.")
-        print("")
+        print()
     except:
         mant.log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         print()
         return
@@ -2483,12 +2483,12 @@ def recibos_deb_aut(recibos: list):
             pdf.output(f'../reports/recibos/{nco}/{num_soc}-{nom}/recibo-{num_rec}.pdf', 'F')
 
         except UnboundLocalError:
-            print("")
+            print()
             print("No se encontraron recibos impagos.")
-            print("")
+            print()
         except:
             mant.log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             print()
             return
@@ -2813,7 +2813,7 @@ def listado_recibos_deb_aut(recibos: list):
         print("         ERROR. No se encontraron recibos.")
     except:
         mant.log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         print()
         return
@@ -2855,12 +2855,12 @@ def listado_recibos_deb_aut(recibos: list):
         os.chdir(ruta)
 
     except UnboundLocalError:
-        print("")
+        print()
         print("No se encontraron recibos impagos.")
-        print("")
+        print()
     except:
         mant.log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         print()
         return
@@ -3310,12 +3310,12 @@ def recibos_documentos() -> list:
         os.chdir(ruta)
 
     except UnboundLocalError:
-        print("")
+        print()
         print("No se encontraron recibos impagos.")
-        print("")
+        print()
     except:
         mant.log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         print()
         return
@@ -3593,12 +3593,12 @@ def listado_recibos_documentos(lista_recibos: list):
         os.chdir(ruta)
     
     except UnboundLocalError:
-        print("")
+        print()
         print("No se encontraron recibos impagos.")
-        print("")
+        print()
     except:
         mant.log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         print()
         return
@@ -3628,9 +3628,9 @@ def reimpresion_recibo(ndr: int):
         cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
     
     except UnboundLocalError:
-        print("")
+        print()
         print("         ERROR. La operación no tiene nicho asociado.")
-        print("")
+        print()
         return
     
     nro, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = rend.obtener_datos_socio(soc)
@@ -3918,12 +3918,12 @@ def reimpresion_recibo(ndr: int):
         os.chdir(ruta)
     
     except UnboundLocalError:
-        print("")
+        print()
         print(f"No existe recibo con nro {str(ndr).rjust(7, '0')}.")
-        print("")
+        print()
     except:
         mant.log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         print()
         return
@@ -3966,9 +3966,9 @@ def recibo_adelanto(ndr: int, cobrador: int, periodo_h: str, año_h: str, valor_
         cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
     
     except UnboundLocalError:
-        print("")
+        print()
         print("         ERROR. La operación no tiene nicho asociado.")
-        print("")
+        print()
         return
     
     nro, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = rend.obtener_datos_socio(soc)
@@ -4158,12 +4158,12 @@ def recibo_adelanto(ndr: int, cobrador: int, periodo_h: str, año_h: str, valor_
         os.chdir(ruta)
 
     except UnboundLocalError:
-        print("")
+        print()
         print(f"No existe recibo con nro {str(ndr).rjust(7, '0')}.")
-        print("")
+        print()
     except:
         mant.log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         print()
         return
@@ -4502,7 +4502,7 @@ def report_estado_cta(nro_socio: int, nombre: str, dni: int, facturacion: str, d
             
 
     print("Abriendo reporte. Cierre el archivo para continuar...")
-    print("")
+    print()
     
     ruta = f'../reports/temp'
     arch = f'estado_cta.pdf'
@@ -5104,7 +5104,7 @@ def report_morosos_det():
         print('\n\n\n\n')
 
     print("Abriendo reporte. Cierre el archivo para continuar...")
-    print("")
+    print()
 
     ruta = f'../reports/temp'
     arch = f'morosos.pdf'
@@ -5356,7 +5356,7 @@ def report_morosos_comp():
         print('\n\n\n\n')
 
     print("Abriendo reporte. Cierre el archivo para continuar...")
-    print("")
+    print()
 
     ruta = f'../reports/temp'
     arch = f'morosos-comp.pdf'
@@ -5410,7 +5410,7 @@ def report_excel_socios():
 
     ############ INICIO DE REPORT ############
     print("Generando archivo Excel")
-    print("")
+    print()
     print("Progreso: ")
 
     wb = Workbook()
@@ -5440,7 +5440,7 @@ def report_excel_socios():
     # Export
     try:
         wb.save(f"../reports/excel/listado_socios-{fecha}.xlsx")
-        print("")
+        print()
         print("Archivo creado exitosamente.")
 
         ############ ABRIR REPORT ############
@@ -5453,7 +5453,7 @@ def report_excel_socios():
             print('\n\n\n\n')
 
         print("Abriendo reporte. Cierre el archivo para continuar...")
-        print("")
+        print()
 
         ruta = f'../reports/excel'
         arch = f'listado_socios-{fecha}.xlsx'
@@ -5464,11 +5464,11 @@ def report_excel_socios():
         os.chdir(ruta)
     
     except PermissionError:
-        print("")
+        print()
         print("         ERROR. El archivo no pudo ser creado porque se encuentra en uso. Ciérrelo y vuelva a intentarlo.")
     except:
         mant.log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         print()
         return
@@ -5514,7 +5514,7 @@ def report_excel_modif_caja():
 
     ############ INICIO DE REPORT ############
     print("Generando archivo Excel")
-    print("")
+    print()
     print("Progreso: ")
 
     wb = Workbook()
@@ -5533,12 +5533,12 @@ def report_excel_modif_caja():
         mant.barra_progreso(counter, len(datos), titulo=f'Morella v{mant.VERSION} - MF! Soluciones informáticas')
     
     os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')    
-    print("")
+    print()
 
     # Export
     try:
         wb.save(f"../reports/excel/modificaciones_de_caja-{fecha}.xlsx")
-        print("")
+        print()
         print("Archivo creado exitosamente.")
 
         ############ ABRIR REPORT ############
@@ -5551,7 +5551,7 @@ def report_excel_modif_caja():
             print('\n\n\n\n')
 
         print("Abriendo reporte. Cierre el archivo para continuar...")
-        print("")
+        print()
 
         ruta = f'../reports/excel'
         arch = f'modificaciones_de_caja-{fecha}.xlsx'
@@ -5562,11 +5562,11 @@ def report_excel_modif_caja():
         os.chdir(ruta)
 
     except PermissionError:
-        print("")
+        print()
         print("         ERROR. El archivo no pudo ser creado porque se encuentra en uso. Ciérrelo y vuelva a intentarlo.")
     except:
         mant.log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         print()
         return
@@ -5619,7 +5619,7 @@ def report_deb_aut(mes: str, año: str):
 
     ############ INICIO DE REPORT ############
     print("Generando archivo Excel")
-    print("")
+    print()
     print("Progreso: ")
     
 
@@ -5644,7 +5644,7 @@ def report_deb_aut(mes: str, año: str):
     # Export
     try:
         wb.save(f"../reports/excel/listado_socios-{fecha_hoy}.xlsx")
-        print("")
+        print()
         print("Archivo creado exitosamente.")
 
         ############ ABRIR REPORT ############
@@ -5657,7 +5657,7 @@ def report_deb_aut(mes: str, año: str):
             print('\n\n\n\n')
 
         print("Abriendo reporte. Cierre el archivo para continuar...")
-        print("")
+        print()
     
         ruta = f'../reports/excel'
         arch = f'listado_socios-{fecha_hoy}.xlsx'
@@ -5668,11 +5668,11 @@ def report_deb_aut(mes: str, año: str):
         os.chdir(ruta)
     
     except PermissionError:
-        print("")
+        print()
         print("         ERROR. El archivo no pudo ser creado porque se encuentra en uso. Ciérrelo y vuelva a intentarlo.")
     except:
         mant.log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         print()
         return
@@ -5804,7 +5804,7 @@ def report_cobradores():
         print('\n\n\n\n')
 
     print("Abriendo reporte. Cierre el archivo para continuar...")
-    print("")
+    print()
     
     ruta = f'../reports/temp'
     arch = f'listado_cobradores.pdf'
@@ -5942,7 +5942,7 @@ def report_panteones():
         print('\n\n\n\n')
 
     print("Abriendo reporte. Cierre el archivo para continuar...")
-    print("")
+    print()
     
     ruta = f'../reports/temp'
     arch = f'listado_panteones.pdf'
@@ -6042,7 +6042,7 @@ def report_ult_recibo(cobrador: int, facturacion: str):
 
     ############ INICIO DE REPORT ############
     print("Generando archivo Excel")
-    print("")
+    print()
 
     wb = Workbook()
     ws = wb.active
@@ -6082,7 +6082,7 @@ def report_ult_recibo(cobrador: int, facturacion: str):
             n_cob = n_cob.replace(' ', '_')
     
         wb.save(f"../reports/excel/ultimos_recibos_{n_cob}.xlsx")
-        print("")
+        print()
         print("Archivo creado exitosamente.")
 
         ############ ABRIR REPORT ############
@@ -6095,7 +6095,7 @@ def report_ult_recibo(cobrador: int, facturacion: str):
             print('\n\n\n\n')
 
         print("Abriendo reporte. Cierre el archivo para continuar...")
-        print("")
+        print()
     
         ruta = f'../reports/excel'
         arch = f'ultimos_recibos_{n_cob}.xlsx'
@@ -6106,11 +6106,11 @@ def report_ult_recibo(cobrador: int, facturacion: str):
         os.chdir(ruta)
     
     except PermissionError:
-        print("")
+        print()
         print("         ERROR. El archivo no pudo ser creado porque se encuentra en uso. Ciérrelo y vuelva a intentarlo.")
     except:
         mant.log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         print()
         return

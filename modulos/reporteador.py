@@ -27,9 +27,9 @@ def opcion_menu() -> int:                                                       
 
     :rtype: int
     """
-    print("")
+    print()
     print("********** Acciones disponibles **********")
-    print("")
+    print()
     print("   1. Listado de morosos")
     print("   2. Listado de socios (excel)")
     print("   3. Listado de modificaciones de caja (excel)")
@@ -38,20 +38,20 @@ def opcion_menu() -> int:                                                       
     print("   6. Listado de cobradores")
     print("   7. Listado de últimos recibos impagos (Excel)")
     print("   0. Salir")
-    print("")
+    print()
     try:
         opcion = int(input("Ingrese una opción: "))
         while opcion < 0 or opcion > 7:
-            print("")
+            print()
             print("Opción incorrecta.")
-            print("")
+            print()
             opcion = int(input("Ingrese una opción: "))
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
     except:
         mant.log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         print()
         opcion = -1
@@ -94,26 +94,26 @@ def opcion_morosos() -> int:                                                    
 
     :rtype: int
     """
-    print("")
+    print()
     print("********** Acciones disponibles **********")
-    print("")
+    print()
     print("   1. Listado detallado")
     print("   2. Listado comprimido")
     print("   0. Volver")
-    print("")
+    print()
     try:
         opcion = int(input("Ingrese una opción: "))
         while opcion < 0 or opcion > 2:
-            print("")
+            print()
             print("Opción incorrecta.")
-            print("")
+            print()
             opcion = int(input("Ingrese una opción: "))
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
     except:
         mant.log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         print()
         opcion = -1
@@ -315,12 +315,12 @@ def ultimos_recibos(idu: int):
         if cobrador == 0:
             return
     
-        print("")
+        print()
         print("********** Elija una facturación **********")
-        print("")
+        print()
         print("   1. Bicon")
         print("   2. NOB")
-        print("")
+        print()
         
         opcion = -1
         while opcion == -1:
@@ -328,9 +328,9 @@ def ultimos_recibos(idu: int):
                 opcion = int(input("Ingrese una opción: "))
         
                 if opcion < 1 or opcion > 2:
-                    print("")
+                    print()
                     print("Opción incorrecta.")
-                    print("")
+                    print()
                     opcion = -1
         
             except ValueError: 
@@ -338,7 +338,7 @@ def ultimos_recibos(idu: int):
                 opcion = -1
             except:
                 mant.log_error()
-                print("")
+                print()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 print()
                 return
@@ -363,8 +363,8 @@ def ultimos_recibos(idu: int):
 
 try:
     print(f"Morella v{mant.VERSION} - MF! Soluciones informáticas.")
-    print("")
-    print("")
+    print()
+    print()
     print("   #############################################")
     print("   #############################################")
     print("   #####                                   #####")
@@ -377,7 +377,7 @@ try:
     idu = -1 
 
     while idu < 0:
-        print("")
+        print()
         idu, nom, ape, tel, dom, use, pas, pri, act = mant.iniciar_sesion()
 
     if idu == 0:
@@ -388,7 +388,7 @@ try:
                 mant.mant_database()
             except:
                 mant.log_error()
-                print("")
+                print()
                 getpass("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
     
     if idu > 0:
@@ -398,9 +398,9 @@ try:
         
         else:
             print("         ERROR. No posee los privilegios necesarios para realizar esta operación. Comuníquese con un admnistrador.")
-            print("")
+            print()
             getpass("Presione enter para continuar...")
-            print("")
+            print()
 
     ########## CERRANDO CONSOLA ##########
     mant.cerrar_consola()
@@ -409,7 +409,7 @@ try:
 
 except:
     mant.log_error()
-    print("")
+    print()
     input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
     print()
     

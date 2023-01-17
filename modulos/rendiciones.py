@@ -9,8 +9,8 @@ os.system('color 09')   # Colores del módulo (Azul sobre negro)
 
 try:
     print(f"Morella v{mant.VERSION} - MF! Soluciones informáticas.")
-    print("")
-    print("")
+    print()
+    print()
     print("   #############################################")
     print("   #############################################")
     print("   #####                                   #####")
@@ -18,8 +18,8 @@ try:
     print("   #####                                   #####")
     print("   #############################################")
     print("   #############################################")
-    print("")
-    print("")
+    print()
+    print()
 
     ########## INICIO DE SESIÓN ##########
     idu = -1
@@ -27,7 +27,7 @@ try:
     idu, nom, ape, tel, dom, use, pas, pri, act = mant.iniciar_sesion()
 
     while idu < 0:
-        print("")
+        print()
         idu, nom, ape, tel, dom, use, pas, pri, act = mant.iniciar_sesion()
 
     if idu == 0:
@@ -38,7 +38,7 @@ try:
                 mant.mant_database()
             except:
                 mant.log_error()
-                print("")
+                print()
                 func.getpass("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
     
     if idu > 0:
@@ -49,9 +49,9 @@ try:
             mant.cerrar_consola()
         else:
             print("         ERROR. No posee los privilegios necesarios para realizar esta operación. Comuníquese con un admnistrador.")
-            print("")
+            print()
             func.getpass("Presione enter para continuar...")
-            print("")
+            print()
 
             ########## CERRANDO CONSOLA ##########
             mant.cerrar_consola()
@@ -60,6 +60,6 @@ try:
             
 except:
     mant.log_error()
-    print("")
+    print()
     input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
     print()

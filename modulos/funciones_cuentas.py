@@ -22,9 +22,9 @@ def opcion_menu_buscar() -> int:                                                
 
     :rtype: int
     """
-    print("")
+    print()
     print("********** Acciones disponibles **********")
-    print("")
+    print()
     print("   1. Buscar por nro. de operación")
     print("   2. Buscar por apellido y nombre")
     print("   3. Buscar por DNI")
@@ -34,20 +34,20 @@ def opcion_menu_buscar() -> int:                                                
     print("   7. Buscar morosos")
     print("   8. Buscar por datos COBOL")
     print("   0. Volver")
-    print("")
+    print()
     try:
         opcion = int(input("Ingrese una opción: "))
         while opcion < 0 or opcion > 8:
-            print("")
+            print()
             print("Opción incorrecta.")
-            print("")
+            print()
             opcion = int(input("Ingrese una opción: "))
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
     except:
         mant.log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
     return opcion
 
@@ -66,17 +66,17 @@ def menu_buscar():                                                              
         
         if opcion == 1:     # Buscar por nro. op
             try:
-                print("")
+                print()
                 nro_operacion = int(input("Indique nro. de operación: "))
                 buscar_op_nro_operacion(nro_operacion)
         
             except ValueError:
-                print("")
+                print()
                 print("         ERROR. Nro de operación inválido")
-                print("")
+                print()
             except:
                 mant.log_error()
-                print("")
+                print()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 print()
         
@@ -87,7 +87,7 @@ def menu_buscar():                                                              
         
             except:
                 mant.log_error()
-                print("")
+                print()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 print()
         
@@ -97,12 +97,12 @@ def menu_buscar():                                                              
                 buscar_op_dni(dni)
         
             except ValueError:
-                print("")
+                print()
                 print("         ERROR. DNI inválido. Recuerde que debe ingresarlo sin puntos.")
-                print("")
+                print()
             except:
                 mant.log_error()
-                print("")
+                print()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 print()
         
@@ -113,7 +113,7 @@ def menu_buscar():                                                              
         
             except:
                 mant.log_error()
-                print("")
+                print()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 print()
         
@@ -124,7 +124,7 @@ def menu_buscar():                                                              
         
             except:
                 mant.log_error()
-                print("")
+                print()
                 input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                 print()
         
@@ -160,21 +160,21 @@ def buscar_datos_cobol():
     while opcion != 0:
         print()
         print("********** Acciones disponibles **********")
-        print("")
+        print()
         print("   1. Buscar por nro. de operación de COBOL")
         print("   2. Buscar por apellido y nombre de COBOL (o alternativo)")
         print("   3. Buscar por domicilio de COBOL (o alternativo)")
         print("   0. Volver")
-        print("")
+        print()
     
         try:
             opcion = int(input("Ingrese una opción: "))
             print()
     
             while opcion < 0 or opcion > 3:
-                print("")
+                print()
                 print("Opción incorrecta.")
-                print("")
+                print()
                 opcion = int(input("Ingrese una opción: "))
                 print()
     
@@ -184,7 +184,7 @@ def buscar_datos_cobol():
             opcion = -1
         except:
             mant.log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             print()
     
@@ -242,7 +242,7 @@ def buscar_op_nro_operacion(id_operacion: int, ret: bool = False) -> tuple | Non
     if ret:
         return datos[0]
 
-    print("")
+    print()
     print("-".rjust(155, '-'))
     print("{:<10} {:<12} {:<37} {:<37} {:<35} {:<10} {:<10}".format('N° SOCIO', 'COD.NICHO','APELLIDO Y NOMBRE', 'DOMICILIO', 'TELÉFONOS', 'COBRADOR','¿MOROSO?'))
     print("-".rjust(155, '-'))
@@ -278,7 +278,7 @@ def buscar_op_nro_operacion(id_operacion: int, ret: bool = False) -> tuple | Non
 
         print("{:<10} {:<12} {:<37} {:<37} {:<35} {:<10} {:<10}".format(f'{soc}'.rjust(6, '0'), f'{nic}'.rjust(10, '0'), nom[0:37], dom[0:37], tel[0:35], cob,f'   {mor}'))
     print("-".rjust(155, '-'))
-    print("")
+    print()
 
 
 def buscar_op_nro_socio(nro_socio: int):
@@ -297,7 +297,7 @@ def buscar_op_nro_socio(nro_socio: int):
             cursor.execute(instruccion)
             datos = cursor.fetchall()
 
-        print("")
+        print()
         if te_1 != None and te_2 != None:
             tel = f"{te_1} / {te_2}"
 
@@ -314,7 +314,7 @@ def buscar_op_nro_socio(nro_socio: int):
             mail = "N/D"
 
         print(f"ASOCIADO: {f'{nro_socio}'.rjust(6, '0')} - {nom}. DNI: {dni}. DOMICILIO: {dom} - TELÉFONOS: {tel} - EMAIL: {mail}")
-        print("")
+        print()
         print("OPERACIONES:")
         print("-----------------------------------------------------------------------------------------------------------------------------------------------------------")
         print("{:<20} {:<20} {:<20} {:<10} {:<35} {:<35} {:<8}".format('N° OPERACIÓN', 'COD.NICHO', 'COBRADOR', '¿MOROSO?', 'NOMBRE ALTERNATIVO', 'DOMICILIO ALTERNATIVO', 'OP.COBOL'))
@@ -341,7 +341,7 @@ def buscar_op_nro_socio(nro_socio: int):
         
             print("{:<20} {:<20} {:<20} {:<10} {:<35} {:<35} {:<8}".format(f'{i_d}'.rjust(7, '0'), f'{nic}'.rjust(10, '0'), cob, f'   {mor}', nom_alt, dom_alt, str(op_cob).rjust(8, ' ')))
         print("-----------------------------------------------------------------------------------------------------------------------------------------------------------")
-        print("")
+        print()
     
     except ValueError:
         print("         ERROR. Número de socio inválido")
@@ -351,7 +351,7 @@ def buscar_op_nro_socio(nro_socio: int):
         print()
     except:
         mant.log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         print()
 
@@ -378,7 +378,7 @@ def buscar_op_nombre_socio(nombre: str):
             cursor.execute(instruccion)
             datos = cursor.fetchall()
 
-        print("")
+        print()
         print("***********************************************************************************************************************************************************")
 
         for i in datos:
@@ -388,13 +388,13 @@ def buscar_op_nombre_socio(nombre: str):
         input("Presione la tecla enter para continuar... ")
 
     except sql.errors.SyntaxError:
-        print("")
+        print()
         print("         ERROR. Nombre inválido. No se pueden utilizar comillas simples (') en las busquedas")
         print()
         return
     except:
         mant.log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         print()
         return
@@ -413,7 +413,7 @@ def buscar_op_dni(dni: int):
         cursor.execute(instruccion)
         datos = cursor.fetchall()
 
-    print("")
+    print()
     print("***********************************************************************************************************************************************************")
 
     for i in datos:
@@ -444,7 +444,7 @@ def buscar_op_domicilio(domicilio: str):
             cursor.execute(instruccion)
             datos = cursor.fetchall()
 
-        print("")
+        print()
         print("***********************************************************************************************************************************************************")
 
         for i in datos:
@@ -454,13 +454,13 @@ def buscar_op_domicilio(domicilio: str):
         input("Presione la tecla enter para continuar... ")
 
     except sql.errors.SyntaxError:
-        print("")
+        print()
         print("         ERROR. Domicilio inválido. Recuerde que no se pueden utilizar comillas simples (') en las busquedas")
-        print("")
+        print()
         return
     except:
         mant.log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         print()
         return
@@ -496,7 +496,7 @@ def buscar_op_cod_nicho(cod_nicho: str, ret: bool = False) -> tuple | None:
         return
     except:
         mant.log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         print()
         return
@@ -513,9 +513,9 @@ def buscar_op_cod_nicho(cod_nicho: str, ret: bool = False) -> tuple | None:
     if ret:
         return datos[0]
 
-    print("")
+    print()
     print(f"CÓDIGO DE NICHO: {f'{cod_nicho}'.rjust(10, '0')}. PANTEÓN: {panteon}. PISO: {pis}. FILA: {fil}. NICHO: {num}. CATEGORÍA: {categ}")
-    print("")
+    print()
     print(f"OPERACION: {str(datos[0][0]).rjust(7, '0')}")
     print("-".rjust(154, '-'))
     print("{:<10} {:<38} {:<38} {:<35} {:<20} {:<10}".format('N° SOCIO', 'APELLIDO Y NOMBRE', 'DOMICILIO', 'TELÉFONOS', 'COBRADOR', '¿MOROSO?'))
@@ -552,7 +552,7 @@ def buscar_op_cod_nicho(cod_nicho: str, ret: bool = False) -> tuple | None:
 
         print("{:<10} {:<38} {:<38} {:<35} {:<20} {:<10}".format(f'{soc}'.rjust(6, '0'), nom[0:38], dom[0:38], tel[0:35], cob, f'   {mor}'))
     print("-".rjust(154, '-'))
-    print("")
+    print()
 
 
 def buscar_op_cob(id_cobrador: int):
@@ -570,9 +570,9 @@ def buscar_op_cob(id_cobrador: int):
 
     cobrador = caja.obtener_nom_cobrador(id_cobrador)
     
-    print("")
+    print()
     print(f"COBRADOR: {id_cobrador} - {cobrador}")
-    print("")
+    print()
     print("OPERACIONES:")
     print("-".rjust(155, '-'))
     print("{:<10} {:<10} {:<12} {:<42} {:<42} {:<25} {:<10}".format('N° SOCIO', 'N° OPER.', 'COD.NICHO','APELLIDO Y NOMBRE', 'DOMICILIO', 'TELÉFONOS', '¿MOROSO?'))
@@ -614,7 +614,7 @@ def buscar_op_cob(id_cobrador: int):
     
         print("{:<10} {:<10} {:<12} {:<42} {:<42} {:<25} {:<10}".format(f'{soc}'.rjust(6, '0'), f'{id_op}'.rjust(7, '0'), f'{nic}'.rjust(10, '0'), nom[0:42], dom[0:42], tel[0:25], f'   {mor}'))
     print("-".rjust(155, '-'))
-    print("")
+    print()
 
 
 def buscar_op_nom_alt(nom_alt: str):
@@ -633,7 +633,7 @@ def buscar_op_nom_alt(nom_alt: str):
             cursor.execute(instruccion)
             datos = cursor.fetchall()
 
-        print("")
+        print()
         print("***********************************************************************************************************************************************************")
 
         for x in datos:
@@ -645,13 +645,13 @@ def buscar_op_nom_alt(nom_alt: str):
         input("Presione la tecla enter para continuar... ")
 
     except sql.errors.SyntaxError:
-        print("")
+        print()
         print("         ERROR. Nombre inválido. No se pueden utilizar comillas simples (') en las busquedas")
         print()
         return
     except:
         mant.log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         print()
         return
@@ -673,7 +673,7 @@ def buscar_op_dom_alt(dom_alt: str):
             cursor.execute(instruccion)
             datos = cursor.fetchall()
 
-        print("")
+        print()
         print("***********************************************************************************************************************************************************")
 
         for x in datos:
@@ -684,13 +684,13 @@ def buscar_op_dom_alt(dom_alt: str):
         input("Presione la tecla enter para continuar... ")
 
     except sql.errors.SyntaxError:
-        print("")
+        print()
         print("         ERROR. Nombre inválido. No se pueden utilizar comillas simples (') en las busquedas")
         print()
         return
     except:
         mant.log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         print()
         return
@@ -710,7 +710,7 @@ def buscar_op_cobol(op_cobol: int):
         cursor.execute(instruccion)
         datos = cursor.fetchall()
 
-    print("")
+    print()
     print("***********************************************************************************************************************************************************")
     for x in datos:
         i_d, soc, nic, fac, cob, tar, rut, ult, u_a, fec, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = x
@@ -781,7 +781,7 @@ def buscar_op_morosos():
 
         print("{:<8} {:<8} {:<10} {:<42} {:<42} {:<30} {:<12}".format(f'{soc}'.rjust(6, '0'), f'{id_op}'.rjust(7, '0'), f'{nic}'.rjust(10, '0'), nom[0:42], dom[0:42], tel[0:30], f'    {fec_u_p}'))
     print("-".rjust(157, '-'))
-    print("")
+    print()
    
 
 def buscar_estado_cta(nro_socio: int):
@@ -799,7 +799,7 @@ def buscar_estado_cta(nro_socio: int):
     operaciones = obtener_datos_op_por_nro_socio(nro_socio)
     #solicitudes = buscar_sol_por_nro_socio(nro_socio)
     solicitudes = [] # <- BORRAR CUANDO ESTÉ FUNCIONANDO LA BUSQUEDA ^
-    print("")
+    print()
     
     if te_1 != None and te_2 != None:
         tel = f"{te_1} / {te_2}"
@@ -817,7 +817,7 @@ def buscar_estado_cta(nro_socio: int):
         mail = "N/D"
     
     print(f"ASOCIADO: {f'{nro_socio}'.rjust(6, '0')} - {nom}. DNI: {dni}. DOMICILIO: {dom} - TELÉFONOS: {tel} - EMAIL: {mail}")
-    print("")
+    print()
     
     if len(operaciones) != 0:   # Operaciones
         print("-----------------------------------------------------------------------------------------------------------------------------------------------------------")
@@ -862,7 +862,7 @@ def buscar_estado_cta(nro_socio: int):
         deuda_total = deuda_por_socio(soc)
         print("-----------------------------------------------------------------------------------------------------------------------------------------------------------")
         print(f"TOTAL DEUDA ASOCIADO: $ {deuda_total:.2f}-----".rjust(155, '-'))
-        print("")
+        print()
     
     if len(operaciones) == 0 and len(solicitudes) == 0:
         print()
@@ -874,17 +874,17 @@ def buscar_estado_cta(nro_socio: int):
             msj = input("¿Desea generar un reporte? (S/N) ")
     
             if msj == 'S' or msj == 's' or msj == 'Si' or msj == 'SI' or msj == 'sI' or msj == 'si':
-                print("")
+                print()
                 print("Generando reporte...")
-                print("")
+                print()
                 rep.report_estado_cta(nro_socio, nom, dni, fac, dom, te_1, te_2, mail, c_p, loc, act)   # Cuando se active prevenir, tener en cuenta los argumentos
     
             elif msj == 'N' or msj == 'n' or msj == 'No' or msj == 'NO' or msj == 'nO' or msj == 'no':
-                print("")
+                print()
             else:
-                print("")
+                print()
                 print("Debe ingresar S para confirmar o N para cancelar.")
-                print("")
+                print()
                 msj = ''
 
 
@@ -917,7 +917,7 @@ def deuda_por_op(id_operacion: int) -> float | int:
             return deuda + deuda_vieja_por_op(id_operacion)
         except:
             mant.log_error()
-            print("")
+            print()
             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
             print()
             return
@@ -956,7 +956,7 @@ def deuda_vieja_por_op(id_operacion: int) -> float | int:
         return 0
     except:
         mant.log_error()
-        print("")
+        print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
         print()
         return

@@ -9,8 +9,8 @@ os.system('color 0d')   # Colores del módulo (Púrpura sobre negro)
 
 try:
     print(f"Morella v{mant.VERSION} - MF! Soluciones informáticas.")
-    print("")
-    print("")
+    print()
+    print()
     print("   #############################################")
     print("   #############################################")
     print("   #####                                   #####")
@@ -18,14 +18,14 @@ try:
     print("   #####                                   #####")
     print("   #############################################")
     print("   #############################################")
-    print("")
-    print("")
+    print()
+    print()
 
     ########## INICIO DE SESIÓN ##########
     idu = -1 
 
     while idu < 0:
-        print("")
+        print()
         idu, nom, ape, tel, dom, use, pas, pri, act = mant.iniciar_sesion()
 
     if idu == 0:
@@ -36,22 +36,22 @@ try:
                 mant.mant_database()
             except:
                 mant.log_error()
-                print("")
+                print()
                 func.getpass("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
     
     if idu > 0:
         if pri >= 1:
             print()
             print("********* Buscar estado de cuenta *********")
-            print("")
+            print()
             salir = 0
             while salir == 0:
-                print("")
+                print()
                 try:
                     opcion = int(input("Indique el nro. de socio o ingrese 0 si desea abrir el menú de búsqueda: "))
                     if opcion == 0:
                         func.menu_buscar()
-                        print("")
+                        print()
                         socio = int(input("Indique el nro. de socio: "))
                         func.buscar_estado_cta(socio)
                         msj = ''
@@ -62,9 +62,9 @@ try:
                             elif msj == 'N' or msj == 'n' or msj == 'No' or msj == 'NO' or msj == 'nO' or msj == 'no':
                                 salir = 1
                             else:
-                                print("")
+                                print()
                                 print("Debe ingresar S para confirmar o N para cancelar.")
-                                print("")
+                                print()
                                 msj = ''
                     if opcion != 0 and opcion != -2:
                         func.buscar_estado_cta(opcion)
@@ -76,26 +76,26 @@ try:
                             elif msj == 'N' or msj == 'n' or msj == 'No' or msj == 'NO' or msj == 'nO' or msj == 'no':
                                 salir = 1
                             else:
-                                print("")
+                                print()
                                 print("Debe ingresar S para confirmar o N para cancelar.")
-                                print("")
+                                print()
                                 msj = ''
                 except ValueError:
-                    print("")
+                    print()
                     print("         ERROR. Número de socio inválido")
-                    print("")
+                    print()
                 except TypeError:
-                    print("")
+                    print()
                     print("         ERROR. Número de socio inválido")
-                    print("")
+                    print()
                 except PermissionError:
-                    print("")
+                    print()
                     print("         ERROR. El archivo se encuentra abierto. Ciérrelo y vuelva a intentarlo")
-                    print("")
+                    print()
                 except:
                     mant.log_error()
                     print(f"         ERROR. Comuníquese con el administrador del sistema.")
-                    print("")
+                    print()
             if salir == 1:
                 ########## CERRANDO CONSOLA ########## 
                 
@@ -104,9 +104,9 @@ try:
             os.system('color 0d')   # Colores del módulo (Púrpura sobre negro)
         else:
             print("         ERROR. No posee los privilegios necesarios para realizar esta operación. Comuníquese con un admnistrador.")
-            print("")
+            print()
             func.getpass("Presione enter para continuar...")
-            print("")
+            print()
 
             ########## CERRANDO CONSOLA ########## 
                 
@@ -114,6 +114,6 @@ try:
             os.system('color 0d')   # Colores del módulo (Púrpura sobre negro)
 except:
     mant.log_error()
-    print("")
+    print()
     input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
     print()
