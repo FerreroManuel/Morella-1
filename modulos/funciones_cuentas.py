@@ -873,13 +873,13 @@ def buscar_estado_cta(nro_socio: int):
         while msj == '':
             msj = input("¿Desea generar un reporte? (S/N) ")
     
-            if msj == 'S' or msj == 's' or msj == 'Si' or msj == 'SI' or msj == 'sI' or msj == 'si':
+            if msj in mant.AFIRMATIVO:
                 print()
                 print("Generando reporte...")
                 print()
                 rep.report_estado_cta(nro_socio, nom, dni, fac, dom, te_1, te_2, mail, c_p, loc, act)   # Cuando se active prevenir, tener en cuenta los argumentos
     
-            elif msj == 'N' or msj == 'n' or msj == 'No' or msj == 'NO' or msj == 'nO' or msj == 'no':
+            elif msj in mant.NEGATIVO:
                 print()
             else:
                 print()

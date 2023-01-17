@@ -5,6 +5,9 @@ TYPE_VERSION = 'RC'
 ARCH_INI = "../databases/database.ini"
 ARCH_LOG_ERROR = "../error.log"
 
+AFIRMATIVO = ['S', 's', 'Si', 'SI', 'sI', 'si']
+NEGATIVO = ['N', 'n', 'No', 'NO', 'nO', 'no']
+
 import os
 import psycopg2 as sql
 import psycopg2.errors
@@ -1599,7 +1602,7 @@ def activar_usuario(idu: int):
         while msj != "S" and msj != "N":
             msj = input(f"¿Seguro que quiere reactivar el usuario <{use_m}>, perteneciente a {nom_m} {ape_m}? (S/N): ")
 
-            if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
+            if msj in AFIRMATIVO:
                 msj = "S"
                 edit_registro('usuarios', 'activo', 1, i_d_m)
                 print()
@@ -1607,7 +1610,7 @@ def activar_usuario(idu: int):
                 print()
                 return
 
-            elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
+            elif msj in NEGATIVO:
                 msj = "N"
                 print()
                 print("No se han realizado cambios en el registro.")
@@ -1670,7 +1673,7 @@ def inactivar_usuario(idu: int):
         msj = ""
         while msj != "S" and msj != "N":
             msj = input(f"¿Seguro que quiere dar de baja al usuario <{use_m}>, perteneciente a {nom_m} {ape_m}? (S/N): ")
-            if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
+            if msj in AFIRMATIVO:
                 msj = "S"
                 edit_registro('usuarios', 'activo', 0, i_d_m)
                 print()
@@ -1678,7 +1681,7 @@ def inactivar_usuario(idu: int):
                 print()
                 return
 
-            elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
+            elif msj in NEGATIVO:
                 msj = "N"
                 print()
                 print("No se han realizado cambios en el registro.")
@@ -1796,7 +1799,7 @@ def agregar_panteon(idu: int):
             nuevo_panteon = reemplazar_comilla(nuevo_panteon)
             msj = str(input(f"¿Seguro que quiere dar de alta el panteón <{nuevo_panteon}>? (S/N): "))
 
-            if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
+            if msj in AFIRMATIVO:
                 msj = "S"
                 print()
                 print("Agregando panteón. Aguarde un momento.")
@@ -1826,7 +1829,7 @@ def agregar_panteon(idu: int):
                 print()
                 return
 
-            elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
+            elif msj in NEGATIVO:
                 msj = "N"
                 print()
                 print("No se han realizado cambios en el registro.")
@@ -2113,7 +2116,7 @@ def alta_nicho(idu: int, ret: bool = False):
             id_c, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat_nicho)
             msj = str(input(f"¿Seguro que quiere dar de alta el nicho {cat} <{cod_nicho}>? (S/N): "))
 
-            if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
+            if msj in AFIRMATIVO:
                 msj = "S"
                 print()
                 print("Agregando nicho. Aguarde un momento.")
@@ -2148,7 +2151,7 @@ def alta_nicho(idu: int, ret: bool = False):
                     elif ret == True:
                         return cod_nicho
 
-            elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
+            elif msj in NEGATIVO:
                 msj = "N"
                 print()
                 print("No se han realizado cambios en el registro.")
@@ -2204,7 +2207,7 @@ def ocupar_nicho(idu: int):
                 msj = str(input(f"El nicho {cod_nicho} ya se encuentra ocupado por {fall} ¿Quiere modificar los datos del fallecido? (S/N): "))
                 print()
 
-                if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
+                if msj in AFIRMATIVO:
                     msj = "S"
                     fallecido = input("Ingrese los nuevos datos del fallecido: ")
                     edit_nicho('fallecido', fallecido, cod_nicho)
@@ -2213,12 +2216,12 @@ def ocupar_nicho(idu: int):
                     print()
                     return
                 
-                elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
+                elif msj in NEGATIVO:
                     msj = ""
                     while msj != "S" and msj != "N":
                         msj = str(input(f"¿Quiere cambiar el estado a desocupado? (S/N): "))
                         print()
-                        if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
+                        if msj in AFIRMATIVO:
                             msj = "S"
                             edit_nicho('ocupado', 0, cod_nicho)
                             edit_nicho('fallecido', '', cod_nicho)
@@ -2226,7 +2229,7 @@ def ocupar_nicho(idu: int):
                             print("Datos modificados exitosamente.")
                             print()
                             return
-                        elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
+                        elif msj in NEGATIVO:
                             msj = "N"
                             print()
                             print("No se han realizado cambios en el registro.")
@@ -2338,7 +2341,7 @@ def cambiar_cat_nicho(idu: int):
         while msj != "S" and msj != "N":
             msj = str(input(f"¿Seguro quiere cambiar la categoría del nicho {cod_nicho} de {categ_nicho_ant} a {nueva_categ_nicho}? (S/N): "))
             
-            if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
+            if msj in AFIRMATIVO:
                 msj = "S"
                 edit_nicho('categoria', cat_nicho, cod_nicho)
                 print()
@@ -2346,7 +2349,7 @@ def cambiar_cat_nicho(idu: int):
                 print()
                 return
             
-            elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
+            elif msj in NEGATIVO:
                 msj = "N"
                 print()
                 print("No se han realizado cambios en el registro.")
@@ -2403,14 +2406,14 @@ def eliminar_nicho(idu: int):
             while msj != "S" and msj != "N":
                 msj = str(input(f"¿Seguro quiere eliminar el nicho {cod_nicho}? (S/N): "))
         
-                if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
+                if msj in AFIRMATIVO:
                     msj = "S"
                     delete_row('nichos', 'codigo', cod_nicho)
                     print()
                     print("Datos eliminados exitosamente.")
                     print()
                     return
-                elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
+                elif msj in NEGATIVO:
                     msj = "N"
                     print()
                     print("No se han realizado cambios en el registro.")
@@ -2572,14 +2575,14 @@ def eliminar_categoria(idu: int):
         msj = ""
         while msj != "S" and msj != "N":
             msj = str(input(f"¿Seguro quiere eliminar la categoría {cat}? (S/N): "))
-            if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
+            if msj in AFIRMATIVO:
                 msj = "S"
                 delete_row('cat_nichos', 'id', cat_nicho)
                 print()
                 print("Categoría eliminada exitosamente.")
                 print()
                 return
-            elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
+            elif msj in NEGATIVO:
                 msj = "N"
                 print()
                 print("No se han realizado cambios en el registro.")
@@ -2674,7 +2677,7 @@ def alta_cobrador(idu: int):
             nuevo_cobrador = reemplazar_comilla(nuevo_cobrador)
             msj = str(input(f"¿Seguro que quiere dar de alta el cobrador <{nuevo_cobrador}>? (S/N): "))
         
-            if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
+            if msj in AFIRMATIVO:
                 msj = "S"
                 print()
                 print("Agregando cobrador. Aguarde un momento.")
@@ -2702,7 +2705,7 @@ def alta_cobrador(idu: int):
                 print()
                 return
 
-            elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
+            elif msj in NEGATIVO:
                 msj = "N"
                 print()
                 print("No se han realizado cambios en el registro.")
@@ -3194,7 +3197,7 @@ def eliminar_precio(idu):   # OPCIÓN INAHABILITADA
             while msj != "S" and msj != "N":
                 msj = str(input(f"¿Seguro quiere eliminar este precio? (S/N): "))
                 
-                if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
+                if msj in AFIRMATIVO:
                     msj = "S"
                     delete_row('precios_venta', 'id', precio)
                     print()
@@ -3202,7 +3205,7 @@ def eliminar_precio(idu):   # OPCIÓN INAHABILITADA
                     print()
                     return
         
-                elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
+                elif msj in NEGATIVO:
                     msj = "N"
                     print()
                     print("No se han realizado cambios en el registro.")
@@ -3862,7 +3865,7 @@ def eliminar_mail(idu: int):
         while msj != "S" and msj != "N":
             msj = str(input(f"¿Seguro quiere eliminar esta cuenta? (S/N): "))
     
-            if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
+            if msj in AFIRMATIVO:
                 msj = "S"
                 delete_row('mail', 'id', id_mail)
                 print()
@@ -3870,7 +3873,7 @@ def eliminar_mail(idu: int):
                 print()
                 return
     
-            elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
+            elif msj in NEGATIVO:
                 msj = "N"
                 print()
                 print("No se han realizado cambios en el registro.")

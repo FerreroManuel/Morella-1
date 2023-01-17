@@ -464,11 +464,11 @@ def venta_nicho(idu: int):
             while msj != "S" and msj != "N":
                 msj = input(f"¿Quiere agregar datos complementarios a la operación? (S/N)): ")
                 print()
-                if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
+                if msj in mant.AFIRMATIVO:
                     agregar_datos_comp(id_op)
                     msj = "S"
                     pass
-                elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
+                elif msj in mant.NEGATIVO:
                     msj = "N"
                     pass
                 else:
@@ -1229,7 +1229,7 @@ def edit_act(idu: int, id_soc: int, estado: int):
         while msj != "S" and msj != "N":
             msj = input(f"¿Seguro que quiere cambiar el estado del socio? (S/N): ")
     
-            if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
+            if msj in mant.AFIRMATIVO:
                 msj = "S"
     
                 if estado == 1:
@@ -1243,7 +1243,7 @@ def edit_act(idu: int, id_soc: int, estado: int):
                     print("Usuario activado exitosamente.")
                 print()
     
-            elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
+            elif msj in mant.NEGATIVO:
                 msj = "N"
                 print("No se han hecho cambios en el registro.")
                 print()
@@ -1471,13 +1471,13 @@ def crear_op(idu: int, id_socio: int, ret: bool= False) -> int | None:
             msj = ""
             while msj != "S" and msj != "N":
                 msj = input(f"¿Desea asociar una tarjeta de crédito? (S/N): ")
-                if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
+                if msj in mant.AFIRMATIVO:
                     msj = "S"
                     deb_aut = 1
                     print()
                     pass
                 
-                elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
+                elif msj in mant.NEGATIVO:
                     msj = "N"
                     tarjeta = None
                     deb_aut = 0
@@ -1525,7 +1525,7 @@ def crear_op(idu: int, id_socio: int, ret: bool= False) -> int | None:
             msj = input(f"¿Desea indicar un número de operación de Cobol para la operación? (S/N): ")
             print()
         
-            if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
+            if msj in mant.AFIRMATIVO:
                 msj = "S"
                 op_cobol = input("Número de operación de Cobol: ")
                 if op_cobol == "":
@@ -1549,7 +1549,7 @@ def crear_op(idu: int, id_socio: int, ret: bool= False) -> int | None:
                 print()
                 pass
         
-            elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
+            elif msj in mant.NEGATIVO:
                 msj = "N"
                 op_cobol = None
                 pass
@@ -1563,7 +1563,7 @@ def crear_op(idu: int, id_socio: int, ret: bool= False) -> int | None:
         while msj != "S" and msj != "N":
             msj = input(f"¿Desea indicar un nombre alternativo para la operación? (S/N): ")
             print()
-            if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
+            if msj in mant.AFIRMATIVO:
                 msj = "S"
                 nombre_alt = input("Nombre alternativo: ").title()
                 nombre_alt = mant.reemplazar_comilla(nombre_alt)
@@ -1573,7 +1573,7 @@ def crear_op(idu: int, id_socio: int, ret: bool= False) -> int | None:
                 print()
                 pass
             
-            elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
+            elif msj in mant.NEGATIVO:
                 msj = "N"
                 nombre_alt = None
                 pass
@@ -1587,7 +1587,7 @@ def crear_op(idu: int, id_socio: int, ret: bool= False) -> int | None:
             msj = input(f"¿Desea indicar un domicilio alternativo para la operación? (S/N): ")
             print()
         
-            if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
+            if msj in mant.AFIRMATIVO:
                 msj = "S"
                 domicilio_alt = input("Domicilio alternativo: ").title()
                 domicilio_alt = mant.reemplazar_comilla(domicilio_alt)
@@ -1597,7 +1597,7 @@ def crear_op(idu: int, id_socio: int, ret: bool= False) -> int | None:
                 print()
                 pass
         
-            elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
+            elif msj in mant.NEGATIVO:
                 msj = "N"
                 domicilio_alt = None
                 pass
@@ -2257,7 +2257,7 @@ def transferir_op(idu: int, id_op: int):
             msj = input(f"¿Transferir la operación nro. {str(id_op).rjust(7, '0')} del socio {str(n_so_v).rjust(6, '0')} - {nom_v} al socio {str(n_so_n).rjust(6, '0')} - {nom_n}? (S/N): ")
             print()
 
-            if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
+            if msj in mant.AFIRMATIVO:
                 msj = "S"
                 mant.edit_registro('operaciones', 'socio', id_socio, id_op)                
                 print("Operación transferida exitosamente.")
@@ -2266,7 +2266,7 @@ def transferir_op(idu: int, id_op: int):
                 editar_dom_alt(idu, id_op)
                 pass
 
-            elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
+            elif msj in mant.NEGATIVO:
                 msj = "N"
                 print("No se han realizado cambios en el registro")
                 print()
@@ -2394,7 +2394,7 @@ def cambiar_nicho(idu: int, id_op: int):
                     msj = input(f"¿Desasociar el nicho {cod_nic} de la operación {str(id_op).rjust(7, '0')}? (S/N): ")
                     print()
             
-                    if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
+                    if msj in mant.AFIRMATIVO:
                         msj = "S"
                         mant.set_null_registro('operaciones', 'nicho', 'id', id_op)
                         mant.edit_nicho('ocupado', 0, cod_nic)                        
@@ -2402,7 +2402,7 @@ def cambiar_nicho(idu: int, id_op: int):
                         print()
                         return
             
-                    elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
+                    elif msj in mant.NEGATIVO:
                         msj = "N"
                         print("No se han realizado cambios en el registro")
                         print()
@@ -2439,7 +2439,7 @@ def cambiar_nicho(idu: int, id_op: int):
                 msj = input(f"¿Cambiar el nicho {cod_nic} por el nicho {cod_nicho} en la operación {str(id_op).rjust(7, '0')}? (S/N): ")
             print()
         
-            if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
+            if msj in mant.AFIRMATIVO:
                 msj = "S"
                 mant.edit_registro('operaciones', 'nicho', cod_nicho, id_op)
                 cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(cod_nicho)
@@ -2454,7 +2454,7 @@ def cambiar_nicho(idu: int, id_op: int):
                 print()
                 pass
             
-            elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
+            elif msj in mant.NEGATIVO:
                 msj = "N"
                 print("No se han realizado cambios en el registro")
                 print()
@@ -2743,7 +2743,7 @@ def cambiar_estado_cobro(idu: int, id_op: int, paga: bool | int):
         while msj != "S" and msj != "N":
             msj = input(f"¿Seguro que quiere cambiar el estado de cobro de la operación? (S/N): ")
     
-            if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
+            if msj in mant.AFIRMATIVO:
                 msj = "S"
     
                 if paga:
@@ -2757,7 +2757,7 @@ def cambiar_estado_cobro(idu: int, id_op: int, paga: bool | int):
                     print("Cobranza activada exitosamente.")
                 print()
     
-            elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
+            elif msj in mant.NEGATIVO:
                 msj = "N"
                 print("No se han hecho cambios en el registro.")
                 print()

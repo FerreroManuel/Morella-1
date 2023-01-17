@@ -57,9 +57,9 @@ try:
                         msj = ''
                         while msj == '':
                             msj = input("¿Desea buscar otro estado de cuenta? (S/N) ")
-                            if msj == 'S' or msj == 's' or msj == 'Si' or msj == 'SI' or msj == 'sI' or msj == 'si':
+                            if msj in mant.AFIRMATIVO:
                                 salir = 0
-                            elif msj == 'N' or msj == 'n' or msj == 'No' or msj == 'NO' or msj == 'nO' or msj == 'no':
+                            elif msj in mant.NEGATIVO:
                                 salir = 1
                             else:
                                 print()
@@ -71,9 +71,9 @@ try:
                         msj = ''
                         while msj == '':
                             msj = input("¿Desea buscar otro estado de cuenta? (S/N) ")
-                            if msj == 'S' or msj == 's' or msj == 'Si' or msj == 'SI' or msj == 'sI' or msj == 'si':
+                            if msj in mant.AFIRMATIVO:
                                 salir = 0
-                            elif msj == 'N' or msj == 'n' or msj == 'No' or msj == 'NO' or msj == 'nO' or msj == 'no':
+                            elif msj in mant.NEGATIVO:
                                 salir = 1
                             else:
                                 print()

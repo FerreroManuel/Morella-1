@@ -177,12 +177,12 @@ def ingresar_cobro(idu: int):
             while msj == '':
                 msj = input(f"¿Desea ingresar otro pago? (S/N) ")
         
-                if msj == 'S' or msj == 's' or msj == 'Si' or msj == 'SI' or msj == 'sI' or msj == 'si':
+                if msj in mant.AFIRMATIVO:
                     print()
                     ndr = 0
                     loop = -1
         
-                elif msj == 'N' or msj == 'n' or msj == 'No' or msj == 'NO' or msj == 'nO' or msj == 'no':
+                elif msj in mant.NEGATIVO:
                     print()
                     return
                 else:
@@ -200,11 +200,11 @@ def ingresar_cobro(idu: int):
                 
                 while msj == '':
                     msj = input(f"¿Desea ingresar otro pago? (S/N) ")
-                    if msj == 'S' or msj == 's' or msj == 'Si' or msj == 'SI' or msj == 'sI' or msj == 'si':
+                    if msj in mant.AFIRMATIVO:
                         print()
                         ndr = 0
                         loop = -1
-                    elif msj == 'N' or msj == 'n' or msj == 'No' or msj == 'NO' or msj == 'nO' or msj == 'no':
+                    elif msj in mant.NEGATIVO:
                         print()
                         return
                     else:
@@ -249,7 +249,7 @@ def ingresar_cobro(idu: int):
                 while msj == '':
                     msj = input(f"¿Seguro que quiere ingresar el pago por el recibo nro. {f'{ndr}'.rjust(7, '0')}, perteneciente a la operación {str(ope).rjust(7, '0')} en la rendición nro. {rendicion}? (S/N) ")
         
-                    if msj == 'S' or msj == 's' or msj == 'Si' or msj == 'SI' or msj == 'sI' or msj == 'si':
+                    if msj in mant.AFIRMATIVO:
                         set_pago(ndr)
         
                         if per[0:3] == 'Doc':
@@ -340,7 +340,7 @@ def ingresar_cobro(idu: int):
                                 mant.edit_registro('operaciones', 'ruta', ruta, ope)
                         print("Pago ingresado exitosamente")
         
-                    elif msj == 'N' or msj == 'n' or msj == 'No' or msj == 'NO' or msj == 'nO' or msj == 'no':
+                    elif msj in mant.NEGATIVO:
                         print()
                         print("No se han hecho cambios en el registro.")
                     else:
@@ -354,12 +354,12 @@ def ingresar_cobro(idu: int):
                 while msj == '':
                     msj = input(f"¿Desea ingresar otro pago? (S/N) ")
         
-                    if msj == 'S' or msj == 's' or msj == 'Si' or msj == 'SI' or msj == 'sI' or msj == 'si':
+                    if msj in mant.AFIRMATIVO:
                         print()
                         ndr = 0
                         loop = -1
         
-                    elif msj == 'N' or msj == 'n' or msj == 'No' or msj == 'NO' or msj == 'nO' or msj == 'no':
+                    elif msj in mant.NEGATIVO:
                         print()
                         return
                     else:
@@ -595,7 +595,7 @@ def emitir_recibos():
         while msj != "S" and msj != "N":
             msj = input(f"¿Emitir recibos de documentos de {str_mes_siguiente}? (S/N) ")
     
-            if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
+            if msj in mant.AFIRMATIVO:
                 msj = "S"
                 print()
                 print("POR FAVOR, NO CIERRE LA APLICACIÓN NI APAGUE EL SISTEMA MIENTRAS SE REALIZAN LAS ACCIONES SOLICITADAS")
@@ -608,7 +608,7 @@ def emitir_recibos():
                 print()
                 return
             
-            elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
+            elif msj in mant.NEGATIVO:
                 msj = "N"
                 print()
                 print("No se han emitido recibos.")
@@ -632,7 +632,7 @@ def emitir_recibos():
         msj = input(f"¿Emitir recibos de {periodo}, de {facturacion.upper()} - {ncobrador}? (S/N) ")
         while msj != "S" and msj != "N":
     
-            if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
+            if msj in mant.AFIRMATIVO:
                 msj = "S"
                 print()
                 print("POR FAVOR, NO CIERRE LA APLICACIÓN NI APAGUE EL SISTEMA MIENTRAS SE REALIZAN LAS ACCIONES SOLICITADAS")
@@ -662,7 +662,7 @@ def emitir_recibos():
                     print()
                     return
     
-            elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
+            elif msj in mant.NEGATIVO:
                 msj = "N"
                 print()
                 print("No se han emitido recibos.")
@@ -824,7 +824,7 @@ def ingresar_adelantos(idu: int):
     while msj != "S" and msj != "N":
         msj = input("¿Está seguro de realizar el registro? (S/N): ")
     
-        if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
+        if msj in mant.AFIRMATIVO:
             msj = "S"
             mes_pago = calcular_mes(ult, 'str')
             ult_pago = datetime.strptime(f'{mes_pago}/{u_a}', '%m/%Y')
@@ -965,7 +965,7 @@ def ingresar_adelantos(idu: int):
             print()
             return
 
-        elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
+        elif msj in mant.NEGATIVO:
             msj = "N"
             print()
             print("No se han realizado cambios en el registro.")
@@ -1069,11 +1069,11 @@ def registrar_debito_automatico(idu: int):
             while msj == '':
                 msj = input(f"¿Desea ingresar otro pago? (S/N) ")
     
-                if msj == 'S' or msj == 's' or msj == 'Si' or msj == 'SI' or msj == 'sI' or msj == 'si':
+                if msj in mant.AFIRMATIVO:
                     print()
                     ndr = 0      
     
-                elif msj == 'N' or msj == 'n' or msj == 'No' or msj == 'NO' or msj == 'nO' or msj == 'no':
+                elif msj in mant.NEGATIVO:
                     print()
                     return
                 else:
@@ -1091,11 +1091,11 @@ def registrar_debito_automatico(idu: int):
                 while msj == '':
                     msj = input(f"¿Desea ingresar otro pago? (S/N) ")
     
-                    if msj == 'S' or msj == 's' or msj == 'Si' or msj == 'SI' or msj == 'sI' or msj == 'si':
+                    if msj in mant.AFIRMATIVO:
                         print()
                         ndr = 0      
     
-                    elif msj == 'N' or msj == 'n' or msj == 'No' or msj == 'NO' or msj == 'nO' or msj == 'no':
+                    elif msj in mant.NEGATIVO:
                         print()
                         return
                     else:
@@ -1109,7 +1109,7 @@ def registrar_debito_automatico(idu: int):
     
                 while msj == '':
                     msj = input(f"¿Seguro que quiere ingresar el pago por el recibo nro. {f'{ndr}'.rjust(7, '0')} de la operación {operacion}? (S/N) ")
-                    if msj == 'S' or msj == 's' or msj == 'Si' or msj == 'SI' or msj == 'sI' or msj == 'si':
+                    if msj in mant.AFIRMATIVO:
                         set_pago(ndr)
                         act_periodo(per, ope, año)
                         print()
@@ -1134,7 +1134,7 @@ def registrar_debito_automatico(idu: int):
                             msj = input("Enviar recibo por email? (S/N) ")
                             print()
     
-                            if msj == 'S' or msj == 's' or msj == 'Si' or msj == 'SI' or msj == 'sI' or msj == 'si':
+                            if msj in mant.AFIRMATIVO:
                                 try:
                                     print("Enviando email. Por favor aguarde...")
                                     print()
@@ -1160,11 +1160,11 @@ def registrar_debito_automatico(idu: int):
                                     print()
                                     getpass("Presione enter para continuar...")
     
-                            elif msj == 'N' or msj == 'n' or msj == 'No' or msj == 'NO' or msj == 'nO' or msj == 'no':
+                            elif msj in mant.NEGATIVO:
                                 print()
                                 print("El recibo no ha sido enviado.")
     
-                    elif msj == 'N' or msj == 'n' or msj == 'No' or msj == 'NO' or msj == 'nO' or msj == 'no':
+                    elif msj in mant.NEGATIVO:
                         print()
                         print("No se han hecho cambios en el registro.")
                     else:
@@ -1178,11 +1178,11 @@ def registrar_debito_automatico(idu: int):
                 while msj == '':
                     msj = input(f"¿Desea ingresar otro pago? (S/N) ")
     
-                    if msj == 'S' or msj == 's' or msj == 'Si' or msj == 'SI' or msj == 'sI' or msj == 'si':
+                    if msj in mant.AFIRMATIVO:
                         print()
                         ndr = 0      
     
-                    elif msj == 'N' or msj == 'n' or msj == 'No' or msj == 'NO' or msj == 'nO' or msj == 'no':
+                    elif msj in mant.NEGATIVO:
                         print()
                         return
                     else:

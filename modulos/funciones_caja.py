@@ -2344,7 +2344,7 @@ def eliminar_registro(idu: int):
                 while msj != "S" and msj != "N":
                     msj = input("¿Seguro que desea eliminar el registro? (S/N): ")
     
-                    if msj == "S" or msj == "s" or msj == "SI" or msj == "si" or msj == "Si" or msj == "sI":
+                    if msj in mant.AFIRMATIVO:
                         msj = "S"
                         guardar_historial(id, idu)
                         conn = sql.connect(mant.DATABASE)
@@ -2359,7 +2359,7 @@ def eliminar_registro(idu: int):
                         print()
                         return
                     
-                    elif msj == "N" or msj == "n" or msj == "NO" or msj == "no" or msj == "No" or msj == "nO":
+                    elif msj in mant.NEGATIVO:
                         msj = "N"
                         print()
                         print("No se han realizado cambios en el registro.")
