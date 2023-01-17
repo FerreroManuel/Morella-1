@@ -2773,7 +2773,7 @@ def reg_bonif_mant(idu: int):
     mant.run_query(query)
     
     ult_reg_list = ult_reg()
-    print("Se registró: ", ult_reg_list[1], " - ", ult_reg_list[2], " - ","$", ult_reg_list[4], " - ", ult_reg_list[6], " - " "NÚMERO DE REGISTRO: ", f"{ult_reg_list[0]}".rjust(8, '0'))
+    print("Se registró: ", ult_reg_list[1], " - ", ult_reg_list[2], " - ","$", ult_reg_list[5], " - ", ult_reg_list[6], " - " "NÚMERO DE REGISTRO: ", f"{ult_reg_list[0]}".rjust(8, '0'))
     
     return
 
