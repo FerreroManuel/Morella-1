@@ -1245,7 +1245,7 @@ def registrar_comision_mant(cobrador: int, rendicion: int, recibo: int, cobro: f
     :type cobro: float or int
     """
     rendicion = mant.reemplazar_comilla(rendicion)
-    cobradores = [6, 7, 9, 13, 15]
+    cobradores = [6]
     
     if cobrador not in cobradores:
         comision = float(cobro)*0.15
