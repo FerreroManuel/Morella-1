@@ -560,7 +560,7 @@ def reg_gastos_of(idu: int):
                 return
             
             ult_reg_list = ult_reg()
-            print("Se registró: ", ult_reg_list[1], " - ", ult_reg_list[2], " - ","$", ult_reg_list[5], " - ", ult_reg_list[6], " - " "NÚMERO DE REGISTRO: ", f"{ult_reg_list[0]}".rjust(8, '0'))
+            print("Se registró: ", ult_reg_list[1], " - ", ult_reg_list[2], " - ","($", f"{ult_reg_list[5]})", " - ", ult_reg_list[6], " - " "NÚMERO DE REGISTRO: ", f"{ult_reg_list[0]}".rjust(8, '0'))
             
             return
         
@@ -612,7 +612,7 @@ def reg_gastos_of(idu: int):
                 return
             
             ult_reg_list = ult_reg()
-            print("Se registró: ", ult_reg_list[1], " - ", ult_reg_list[2], " - ","$", ult_reg_list[5], " - ", ult_reg_list[6], " - " "NÚMERO DE REGISTRO: ", f"{ult_reg_list[0]}".rjust(8, '0'))
+            print("Se registró: ", ult_reg_list[1], " - ", ult_reg_list[2], " - ","($", f"{ult_reg_list[5]})", " - ", ult_reg_list[6], " - " "NÚMERO DE REGISTRO: ", f"{ult_reg_list[0]}".rjust(8, '0'))
             
             return
         
@@ -664,7 +664,7 @@ def reg_gastos_of(idu: int):
                 return
             
             ult_reg_list = ult_reg()
-            print("Se registró: ", ult_reg_list[1], " - ", ult_reg_list[2], " - ","$", ult_reg_list[5], " - ", ult_reg_list[6], " - " "NÚMERO DE REGISTRO: ", f"{ult_reg_list[0]}".rjust(8, '0'))
+            print("Se registró: ", ult_reg_list[1], " - ", ult_reg_list[2], " - ","($", f"{ult_reg_list[5]})", " - ", ult_reg_list[6], " - " "NÚMERO DE REGISTRO: ", f"{ult_reg_list[0]}".rjust(8, '0'))
             
             return
         
@@ -716,7 +716,7 @@ def reg_gastos_of(idu: int):
                 return
             
             ult_reg_list = ult_reg()
-            print("Se registró: ", ult_reg_list[1], " - ", ult_reg_list[2], " - ","$", ult_reg_list[5], " - ", ult_reg_list[6], " - " "NÚMERO DE REGISTRO: ", f"{ult_reg_list[0]}".rjust(8, '0'))
+            print("Se registró: ", ult_reg_list[1], " - ", ult_reg_list[2], " - ","($", f"{ult_reg_list[5]})", " - ", ult_reg_list[6], " - " "NÚMERO DE REGISTRO: ", f"{ult_reg_list[0]}".rjust(8, '0'))
             
             return
     
@@ -790,7 +790,7 @@ def reg_pago_alquiler(idu: int):
         return
     
     ult_reg_list = ult_reg()
-    print("Se registró: ", ult_reg_list[1], " - ", ult_reg_list[2], " - ","$", ult_reg_list[5], " - ", ult_reg_list[6], " - " "NÚMERO DE REGISTRO: ", f"{ult_reg_list[0]}".rjust(8, '0'))
+    print("Se registró: ", ult_reg_list[1], " - ", ult_reg_list[2], " - ","($", f"{ult_reg_list[5]})", " - ", ult_reg_list[6], " - " "NÚMERO DE REGISTRO: ", f"{ult_reg_list[0]}".rjust(8, '0'))
     
     return
 
@@ -864,7 +864,7 @@ def reg_pago_sueldo(idu: int):
         return
 
     ult_reg_list = ult_reg()
-    print("Se registró: ", ult_reg_list[1], " - ", ult_reg_list[2], " - ","$", ult_reg_list[5], " - ", ult_reg_list[6], " - " "NÚMERO DE REGISTRO: ", f"{ult_reg_list[0]}".rjust(8, '0'))
+    print("Se registró: ", ult_reg_list[1], " - ", ult_reg_list[2], " - ","($", f"{ult_reg_list[5]})", " - ", ult_reg_list[6], " - " "NÚMERO DE REGISTRO: ", f"{ult_reg_list[0]}".rjust(8, '0'))
 
     return
 
@@ -939,7 +939,7 @@ def reg_pago_comision(idu: int):
         mant.run_query(query)
 
         ult_reg_list = ult_reg()
-        print("Se registró: ", ult_reg_list[1], " - ", ult_reg_list[2], " - ","$", ult_reg_list[5], " - ", ult_reg_list[6], " - " "NÚMERO DE REGISTRO: ", f"{ult_reg_list[0]}".rjust(8, '0'))
+        print("Se registró: ", ult_reg_list[1], " - ", ult_reg_list[2], " - ","($", f"{ult_reg_list[5]})", " - ", ult_reg_list[6], " - " "NÚMERO DE REGISTRO: ", f"{ult_reg_list[0]}".rjust(8, '0'))
         print()
         
         # Eliminando las comisiones pagas de la base de datos
@@ -1028,7 +1028,7 @@ def reg_alivio(idu: int):
     mant.run_query(query)
     
     ult_reg_list = ult_reg()
-    print("Se registró: ", ult_reg_list[1], " - ", ult_reg_list[2], " - ","$", ult_reg_list[5], " - ", ult_reg_list[6], " - " "NÚMERO DE REGISTRO: ", f"{ult_reg_list[0]}".rjust(8, '0'))
+    print("Se registró: ", ult_reg_list[1], " - ", ult_reg_list[2], " - ","($", f"{ult_reg_list[5]})", " - ", ult_reg_list[6], " - " "NÚMERO DE REGISTRO: ", f"{ult_reg_list[0]}".rjust(8, '0'))
     
     return
 
@@ -1233,7 +1233,7 @@ def a_rendir(idu: int):
         return
     
     ult_reg_list = ult_reg()
-    print("Se registró: ", ult_reg_list[1], " - ", ult_reg_list[2], " - ","$", ult_reg_list[5], " - ", ult_reg_list[6], " - " "NÚMERO DE REGISTRO: ", f"{ult_reg_list[0]}".rjust(8, '0'))
+    print("Se registró: ", ult_reg_list[1], " - ", ult_reg_list[2], " - ","($", f"{ult_reg_list[5]})", " - ", ult_reg_list[6], " - " "NÚMERO DE REGISTRO: ", f"{ult_reg_list[0]}".rjust(8, '0'))
     
     return
 
@@ -1471,7 +1471,7 @@ def listado_adeudado(idu: int):
         return
     
     ult_reg_list = ult_reg()
-    print("Se registró: ", ult_reg_list[1], " - ", ult_reg_list[2], " - ","$", ult_reg_list[5], " - ", ult_reg_list[6], " - " "NÚMERO DE REGISTRO: ", f"{ult_reg_list[0]}".rjust(8, '0'))
+    print("Se registró: ", ult_reg_list[1], " - ", ult_reg_list[2], " - ","($", f"{ult_reg_list[5]})", " - ", ult_reg_list[6], " - " "NÚMERO DE REGISTRO: ", f"{ult_reg_list[0]}".rjust(8, '0'))
     
     return
 
@@ -2683,7 +2683,7 @@ def reg_cobros_federacion(idu: int):
     mant.run_query(query_egr)
     
     ult_reg_list = ult_reg()
-    print("Se registró: ", ult_reg_list[1], " - ", ult_reg_list[2], " - ","$", ult_reg_list[5], " - ", ult_reg_list[6], " - " "NÚMERO DE REGISTRO: ", f"{ult_reg_list[0]}".rjust(8, '0'))
+    print("Se registró: ", ult_reg_list[1], " - ", ult_reg_list[2], " - ","($", f"{ult_reg_list[5]})", " - ", ult_reg_list[6], " - " "NÚMERO DE REGISTRO: ", f"{ult_reg_list[0]}".rjust(8, '0'))
     print()
     
     return
@@ -2773,7 +2773,7 @@ def reg_bonif_mant(idu: int):
     mant.run_query(query)
     
     ult_reg_list = ult_reg()
-    print("Se registró: ", ult_reg_list[1], " - ", ult_reg_list[2], " - ","$", ult_reg_list[5], " - ", ult_reg_list[6], " - " "NÚMERO DE REGISTRO: ", f"{ult_reg_list[0]}".rjust(8, '0'))
+    print("Se registró: ", ult_reg_list[1], " - ", ult_reg_list[2], " - ","($", f"{ult_reg_list[5]})", " - ", ult_reg_list[6], " - " "NÚMERO DE REGISTRO: ", f"{ult_reg_list[0]}".rjust(8, '0'))
     
     return
 
