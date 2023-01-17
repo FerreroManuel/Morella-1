@@ -100,9 +100,10 @@ def ingresar_cobro(idu: int):
     se da aviso al usuario que debe hacerlo desde la opción correspondiente y se
     finaliza la acción sin realizar cambios.
 
-    En caso que la operación tenga deuda previa a la implementación de Morella,
-    se da aviso al usuario que debe realizar el pago de la misma antes de poder
-    realizar el pago y se finaliza la acción sin realizar cambios.
+    En caso que la operación tenga deuda previa a la implementación de Morella
+    o recibos anteriores al que se desea ingresar, se da aviso al usuario que 
+    debe realizar el pago de los mismos antes de poder realizar el pago y se 
+    finaliza la acción sin realizar cambios.
 
     :param idu: ID de usuario
     :type idu: int
@@ -218,144 +219,154 @@ def ingresar_cobro(idu: int):
                     print("         ERROR. La operación debe cuotas previas a la implementación de Morella. Debe saldar la cuenta antes de abonar un nuevo recibo.")
                     print()
                     return
-            
-                else:
-                    try:
-                        rendicion = int(input("Indique el número de rendición: "))
-            
-                    except ValueError:
+
+                recibos_impagos = buscar_recibos_impagos(ope)
+
+                if len(recibos_impagos) > 1:
+                    if ndr == recibos_impagos[0][0]:
+                        pass
+                    else:
                         print()
-                        print("Número de rendición inválido. No se han realizado cambios en el registro.")
-                        print()
-                        return
-                    except:
-                        mant.log_error()
-                        print()
-                        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                        print(f"         ERROR. La operación debe recibos anteriores al que está intentando ingresar.")
                         print()
                         return
-            
-                    while msj == '':
-                        msj = input(f"¿Seguro que quiere ingresar el pago por el recibo nro. {f'{ndr}'.rjust(7, '0')}, perteneciente a la operación {str(ope).rjust(7, '0')} en la rendición nro. {rendicion}? (S/N) ")
-            
-                        if msj == 'S' or msj == 's' or msj == 'Si' or msj == 'SI' or msj == 'sI' or msj == 'si':
-                            set_pago(ndr)
-            
-                            if per[0:3] == 'Doc':
-                                registrar_comision_doc(cob, rendicion, ndr, val)
-            
-                            else:
-                                act_periodo(per, ope, año)
-                                registrar_comision_mant(cob, rendicion, ndr, val) 
-            
-                            print()
-                            cod, pan, pis, fil, num, cat, ocu, fall = obtener_datos_nicho(nic)
-                            categoria = f"Mantenimiento {obtener_panteon(pan)}"
-                            descripcion = f"{caja.obtener_nom_cobrador(cob)}"
-                            observacion = f"Rec: {f'{ndr}'.rjust(7, '0')} - Op: {str(ope).rjust(7, '0')}"
-                            dia = caja.obtener_dia()
-                            mes = caja.obtener_mes()
-                            año = caja.obtener_año()
-            
-                            parameters = str((categoria, descripcion, rendicion, val, observacion, dia, mes, año, idu))
-                            query = f"INSERT INTO caja (categoria, descripcion, transaccion, ingreso, observacion, dia, mes, año, id_user) VALUES {parameters}"
-            
-                            mant.run_query(query)
-            
-                            if mor == 1:
-                                id_op, soc, nic, fac, cob, tar, rut, ult, u_a, fup, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = obtener_datos_op(ope)
-                                fec_hoy = datetime.now().date()
-                                fup_sep = str(fup).split("/")
-                                fup_date = date(year = int(fup_sep[1]), month = int(fup_sep[0]), day = 1)
-                                cuenta = int(days_between(fup_date, fec_hoy)/730)
-            
-                                if cuenta <= 0:
-                                    print()
-                                    print("         ATENCIÓN: A partir del pago ralizado el asociado deja de ser MOROSO, indique cobrador y ruta para la operación.")
-                                    print()
-            
-                                    cobrador = menu_cobradores()
-            
-                                    if cobrador == 6:
-                                        deb_aut = 1
-                                        ruta = 0
-            
-                                    else:
-                                        loop = -1
-                                        while loop == -1:
-                                            try:
-                                                loop = ruta = int(input("Indique nro. de ruta: "))
-                                                print()
-            
-                                            except ValueError:
-                                                print("         ERROR. El dato solicitado debe ser de tipo numérico")
-                                                print()
-                                                loop = -1
-                                            except:
-                                                mant.log_error()
-                                                print()
-                                                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
-                                                print()
-                                                return
-                                        deb_aut = 0
-            
-                                    while deb_aut == 1:
+
+                try:
+                    rendicion = int(input("Indique el número de rendición: "))
+        
+                except ValueError:
+                    print()
+                    print("Número de rendición inválido. No se han realizado cambios en el registro.")
+                    print()
+                    return
+                except:
+                    mant.log_error()
+                    print()
+                    input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                    print()
+                    return
+        
+                while msj == '':
+                    msj = input(f"¿Seguro que quiere ingresar el pago por el recibo nro. {f'{ndr}'.rjust(7, '0')}, perteneciente a la operación {str(ope).rjust(7, '0')} en la rendición nro. {rendicion}? (S/N) ")
+        
+                    if msj == 'S' or msj == 's' or msj == 'Si' or msj == 'SI' or msj == 'sI' or msj == 'si':
+                        set_pago(ndr)
+        
+                        if per[0:3] == 'Doc':
+                            registrar_comision_doc(cob, rendicion, ndr, val)
+        
+                        else:
+                            act_periodo(per, ope, año)
+                            registrar_comision_mant(cob, rendicion, ndr, val) 
+        
+                        print()
+                        cod, pan, pis, fil, num, cat, ocu, fall = obtener_datos_nicho(nic)
+                        categoria = f"Mantenimiento {obtener_panteon(pan)}"
+                        descripcion = f"{caja.obtener_nom_cobrador(cob)}"
+                        observacion = f"Rec: {f'{ndr}'.rjust(7, '0')} - Op: {str(ope).rjust(7, '0')}"
+                        dia = caja.obtener_dia()
+                        mes = caja.obtener_mes()
+                        año = caja.obtener_año()
+        
+                        parameters = str((categoria, descripcion, rendicion, val, observacion, dia, mes, año, idu))
+                        query = f"INSERT INTO caja (categoria, descripcion, transaccion, ingreso, observacion, dia, mes, año, id_user) VALUES {parameters}"
+        
+                        mant.run_query(query)
+        
+                        if mor == 1:
+                            id_op, soc, nic, fac, cob, tar, rut, ult, u_a, fup, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = obtener_datos_op(ope)
+                            fec_hoy = datetime.now().date()
+                            fup_sep = str(fup).split("/")
+                            fup_date = date(year = int(fup_sep[1]), month = int(fup_sep[0]), day = 1)
+                            cuenta = int(days_between(fup_date, fec_hoy)/730)
+        
+                            if cuenta <= 0:
+                                print()
+                                print("         ATENCIÓN: A partir del pago ralizado el asociado deja de ser MOROSO, indique cobrador y ruta para la operación.")
+                                print()
+        
+                                cobrador = menu_cobradores()
+        
+                                if cobrador == 6:
+                                    deb_aut = 1
+                                    ruta = 0
+        
+                                else:
+                                    loop = -1
+                                    while loop == -1:
                                         try:
-                                            tarjeta = int(input("Ingrese los 16 dígitos de la tarjeta de crédito (Sin espacios): "))
-            
-                                            if len(str(tarjeta)) < 16 or len(str(tarjeta)) > 16:
-                                                print("         ERROR. Indique un número de tarjeta válido")
-                                                print()
-                                                deb_aut = 1
-            
-                                            else:
-                                                mant.edit_registro('operaciones', 'tarjeta', tarjeta, ope)
-                                                deb_aut = 0
+                                            loop = ruta = int(input("Indique nro. de ruta: "))
                                             print()
-            
+        
                                         except ValueError:
-                                            print("         ERROR. El dato solicitado debe ser de tipo numérico.")
+                                            print("         ERROR. El dato solicitado debe ser de tipo numérico")
                                             print()
-                                            deb_aut = 1
+                                            loop = -1
                                         except:
                                             mant.log_error()
                                             print()
                                             input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                                             print()
                                             return
-            
-                                    mant.edit_registro('operaciones', 'moroso', 0, ope)
-                                    mant.edit_registro('operaciones', 'cobrador', cobrador, ope)
-                                    mant.edit_registro('operaciones', 'ruta', ruta, ope)
-                            print("Pago ingresado exitosamente")
-            
-                        elif msj == 'N' or msj == 'n' or msj == 'No' or msj == 'NO' or msj == 'nO' or msj == 'no':
-                            print()
-                            print("No se han hecho cambios en el registro.")
-                        else:
-                            print()
-                            print("Debe ingresar S para confirmar o N para cancelar.")
-                            print()
-                            msj = ''
-            
-                    msj = ''
-                    print()
-                    while msj == '':
-                        msj = input(f"¿Desea ingresar otro pago? (S/N) ")
-            
-                        if msj == 'S' or msj == 's' or msj == 'Si' or msj == 'SI' or msj == 'sI' or msj == 'si':
-                            print()
-                            ndr = 0
-                            loop = -1
-            
-                        elif msj == 'N' or msj == 'n' or msj == 'No' or msj == 'NO' or msj == 'nO' or msj == 'no':
-                            print()
-                            return
-                        else:
-                            print()
-                            print("Debe ingresar S para confirmar o N para cancelar.")
-                            print()
-                            msj = ''
+                                    deb_aut = 0
+        
+                                while deb_aut == 1:
+                                    try:
+                                        tarjeta = int(input("Ingrese los 16 dígitos de la tarjeta de crédito (Sin espacios): "))
+        
+                                        if len(str(tarjeta)) < 16 or len(str(tarjeta)) > 16:
+                                            print("         ERROR. Indique un número de tarjeta válido")
+                                            print()
+                                            deb_aut = 1
+        
+                                        else:
+                                            mant.edit_registro('operaciones', 'tarjeta', tarjeta, ope)
+                                            deb_aut = 0
+                                        print()
+        
+                                    except ValueError:
+                                        print("         ERROR. El dato solicitado debe ser de tipo numérico.")
+                                        print()
+                                        deb_aut = 1
+                                    except:
+                                        mant.log_error()
+                                        print()
+                                        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                                        print()
+                                        return
+        
+                                mant.edit_registro('operaciones', 'moroso', 0, ope)
+                                mant.edit_registro('operaciones', 'cobrador', cobrador, ope)
+                                mant.edit_registro('operaciones', 'ruta', ruta, ope)
+                        print("Pago ingresado exitosamente")
+        
+                    elif msj == 'N' or msj == 'n' or msj == 'No' or msj == 'NO' or msj == 'nO' or msj == 'no':
+                        print()
+                        print("No se han hecho cambios en el registro.")
+                    else:
+                        print()
+                        print("Debe ingresar S para confirmar o N para cancelar.")
+                        print()
+                        msj = ''
+        
+                msj = ''
+                print()
+                while msj == '':
+                    msj = input(f"¿Desea ingresar otro pago? (S/N) ")
+        
+                    if msj == 'S' or msj == 's' or msj == 'Si' or msj == 'SI' or msj == 'sI' or msj == 'si':
+                        print()
+                        ndr = 0
+                        loop = -1
+        
+                    elif msj == 'N' or msj == 'n' or msj == 'No' or msj == 'NO' or msj == 'nO' or msj == 'no':
+                        print()
+                        return
+                    else:
+                        print()
+                        print("Debe ingresar S para confirmar o N para cancelar.")
+                        print()
+                        msj = ''
 
 
 def ingresar_cobro_auto(ope: int, c_f: int, u_r: str):
@@ -1845,3 +1856,19 @@ def obtener_valor_doc(id_op: int) -> float | int:
         datos = cursor.fetchone()
         
     return datos[0]
+
+
+def buscar_recibos_impagos(id_op: int) -> list:
+    """Recupera de la base de datos todos los recibos impagos que posee una
+    operación y los retorna en una lista ordenada por número de recibo.
+    
+    :param id_op: ID de operación
+    :type id_op: int
+
+    :rtype: list
+    """
+    with sql.connect(mant.DATABASE) as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT * FROM recibos WHERE operacion = {id_op} AND pago = 0 ORDER BY nro_recibo;")
+        datos = cursor.fetchall()
+    return datos
