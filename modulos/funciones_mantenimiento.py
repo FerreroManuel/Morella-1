@@ -811,11 +811,12 @@ def opcion_menu() -> int:                                                       
     print("   5. Mantenimiento de centros de egresos")
     print("   6. Mantenimiento de precios")
     print("   7. Mantenimiento de mails")
+    print("   8. Mantenimiento de datos de FiServ")
     print("   0. Salir")
     print("")
     try:
         opcion = int(input("Ingrese una opción: "))
-        while opcion < 0 or opcion > 7:
+        while opcion < 0 or opcion > 8:
             print("")
             print("Opción incorrecta.")
             print("")
@@ -857,6 +858,8 @@ def menu(idu: int):                                                             
             menu_precios(idu)
         elif opcion == 7: 
             menu_mails(idu)
+        elif opcion == 8: 
+            menu_fiserv(idu)
         elif opcion == 0:
             return
 
@@ -3877,6 +3880,111 @@ def eliminar_mail(idu: int):
                 print("")
                 print("         ERROR. Debe indicar S para eliminar la cuenta o N para cancelar.")
                 print("")
+
+
+def opcion_menu_fiserv() -> int:                                                                    # OPCIÓN MENÚ FISERV
+    """Muestra al usuario un menú y luego le solicita ingresar una de las
+    opciones mostradas a través del número correspondiente. En caso de no
+    ingresar una opción correcta, se le volverá a solicitar.
+
+    :rtype: int
+    """
+    print("")
+    print("********** Acciones disponibles **********")
+    print("")
+    print("   1. Modificar número de comercio")
+    print("   0. Volver")
+    print("")
+    try:
+        opcion = int(input("Ingrese una opción: "))
+        while opcion < 0 or opcion > 1:
+            print("")
+            print("Opción incorrecta.")
+            print("")
+            opcion = int(input("Ingrese una opción: "))
+    except ValueError: 
+        print("Opción incorrecta.")
+        opcion = -1
+    except:
+        log_error()
+        print("")
+        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        opcion = -1
+    return opcion
+
+
+def menu_fiserv(idu: int):                                                                          # MENÚ FISERV
+    """Recibe el ID del usuario. Luego llama a la función donde se muestra las
+    opciones y recibe, a través de ella, la opción ingresada por el usuario.
+    Luego, según la opción ingresada, llama a la función correspondiente, a la
+    cual le transmite el ID del usuario.
+
+    :param idu: ID de usuario
+    :type idu: int
+    """
+    opcion = -1
+    while opcion != 0:
+        opcion = opcion_menu_fiserv()
+        if opcion == 1:
+            editar_nro_comercio_fiserv()
+        elif opcion == 0:
+            return
+
+
+def editar_nro_comercio_fiserv():
+    """Permite al usuario modificar el número de comercio de FiServ.
+    """
+    loop = -1
+    
+    while loop == -1:
+        try:
+            print()
+            loop = nro_comercio = int(input("Indique el nuevo número de comercio o presione indique 0 para volver: "))
+    
+        except ValueError:
+            print()
+            print("         ERROR. El dato solicitado debe ser de tipo numérico.")
+            print()
+            loop= -1
+        
+    if loop == 0:
+        return
+    
+    else:
+        try:
+            with sql.connect(DATABASE) as conn:
+                cursor = conn.cursor()
+                cursor.execute(f"UPDATE comercio_fiserv SET nro_comercio = '{nro_comercio}';")
+        
+        except sql.OperationalError:
+            log_error()
+            print()
+            print("         ERROR. La base de datos no responde. Asegurese de estar conectado a la red y que el servidor se encuentre encendido.")
+            print()
+            print("         Si es así y el problema persiste, comuníquese con el administrador del sistema.")
+            print()
+            return
+        except:
+            log_error()
+            print("")
+            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            return
+
+        print()
+        print("Número de comercio de FiServ modificado exitosamente.")
+        print()
+
+
+def obtener_nro_comercio_fiserv() -> int:
+    """Recupera de la base de datos el número de comercio de FiServ y lo retorna
+
+    :rtype: int
+    """
+    with sql.connect(DATABASE) as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT nro_comercio FROM comercio_fiserv WHERE id = 1;")
+        datos = cursor.fetchone()
+    return datos[0]
 
 
 # INICIO FUNCIONES OCULTAS

@@ -2537,7 +2537,7 @@ def listado_recibos_deb_aut(recibos: list):
     counter = 0
     contador_fiserv = 0
     val_total = 0
-    nro_comercio_fiserv = "25476675"
+    nro_comercio_fiserv = str(mant.obtener_nro_comercio_fiserv())
     filler = " "
     errores = {}
 
