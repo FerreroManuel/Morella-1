@@ -14,7 +14,7 @@ El sistema consiste de 6 módulos:
 #### Mantenimiento de tablas (mantenimiento.py):
   > Módulo destinado al mantenimiento de tablas en el cual se pueden crear o editar usuarios, panteones, nichos, cobradores, centros de egresos, precios y mails.
   >
-  > El mismo contiene un menú secreto para uso exclusivo del administrador de sistema, al cual se ingresa generando un error de tipo KeboardInterrupt (Ctrl+C) al momento en el que el sistema solicita el nombre de usuario y escribiendo la palabra admin seguido de presionar la tecla enter. Desde ese menú el administrador tiene la posibilidad de restaurar su cuenta, en caso de haber sido bloqueada por varios intentos de login fallidos, y de modificar los datos de conexión con la base de datos.
+  > El mismo contiene un menú secreto para uso exclusivo del administrador de sistema, al cual se ingresa generando un error de tipo KeboardInterrupt al momento en el que el sistema solicita el nombre de usuario y escribiendo la palabra admin seguido de presionar la tecla enter. Desde ese menú el administrador tiene la posibilidad de restaurar su cuenta, en caso de haber sido bloqueada por varios intentos de login fallidos, y de modificar los datos de conexión con la base de datos.
 
 #### Rendiciones (rendiciones.py):
   > Módulo destinado a la cobranza de las cuotas de compra y mantenimiento de los nichos y a la emisión de recibos para los cobradores. 
@@ -90,7 +90,7 @@ En la carpeta ```descargas``` se encuentran los instaladores para la última ver
 
 Para poder utilizarlos deberá instalar un servidor de *PostgreSQL* y crear la base de datos, ya sea en la misma PC o en otra con cualquier sistema operativo.
 
-Una vez realizado esto, se deberá ingresar al módulo Mantenimiento de tablas (carpeta de instalación\modulos\mantenimiento.exe) y, una vez allí, ingresar al menú oculto para modificar los datos de acceso a la base de datos (ver código fuente de modulos\mantenimiento.py).
+Una vez realizado esto, se deberá ingresar al módulo Mantenimiento de tablas (carpeta de instalación\modulos\mantenimiento.exe) y, una vez allí, ingresar al menú secreto para modificar los datos de acceso a la base de datos (generar un error KeyboardInterrupt en el momento que el sistema pide el nombre de usuario).
 
 <br>
 
@@ -128,3 +128,4 @@ Para crear la base de datos en linux seguir los siguientes pasos:
    - *postgres* es el usuario de PostgreSQL.
    - *morella* es el nombre de la base de datos.
    - *\home\\~\schema.sql* es la ruta completa hacia el archivo ```schema.sql``` descargado previamente.
+   
