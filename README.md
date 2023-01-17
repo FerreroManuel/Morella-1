@@ -92,6 +92,8 @@ Para poder utilizarlos deberá instalar un servidor de *PostgreSQL* y crear la b
 
 Una vez realizado esto, se deberá ingresar al módulo Mantenimiento de tablas (carpeta de instalación\modulos\mantenimiento.exe) y, una vez allí, ingresar al menú secreto para modificar los datos de acceso a la base de datos (generar un error KeyboardInterrupt en el momento que el sistema pide el nombre de usuario).
 
+*\* Al instalar Morella por primera vez puede ser necesario instalar también Visual C++ Redistributable, para ello debe ejecutar el archivo ```VC_redist.x64.exe```, ubicado en la carpeta de instalación de Morella (por defecto: C:\Program Files\MF Soluciones Informaticas\Morella).*
+
 <br>
 
 ### Crear DB en Windows:
