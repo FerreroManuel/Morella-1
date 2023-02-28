@@ -4342,6 +4342,31 @@ def report_estado_cta(nro_socio: int, nombre: str, dni: int, facturacion: str, d
         pdf.cell(19, 5, 'Cobrador: ', 0, 0, 'L')
         pdf.set_font('Arial', '', 10)
         pdf.cell(20, 5, f'{cob}', 0, 1, 'L')
+
+        try:
+            nic, pan, pis, fil, num, id_cat, ocu, fall = rend.obtener_datos_nicho(nic)
+            id_cat, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(id_cat)
+
+        except TypeError:
+            nic = 0
+            
+        except:
+            mant.log_error()
+            print()
+            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            print()
+            return
+
+        if nic:
+            pdf.set_font('Arial', 'B', 10)
+            pdf.cell(25, 5, 'Código Nicho: ', 0, 0, 'L')
+            pdf.set_font('Arial', '', 10)
+            pdf.cell(23, 5, f'{nic}', 0, 0, 'L')
+            pdf.set_font('Arial', 'B', 10)
+            pdf.cell(20, 5, 'Categoría: ', 0, 0, 'L')
+            pdf.set_font('Arial', '', 10)
+            pdf.cell(25, 5, f'{cat}', 0, 1, 'L')
+
     
         if op_cob != 0 or nom_alt != None or dom_alt != None:
             if op_cob == 0:
@@ -4372,79 +4397,67 @@ def report_estado_cta(nro_socio: int, nombre: str, dni: int, facturacion: str, d
             pdf.cell(40, 3, f'{dom_alt})', 0, 1, 'L')
             pdf.ln(1)
     
-        pdf.ln(1)
-        pdf.set_font('Arial', 'B', 10)
-        pdf.cell(10, 5, '', 0, 0, 'L')
-        pdf.cell(17, 5, 'Recibo', 0, 0, 'L ')
-        pdf.cell(1, 5, '', 0, 0, 'L')
-        pdf.cell(11, 5, 'Cód. nicho', 0, 0, 'L')
-        pdf.cell(12, 5, '', 0, 0, 'L')
-        pdf.cell(47, 5, 'Período', 0, 0, 'L')
-        pdf.cell(1, 5, '', 0, 0, 'L')
-        pdf.cell(19, 5, 'Deuda', 0, 1, 'L')
-    
-        if c_f < 0:
-            pdf.set_font('Arial', '', 10)
-            pdf.cell(10, 5, '', 0, 0, 'L')
-            pdf.cell(17, 5, f'N/D', 0, 0, 'L ')
+        if nic:
+            pdf.ln(1)
+            pdf.set_font('Arial', 'B', 10)
+            pdf.cell(15, 5, '', 0, 0, 'L')
+            pdf.cell(20, 5, 'Recibo', 0, 0, 'L ')
             pdf.cell(1, 5, '', 0, 0, 'L')
-            pdf.cell(11, 5, f'{ctas.buscar_nicho_por_op(id_op)}'.rjust(10, '0'), 0, 0, 'L')
-            pdf.cell(12, 5, '', 0, 0, 'L')
-    
-            if fac == 'bicon':
-                pdf.cell(49, 5, f'Hasta Agosto-Septiembre 2022', 0, 0, 'L')
-    
-            if fac == 'nob':
-                pdf.cell(49, 5, f'Hasta Julio-Agosto 2022', 0, 0, 'L')
-    
+            pdf.cell(67, 5, 'Período', 0, 0, 'L')
             pdf.cell(1, 5, '', 0, 0, 'L')
-            pdf.cell(2, 5, '$', 0, 0, 'R')
-            pdf.cell(23, 5, f'{float(ctas.deuda_vieja_por_op(id_op)):.2f}', 0, 1, 'R')
-    
-        recibos = ctas.buscar_recibos_por_op(id_op)
-    
-        for r in recibos:
-            nro, ope, per, año, pag = r
-            nic = ctas.buscar_nicho_por_op(ope)
-    
-            try:
-                cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
-                id_cat, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
-    
-            except TypeError:
-                if 'Operaciones sin nicho' not in errores:
-                    errores['Operaciones sin nicho'] = [str(id_op).rjust(7, '0')]
-    
+            pdf.cell(19, 5, 'Deuda', 0, 1, 'L')
+        
+            if c_f < 0:
+                pdf.set_font('Arial', '', 10)
+                pdf.cell(15, 5, '', 0, 0, 'L')
+                pdf.cell(20, 5, f'N/D', 0, 0, 'L ')
+                pdf.cell(1, 5, '', 0, 0, 'L')
+        
+                if fac == 'bicon':
+                    pdf.cell(69, 5, f'Hasta Agosto-Septiembre 2022', 0, 0, 'L')
+        
+                if fac == 'nob':
+                    pdf.cell(69, 5, f'Hasta Julio-Agosto 2022', 0, 0, 'L')
+        
+                pdf.cell(1, 5, '', 0, 0, 'L')
+                pdf.cell(2, 5, '$', 0, 0, 'R')
+                pdf.cell(23, 5, f'{float(ctas.deuda_vieja_por_op(id_op)):.2f}', 0, 1, 'R')
+        
+            recibos = ctas.buscar_recibos_por_op(id_op)
+        
+            for r in recibos:
+                nro, ope, per, año, pag = r
+                nic = ctas.buscar_nicho_por_op(ope)
+
+                if fac == 'bicon':
+                    val = val_mant_bic
+        
+                elif fac == 'nob':
+                    val = val_mant_nob
+        
+                if per[0:3] == 'Doc':
+                    val = rend.obtener_valor_doc(ope)
+        
+                pdf.set_font('Arial', '', 10)
+                pdf.cell(15, 5, '', 0, 0, 'L')
+                pdf.cell(20, 5, f'{nro}'.rjust(7, '0'), 0, 0, 'L ')
+                pdf.cell(1, 5, '', 0, 0, 'L')
+        
+                if per == 'Diciembre - Enero':
+                    pdf.cell(69, 5, f'{per} - {año}/{int(str(año)[-2:])+1}', 0, 0, 'L')
+        
                 else:
-                    errores['Operaciones sin nicho'].append(str(id_op).rjust(7, '0'))
-    
-                continue
-    
-            if fac == 'bicon':
-                val = val_mant_bic
-    
-            elif fac == 'nob':
-                val = val_mant_nob
-    
-            if per[0:3] == 'Doc':
-                val = rend.obtener_valor_doc(ope)
-    
-            pdf.set_font('Arial', '', 10)
-            pdf.cell(10, 5, '', 0, 0, 'L')
-            pdf.cell(17, 5, f'{nro}'.rjust(7, '0'), 0, 0, 'L ')
-            pdf.cell(1, 5, '', 0, 0, 'L')
-            pdf.cell(11, 5, f'{ctas.buscar_nicho_por_op(ope)}'.rjust(10, '0'), 0, 0, 'L')
-            pdf.cell(12, 5, '', 0, 0, 'L')
-    
-            if per == 'Diciembre - Enero':
-                pdf.cell(49, 5, f'{per} - {año}{int(str(año)[-2:])+1}', 0, 0, 'L')
-    
-            else:
-                pdf.cell(49, 5, f'{per} - {año}', 0, 0, 'L')
-    
-            pdf.cell(1, 5, '', 0, 0, 'L')
-            pdf.cell(2, 5, '$', 0, 0, 'R')
-            pdf.cell(23, 5, f'{float(val):.2f}', 0, 1, 'R')
+                    pdf.cell(69, 5, f'{per} - {año}', 0, 0, 'L')
+        
+                pdf.cell(1, 5, '', 0, 0, 'L')
+                pdf.cell(2, 5, '$', 0, 0, 'R')
+                pdf.cell(23, 5, f'{float(val):.2f}', 0, 1, 'R')
+        else:
+            pdf.ln(3)
+            pdf.set_font('Arial', 'B', 10)
+            pdf.cell(15, 5, '', 0, 0, 'L')
+            pdf.cell(85, 5, 'LA OPERACIÓN NO TIENE UN NICHO ASIGNADO', 1, 1, 'L')
+            pdf.ln(3)
     
         pdf.ln(3)
         pdf.set_font('Arial', 'B', 10)
