@@ -1348,7 +1348,7 @@ def crear_op(idu: int, id_socio: int, ret: bool= False) -> int | None:
                 except IndexError:
                     pass
         
-            except UnboundLocalError:
+            except TypeError:
                 print("         ERROR. El nicho indicado no existe. Proceda a crearlo")
                 print()
                 exist = ""
@@ -1384,7 +1384,7 @@ def crear_op(idu: int, id_socio: int, ret: bool= False) -> int | None:
             try:
                 cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(cod_nicho)
             
-            except UnboundLocalError:
+            except TypeError:
                 return -1
             
             except:
@@ -1856,7 +1856,7 @@ def ver_operacion():
         cod_nicho, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(cod_nic)
         panteon = rend.obtener_panteon(pan)
     
-    except UnboundLocalError:
+    except TypeError:
         cod_nic = 'n/d'
     except:
         mant.log_error()
@@ -2328,7 +2328,7 @@ def cambiar_nicho(idu: int, id_op: int):
                 except IndexError:
                     pass
 
-            except UnboundLocalError:
+            except TypeError:
                 print("         ERROR. El nicho indicado no existe. Proceda a crearlo")
                 print()
                 exist = ""
@@ -2370,7 +2370,7 @@ def cambiar_nicho(idu: int, id_op: int):
                 try:
                     cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(cod_nicho)
             
-                except UnboundLocalError:
+                except TypeError:
                     return
                 except:
                     mant.log_error()
