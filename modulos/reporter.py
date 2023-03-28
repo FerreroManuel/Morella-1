@@ -1566,7 +1566,7 @@ def recibos(facturacion: str, recibos: list):
                 cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
     
             # Guardar en errores de operación si no tiene nicho asignado
-            except UnboundLocalError:
+            except TypeError:
                 if 'Operaciones sin nicho' not in errores:
                     errores['Operaciones sin nicho'] = [str(id_o).rjust(7, '0')]
     
@@ -2065,7 +2065,7 @@ def listado_recibos(id_cobrador: int, recibos: list):
             try:
                 cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
     
-            except UnboundLocalError:
+            except TypeError:
                 continue
     
             id_c, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
@@ -2275,7 +2275,7 @@ def recibos_deb_aut(recibos: list):
         try:
             cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
     
-        except UnboundLocalError:
+        except TypeError:
             if 'Operaciones sin nicho' not in errores:
                 errores['Operaciones sin nicho'] = [str(id_o).rjust(7, '0')]
     
@@ -2684,7 +2684,7 @@ def listado_recibos_deb_aut(recibos: list):
         try:
             cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
     
-        except UnboundLocalError:
+        except TypeError:
             continue
     
         nro, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = rend.obtener_datos_socio(soc)
@@ -2980,7 +2980,7 @@ def recibos_documentos() -> list:
                     try:
                         cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
                     
-                    except UnboundLocalError:
+                    except TypeError:
                         if 'Operaciones sin nicho' not in errores:
                             errores['Operaciones sin nicho'] = [str(id_o).rjust(7, '0')]
                     
@@ -3516,7 +3516,7 @@ def listado_recibos_documentos(lista_recibos: list):
         try:
             cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
     
-        except UnboundLocalError:
+        except TypeError:
             continue
     
         nro, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = rend.obtener_datos_socio(soc)
@@ -3627,7 +3627,7 @@ def reimpresion_recibo(ndr: int):
     try:
         cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
     
-    except UnboundLocalError:
+    except TypeError:
         print()
         print("         ERROR. La operación no tiene nicho asociado.")
         print()
@@ -3965,7 +3965,7 @@ def recibo_adelanto(ndr: int, cobrador: int, periodo_h: str, año_h: str, valor_
     try:
         cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
     
-    except UnboundLocalError:
+    except TypeError:
         print()
         print("         ERROR. La operación no tiene nicho asociado.")
         print()
@@ -4424,7 +4424,7 @@ def report_estado_cta(nro_socio: int, nombre: str, dni: int, facturacion: str, d
                 cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
                 id_cat, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
     
-            except UnboundLocalError:
+            except TypeError:
                 if 'Operaciones sin nicho' not in errores:
                     errores['Operaciones sin nicho'] = [str(id_op).rjust(7, '0')]
     
@@ -4762,7 +4762,7 @@ def report_estado_cta_mail(nro_socio: int, nombre: str, dni: int, facturacion: s
                 cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
                 id_cat, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
     
-            except UnboundLocalError:
+            except TypeError:
                 if 'Operaciones sin nicho' not in errores:
                     errores['Operaciones sin nicho'] = [str(id_op).rjust(7, '0')]
     
@@ -5034,7 +5034,7 @@ def report_morosos_det():
                     cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
                     id_cat, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
             
-                except UnboundLocalError:
+                except TypeError:
                     if 'Operaciones sin nicho' not in errores:
                         errores['Operaciones sin nicho'] = [str(id_op).rjust(7, '0')]
             
