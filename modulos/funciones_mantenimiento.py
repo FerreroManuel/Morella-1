@@ -2192,7 +2192,7 @@ def ocupar_nicho(idu: int):
         try:
             cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(cod_nicho)
         
-        except UnboundLocalError:
+        except TypeError:
             print("         ERROR. El nicho indicado no se encuentra dado de alta.")
             return
         except:
@@ -2283,7 +2283,7 @@ def cambiar_cat_nicho(idu: int):
         try:
             cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(cod_nicho)
     
-        except UnboundLocalError:
+        except TypeError:
             print("         ERROR. El nicho indicado no se encuentra dado de alta.")
             return
         except:
@@ -2390,7 +2390,7 @@ def eliminar_nicho(idu: int):
         try:
             cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(cod_nicho)
     
-        except UnboundLocalError:
+        except TypeError:
             print("         ERROR. El nicho indicado no se encuentra dado de alta.")
             return
         except:
