@@ -144,7 +144,7 @@ def ingresar_cobro(idu: int):
         try:
             cod, pan, pis, fil, num, cat, ocu, fall = obtener_datos_nicho(nic)
         
-        except UnboundLocalError:
+        except TypeError:
             print("         ERROR. La operación no tiene nicho asociado.")
             print()
             return
@@ -739,7 +739,7 @@ def ingresar_adelantos(idu: int):
     try:
         cod, pan, pis, fil, num, cat, ocu, fall = obtener_datos_nicho(nic)
     
-    except UnboundLocalError:
+    except TypeError:
         print("         ERROR. La operación no tiene nicho asociado.")
         print()
         return
@@ -1032,7 +1032,7 @@ def registrar_debito_automatico(idu: int):
         try:
             cod, pan, pis, fil, num, cat, ocu, fall = obtener_datos_nicho(nic)
     
-        except UnboundLocalError:
+        except TypeError:
             print("         ERROR. La operación no tiene nicho asociado.")
             print()
             return
