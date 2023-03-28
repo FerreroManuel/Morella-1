@@ -486,7 +486,7 @@ def buscar_op_cod_nicho(cod_nicho: str, ret: bool = False) -> tuple | None:
     try:
         cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(cod_nicho)
     
-    except UnboundLocalError:
+    except TypeError:
         print("         ERROR. Código de nicho inválido")
         print()
         return
@@ -913,7 +913,7 @@ def deuda_por_op(id_operacion: int) -> float | int:
         try:
             cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
         
-        except UnboundLocalError:
+        except TypeError:
             return deuda + deuda_vieja_por_op(id_operacion)
         except:
             mant.log_error()
@@ -952,7 +952,7 @@ def deuda_vieja_por_op(id_operacion: int) -> float | int:
     try:
         cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
     
-    except UnboundLocalError:
+    except TypeError:
         return 0
     except:
         mant.log_error()
