@@ -1597,7 +1597,7 @@ def recibos(facturacion: str, recibos: list):
                     añovar = datetime.now().strftime('%Y')
             
                 c_f -= 1
-                rend.ingresar_cobro_auto(id_o, c_f, f"{mes}-{año2c}")
+                rend.ingresar_cobro_auto(id_o, c_f, f"{mes}-{año2c}", periodo_actual, añovar)
             
             elif ultimo_pago != f'{periodo_actual}{año}' and c_f <= 0 and u_r != f"{mes}-{año2c}":
                 # Ingresando recibo en la base de datos
@@ -2306,7 +2306,7 @@ def recibos_deb_aut(recibos: list):
                     añovar = datetime.now().strftime('%Y')
                 c_f -= 1
     
-                rend.ingresar_cobro_auto(id_o, c_f)
+                rend.ingresar_cobro_auto(id_o, c_f, f"{mes}-{año2c}", periodo_actual, añovar)
     
             elif not ult == periodo_actual and u_a == año and c_f == 0 and u_r != f"{mes}-{año2c}":
                 # Ingresando recibo en la base de datos
