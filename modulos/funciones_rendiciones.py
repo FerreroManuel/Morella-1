@@ -369,7 +369,7 @@ def ingresar_cobro(idu: int):
                         msj = ''
 
 
-def ingresar_cobro_auto(ope: int, c_f: int, u_r: str, ult_pago: str, ult_año: str):
+def ingresar_cobro_auto(ope: int, c_f: int, u_r: str):
     """Modifica en la base de datos las cuotas a favor, el último recibo y el período
     y año del último pago de una operación específica a partir de su ID.
 
@@ -390,7 +390,7 @@ def ingresar_cobro_auto(ope: int, c_f: int, u_r: str, ult_pago: str, ult_año: s
     """
     with sql.connect(mant.DATABASE) as conn:
         cursor = conn.cursor()
-        instruccion = f"UPDATE operaciones SET cuotas_favor = '{c_f}', ult_rec = '{u_r}', ult_pago = '{ult_pago}', ult_año = '{ult_año}' WHERE id = '{ope}'"
+        instruccion = f"UPDATE operaciones SET cuotas_favor = '{c_f}', ult_rec = '{u_r}' WHERE id = '{ope}'"
         cursor.execute(instruccion)
 
 

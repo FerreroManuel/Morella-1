@@ -1587,17 +1587,10 @@ def recibos(facturacion: str, recibos: list):
             elif fac == 'nob':
                 val_mant = val_mant_nob
             
-            if ultimo_pago != f'{periodo_actual}{año}' and c_f > 0 and u_r != f"{mes}-{año2c}":
-                añovar = 0
-            
-                if periodo_actual == "Enero - Febrero":
-                    añovar = f"{int(datetime.now().strftime('%Y'))+1}"
-            
-                else:
-                    añovar = datetime.now().strftime('%Y')
-            
+            if c_f > 0 and u_r != f"{mes}-{año2c}":
+
                 c_f -= 1
-                rend.ingresar_cobro_auto(id_o, c_f, f"{mes}-{año2c}", periodo_actual, añovar)
+                rend.ingresar_cobro_auto(id_o, c_f, f"{mes}-{año2c}")
             
             elif ultimo_pago != f'{periodo_actual}{año}' and c_f <= 0 and u_r != f"{mes}-{año2c}":
                 # Ingresando recibo en la base de datos
@@ -1916,6 +1909,7 @@ def recibos(facturacion: str, recibos: list):
         mant.log_error()
         print()
         input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        print("")
         print()
         return
 
