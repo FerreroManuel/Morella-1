@@ -153,7 +153,7 @@ def obtener_categ_ing() -> list:
     """
     categ_ing = []
 
-    with open("../databases/categ_ing.mf", 'r', encoding='Utf-8') as archivo:
+    with open(mant.ARCH_CATEG_ING, 'r', encoding='Utf-8') as archivo:
         for i in archivo.readlines():
             categ_ing.append(i.rstrip())
 
@@ -168,7 +168,7 @@ def obtener_categ_egr() -> list:
     """
     categ_egr = []
     
-    with open("../databases/categ_egr.mf", 'r', encoding='Utf-8') as archivo:
+    with open(mant.ARCH_CATEG_EGR, 'r', encoding='Utf-8') as archivo:
         for i in archivo.readlines():
             categ_egr.append(i.rstrip())
 
@@ -215,7 +215,7 @@ def obtener_cobrador() -> list:
     """
     cobradores = []
     
-    with open("../databases/cobradores.mf", 'r', encoding='Utf-8') as archivo:
+    with open(mant.ARCH_COB, 'r', encoding='Utf-8') as archivo:
         for i in archivo.readlines():
             cobradores.append(i.rstrip())
 
@@ -246,7 +246,7 @@ def obtener_panteon() -> list:
     """
     panteones = []
 
-    with open("../databases/panteones.mf", 'r', encoding='Utf-8') as archivo:
+    with open(mant.ARCH_PANT, 'r', encoding='Utf-8') as archivo:
         for i in archivo.readlines():
             panteones.append(i.rstrip())
 

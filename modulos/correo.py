@@ -87,7 +87,7 @@ def envio_de_recibo(num_socio: int, id_op: int, periodo: str, nro_nicho: str, pa
     msg.attach(MIMEText(f"Sr/a. <b>{nom}</b>, le acercamos su recibo de pago correspondiente a <u>{periodo}</u> por el mantenimiento del nicho <b>{str(nro_nicho).rjust(10, '0')}</b> ubicado en el panteón <b>{panteon}</b>. El mismo fue debitado de su tarjeta <i>XXXX XXXX XXXX {t04}</i>, según lo acordado.<br><br>Muchas Gracias por confiar en nosotros.<br><br>______________________________<br><br><b>Grupo Bicon S.A.</b><br>430 9999 / 430 8800<br>Córdoba 2915 - 2000<br>ROSARIO, Santa Fe<br><br><i>Este mensaje fue generado automáticamente, por favor no lo responda. Si usted cree que se trata de un error póngase en contacto con la administración para notificarlo. Muchas Gracias.</i>",'html'))
 
     # Cargamos el archivo a adjuntar
-    fp = open(f"../reports/recibos/{nom_cob}/{num_socio}-{nom}/recibo-{num_rec}.pdf",'rb')
+    fp = open(mant.re_path(f'reports/recibos/{nom_cob}/{num_socio}-{nom}/recibo-{num_rec}.pdf'),'rb')
     adjunto = MIMEBase('multipart', 'encrypted')
     
     # Lo insertamos en una variable
@@ -213,7 +213,7 @@ def aviso_de_mora(id_operacion: int):
 
         # Cargamos el archivo a adjuntar
         try:
-            fp = open(f'../reports/temp/estado_cta_mail.pdf','rb')
+            fp = open(mant.re_path(f'reports/temp/estado_cta_mail.pdf'),'rb')
         
         except PermissionError:
             mant.log_error()

@@ -277,7 +277,7 @@ def report_caja_diaria(s_final: float | int):
               - Observaciones
             """
             # Logo
-            self.image('../docs/logo_bicon.jpg', 14.5, 12, 15)
+            self.image(mant.re_path('docs/logo_bicon.jpg'), 14.5, 12, 15)
             # Arial bold 15
             self.set_font('Arial', 'B', 15)
             # Title
@@ -321,7 +321,7 @@ def report_caja_diaria(s_final: float | int):
             # Firma
             self.set_font('Arial', 'I', 8)
             self.cell(-10, 10, f'Reporte generado en *MORELLA v{mant.SHORT_VERSION}* by ', 0, 0, 'R')
-            self.image('../docs/mf_logo.jpg', 190, 274, 8)
+            self.image(mant.re_path('docs/mf_logo.jpg'), 190, 274, 8)
 
     # Instantiation of inherited class
     pdf = PDF()
@@ -364,7 +364,7 @@ def report_caja_diaria(s_final: float | int):
     
     pdf.ln(2)
 
-    pdf.output(f'../reports/caja/diaria/caja_diaria-{str(contador).rjust(6, "0")}.pdf', 'F')
+    pdf.output(mant.re_path(f'reports/caja/diaria/caja_diaria-{str(contador).rjust(6, "0")}.pdf'), 'F')
 
 
     ############ ABRIR REPORT ############
@@ -377,13 +377,13 @@ def report_caja_diaria(s_final: float | int):
         print('\n\n\n\n')
 
     print("Abriendo reporte. Luego de cerrarlo presione enter para continuar...")
-    ruta = f'../reports/caja/diaria'
+    ruta = mant.re_path('reports/caja/diaria')
     arch = f'caja_diaria-{str(contador).rjust(6, "0")}.pdf'
 
     os.chdir(ruta)
     os.system(arch)
 
-    ruta = '../../../modulos/'
+    ruta = mant.MODULES_DIR
     os.chdir(ruta)
 
 ############################################### FIN DE REPORT ###################################################
@@ -700,7 +700,7 @@ def report_caja_mensual_det(mes: int, año: int):
               - Fecha
             """
             # Logo
-            self.image('../docs/logo_bicon.jpg', 14.5, 12, 15)
+            self.image(mant.re_path('docs/logo_bicon.jpg'), 14.5, 12, 15)
             # Arial bold 15
             self.set_font('Arial', 'B', 15)
             # Title
@@ -745,7 +745,7 @@ def report_caja_mensual_det(mes: int, año: int):
             # Firma
             self.set_font('Arial', 'I', 8)
             self.cell(-10, 10, f'Reporte generado en *MORELLA v{mant.SHORT_VERSION}* by ', 0, 0, 'R')
-            self.image('../docs/mf_logo.jpg', 190, 274, 8)
+            self.image(mant.re_path('docs/mf_logo.jpg'), 190, 274, 8)
 
     # Instantiation of inherited class
     pdf = PDF()
@@ -768,7 +768,7 @@ def report_caja_mensual_det(mes: int, año: int):
     pdf.cell(-27, 5, f'TOTAL EGRESOS: $ ', 0, 1, 'R')
     pdf.ln(2)
     
-    pdf.output(f'../reports/caja/mensual/detallada/caja_{str.lower(string_mes)}-{año}.pdf', 'F')
+    pdf.output(mant.re_path(f'reports/caja/mensual/detallada/caja_{str.lower(string_mes)}-{año}.pdf'), 'F')
 
 
     ############ ABRIR REPORT ############
@@ -782,13 +782,13 @@ def report_caja_mensual_det(mes: int, año: int):
 
     print("Abriendo reporte. Cierre el archivo para continuar...")
     
-    ruta = f'../reports/caja/mensual/detallada/'
+    ruta = mant.re_path('reports/caja/mensual/detallada/')
     arch = f'caja_{str.lower(string_mes)}-{año}.pdf'
     
     os.chdir(ruta)
     os.system(arch)
     
-    ruta = '../../../../modulos/'
+    ruta = mant.MODULES_DIR
     os.chdir(ruta)
 
 ############################################### FIN DE REPORT ###################################################
@@ -1051,7 +1051,7 @@ def report_caja_mensual_comp(mes: int, año: int):
               - Egreso
             """
             # Logo
-            self.image('../docs/logo_bicon.jpg', 14.5, 12, 15)
+            self.image(mant.re_path('docs/logo_bicon.jpg'), 14.5, 12, 15)
             # Arial bold 15
             self.set_font('Arial', 'B', 15)
             # Title
@@ -1100,7 +1100,7 @@ def report_caja_mensual_comp(mes: int, año: int):
             #self.cell(-15, 10, 'MF!', 0, 0, 'R')
             self.set_font('Arial', 'I', 8)
             self.cell(-10, 10, f'Reporte generado en *MORELLA v{mant.SHORT_VERSION}* by ', 0, 0, 'R')
-            self.image('../docs/mf_logo.jpg', 190, 274, 8)
+            self.image(mant.re_path('docs/mf_logo.jpg'), 190, 274, 8)
 
     # Instantiation of inherited class
     pdf = PDF()
@@ -1124,7 +1124,7 @@ def report_caja_mensual_comp(mes: int, año: int):
     pdf.cell(-27, 5, f'TOTAL EGRESOS: $ ', 0, 1, 'R')
     pdf.ln(2)
     
-    pdf.output(f'../reports/caja/mensual/comprimida/caja_{str.lower(string_mes)}-{año}-COMP.pdf', 'F')
+    pdf.output(mant.re_path(f'reports/caja/mensual/comprimida/caja_{str.lower(string_mes)}-{año}-COMP.pdf'), 'F')
 
 
     ############ ABRIR REPORT ############
@@ -1138,12 +1138,12 @@ def report_caja_mensual_comp(mes: int, año: int):
 
     print("Abriendo reporte. Cierre el archivo para continuar...")
     
-    ruta = f'../reports/caja/mensual/comprimida/'
+    ruta = mant.re_path('reports/caja/mensual/comprimida/')
     arch = f'caja_{str.lower(string_mes)}-{año}-COMP.pdf'
     os.chdir(ruta)
     os.system(arch)
     
-    ruta = '../../../../modulos/'
+    ruta = mant.MODULES_DIR
     os.chdir(ruta)
 
 ############################################### FIN DE REPORT ###################################################
@@ -1378,7 +1378,7 @@ def report_caja_mensual_por_cob(mes: int, año: int):
               - Fecha.
             """
             # Logo
-            self.image('../docs/logo_bicon.jpg', 14.5, 12, 15)
+            self.image(mant.re_path('docs/logo_bicon.jpg'), 14.5, 12, 15)
             # Arial bold 15
             self.set_font('Arial', 'B', 15)
             # Title
@@ -1422,7 +1422,7 @@ def report_caja_mensual_por_cob(mes: int, año: int):
             # Firma
             self.set_font('Arial', 'I', 8)
             self.cell(-10, 10, f'Reporte generado en *MORELLA v{mant.SHORT_VERSION}* by ', 0, 0, 'R')
-            self.image('../docs/mf_logo.jpg', 190, 274, 8)
+            self.image(mant.re_path('docs/mf_logo.jpg'), 190, 274, 8)
 
     # Instantiation of inherited class
     pdf = PDF()
@@ -1444,7 +1444,7 @@ def report_caja_mensual_por_cob(mes: int, año: int):
     pdf.cell(-27, 5, f'TOTAL: $ ', 0, 1, 'R')
     pdf.ln(2)
     
-    pdf.output(f'../reports/caja/mensual/por_cobrador/caja_{str.lower(string_mes)}-{año}-por_cobrador.pdf', 'F')
+    pdf.output(mant.re_path(f'reports/caja/mensual/por_cobrador/caja_{str.lower(string_mes)}-{año}-por_cobrador.pdf'), 'F')
         
 
     ############ ABRIR REPORT ############
@@ -1460,12 +1460,12 @@ def report_caja_mensual_por_cob(mes: int, año: int):
     print()
     print("Abriendo reporte. Cierre el archivo para continuar...")
     
-    ruta = f'../reports/caja/mensual/por_cobrador/'
+    ruta = mant.re_path('reports/caja/mensual/por_cobrador/')
     arch = f'caja_{str.lower(string_mes)}-{año}-por_cobrador.pdf'
     os.chdir(ruta)
     os.system(arch)
     
-    ruta = '../../../../modulos/'
+    ruta = mant.MODULES_DIR
     os.chdir(ruta)
 
 ############################################### FIN DE REPORT ###################################################
@@ -1530,14 +1530,14 @@ def recibos(facturacion: str, recibos: list):
             Inserta ocho escudos sin importar si en la hoja quedan
             recibos en blanco.
             """
-            self.image('../docs/logo_nob.jpg', 11, 4, 10)
-            self.image('../docs/logo_nob.jpg', 108, 4, 10)
-            self.image('../docs/logo_nob.jpg', 11, 78, 10)
-            self.image('../docs/logo_nob.jpg', 108, 78, 10)
-            self.image('../docs/logo_nob.jpg', 11, 152, 10)
-            self.image('../docs/logo_nob.jpg', 108, 152, 10)
-            self.image('../docs/logo_nob.jpg', 11, 226, 10)
-            self.image('../docs/logo_nob.jpg', 108, 226, 10)
+            self.image(mant.re_path('docs/logo_nob.jpg'), 11, 4, 10)
+            self.image(mant.re_path('docs/logo_nob.jpg'), 108, 4, 10)
+            self.image(mant.re_path('docs/logo_nob.jpg'), 11, 78, 10)
+            self.image(mant.re_path('docs/logo_nob.jpg'), 108, 78, 10)
+            self.image(mant.re_path('docs/logo_nob.jpg'), 11, 152, 10)
+            self.image(mant.re_path('docs/logo_nob.jpg'), 108, 152, 10)
+            self.image(mant.re_path('docs/logo_nob.jpg'), 11, 226, 10)
+            self.image(mant.re_path('docs/logo_nob.jpg'), 108, 226, 10)
     
     if facturacion == 'bicon':
         pdf = FPDF()    # Clase base
@@ -1869,18 +1869,18 @@ def recibos(facturacion: str, recibos: list):
 
     try:
         # Crea la carpeta si no existe.
-        if not os.path.isdir(f'../reports/recibos/{nco}'):
-            os.mkdir(f'../reports/recibos/{nco}')
+        if not os.path.isdir(mant.re_path(f'reports/recibos/{nco}')):
+            os.mkdir(mant.re_path(f'reports/recibos/{nco}'))
 
         # Evita sobreescribir un archivo existente
         output_counter = 0
         output_name = f"recibos_{año}-{mes}-{dia}.pdf"
     
-        while os.path.isfile(f'../reports/recibos/{nco}/{output_name}'):
+        while os.path.isfile(mant.re_path(f'reports/recibos/{nco}/{output_name}')):
             output_counter += 1
             output_name = f"recibos_{año}-{mes}-{dia}_({output_counter}).pdf"
     
-        pdf.output(f'../reports/recibos/{nco}/{output_name}', 'F')
+        pdf.output(mant.re_path(f'reports/recibos/{nco}/{output_name}'), 'F')
 
         ############ ABRIR REPORT ############
 
@@ -1893,12 +1893,12 @@ def recibos(facturacion: str, recibos: list):
 
         print("Abriendo recibos...")
     
-        ruta = f'../reports/recibos/{nco}/'
+        ruta = mant.re_path(f'reports/recibos/{nco}/')
         arch = output_name.replace('(', '^(')
         os.chdir(ruta)
         os.system(arch)
     
-        ruta = '../../../modulos/'
+        ruta = mant.MODULES_DIR
         os.chdir(ruta)
     
     except UnboundLocalError:
@@ -1991,7 +1991,7 @@ def listado_recibos(id_cobrador: int, recibos: list):
               - Importe.
             """
             # Logo
-            self.image('../docs/logo_bicon.jpg', 14.5, 12, 15)
+            self.image(mant.re_path('docs/logo_bicon.jpg'), 14.5, 12, 15)
             # Arial bold 15
             self.set_font('Arial', 'B', 15)
             # Title
@@ -2035,7 +2035,7 @@ def listado_recibos(id_cobrador: int, recibos: list):
             # Firma
             self.set_font('Arial', 'I', 8)
             self.cell(-10, 10, f'Reporte generado en *MORELLA v{mant.SHORT_VERSION}* by ', 0, 0, 'R')
-            self.image('../docs/mf_logo.jpg', 190, 274, 8)
+            self.image(mant.re_path('docs/mf_logo.jpg'), 190, 274, 8)
 
     # Instantiation of inherited class
     pdf = PDF()
@@ -2162,18 +2162,18 @@ def listado_recibos(id_cobrador: int, recibos: list):
     
     try:
         # Crea la carpeta si no existe
-        if not os.path.isdir(f'../reports/recibos/{nco}'):
-            os.mkdir(f'../reports/recibos/{nco}')
+        if not os.path.isdir(mant.re_path(f'reports/recibos/{nco}')):
+            os.mkdir(mant.re_path(f'reports/recibos/{nco}'))
     
         # Evita sobreescribir un archivo existente
         output_counter = 0
         output_name = f"listado_recibos_{año}-{mes}-{dia}.pdf"
     
-        while os.path.isfile(f'../reports/recibos/{nco}/{output_name}'):
+        while os.path.isfile(mant.re_path(f'reports/recibos/{nco}/{output_name}')):
             output_counter += 1
             output_name = f'listado_recibos_{año}-{mes}-{dia}_({output_counter}).pdf'
         
-        pdf.output(f'../reports/recibos/{nco}/{output_name}', 'F')
+        pdf.output(mant.re_path(f'reports/recibos/{nco}/{output_name}'), 'F')
 
     ############ ABRIR REPORT ############
 
@@ -2186,12 +2186,12 @@ def listado_recibos(id_cobrador: int, recibos: list):
             
         print("Abriendo Listado...")
         
-        ruta = f'../reports/recibos/{nco}/'
+        ruta = mant.re_path(f'reports/recibos/{nco}/')
         arch = output_name.replace('(', '^(')
         os.chdir(ruta)
         os.system(arch)
         
-        ruta = '../../../modulos/'
+        ruta = mant.MODULES_DIR
         os.chdir(ruta)
     
     except UnboundLocalError:
@@ -2341,7 +2341,7 @@ def recibos_deb_aut(recibos: list):
                 # Header NOB
                 elif fac == 'nob':
                     # Logo
-                    pdf.image('../docs/logo_nob.jpg', 11, 14, 10)
+                    pdf.image(mant.re_path('docs/logo_nob.jpg'), 11, 14, 10)
                     pdf.set_font('Arial', 'I', 7)
                     pdf.cell(190, 3.1, '', 0, 1, 'L')
                     pdf.ln(1)
@@ -2461,12 +2461,12 @@ def recibos_deb_aut(recibos: list):
             num_rec = f'{ndr}'.rjust(7, '0')
             
             # Crea la carpeta si no existe
-            if not os.path.isdir(f'../reports/recibos/{nco}'):
-                os.mkdir(f'../reports/recibos/{nco}')
-            if not os.path.isdir(f'../reports/recibos/{nco}/{num_soc}-{nom}'):
-                os.mkdir(f'../reports/recibos/{nco}/{num_soc}-{nom}')
+            if not os.path.isdir(mant.re_path(f'reports/recibos/{nco}')):
+                os.mkdir(mant.re_path(f'reports/recibos/{nco}'))
+            if not os.path.isdir(mant.re_path(f'reports/recibos/{nco}/{num_soc}-{nom}')):
+                os.mkdir(mant.re_path(f'reports/recibos/{nco}/{num_soc}-{nom}'))
             
-            pdf.output(f'../reports/recibos/{nco}/{num_soc}-{nom}/recibo-{num_rec}.pdf', 'F')
+            pdf.output(mant.re_path(f'reports/recibos/{nco}/{num_soc}-{nom}/recibo-{num_rec}.pdf'), 'F')
 
         except UnboundLocalError:
             print()
@@ -2532,8 +2532,8 @@ def listado_recibos_deb_aut(recibos: list):
     ############ INICIO DE FUNCIONES ############
 
     # Eliminar el archivo temporal de detalle de la presentación si es que existe
-    if os.path.isfile('../reports/presentaciones_fiserv/temp/pres_det.txt'):
-        os.remove('../reports/presentaciones_fiserv/temp/pres_det.txt')
+    if os.path.isfile(mant.re_path('reports/presentaciones_fiserv/temp/pres_det.txt')):
+        os.remove(mant.re_path('reports/presentaciones_fiserv/temp/pres_det.txt'))
 
     ############ FIN DE FUNCIONES ############
 
@@ -2609,7 +2609,7 @@ def listado_recibos_deb_aut(recibos: list):
               - Importe.
             """
             # Logo
-            self.image('../docs/logo_bicon.jpg', 14.5, 12, 15)
+            self.image(mant.re_path('docs/logo_bicon.jpg'), 14.5, 12, 15)
             # Arial bold 15
             self.set_font('Arial', 'B', 15)
             # Title
@@ -2653,7 +2653,7 @@ def listado_recibos_deb_aut(recibos: list):
             # Firma
             self.set_font('Arial', 'I', 8)
             self.cell(-10, 10, f'Reporte generado en *MORELLA v{mant.SHORT_VERSION}* by ', 0, 0, 'R')
-            self.image('../docs/mf_logo.jpg', 190, 274, 8)
+            self.image(mant.re_path('docs/mf_logo.jpg'), 190, 274, 8)
 
     # Instantiation of inherited class
     pdf = PDF()
@@ -2744,14 +2744,14 @@ def listado_recibos_deb_aut(recibos: list):
     ########## Inscripción en el TXT de detalle de presentación para FiServ ##########
 
                 # Crea las carpetas si no existen
-                if os.path.isdir('../reports/presentaciones_fiserv') == False:
-                    os.mkdir('../reports/presentaciones_fiserv')
+                if os.path.isdir(mant.re_path('reports/presentaciones_fiserv')) == False:
+                    os.mkdir(mant.re_path('reports/presentaciones_fiserv'))
                 
-                if os.path.isdir('../reports/presentaciones_fiserv/temp') == False:
-                    os.mkdir('../reports/presentaciones_fiserv/temp')
+                if os.path.isdir(mant.re_path('reports/presentaciones_fiserv/temp')) == False:
+                    os.mkdir(mant.re_path('reports/presentaciones_fiserv/temp'))
                 
                 # Inscripción al detalle del TXT
-                with open('../reports/presentaciones_fiserv/temp/pres_det.txt', 'a') as detalle:
+                with open(mant.re_path('reports/presentaciones_fiserv/temp/pres_det.txt'), 'a') as detalle:
                     detalle.write(f"\n{nro_comercio_fiserv}2{str(tar)}{str(id_o).rjust(12, '0')}00199902{str(int(val_mant)).rjust(9, '0')}00{periodo_fiserv} {vto_fiserv}{60*filler}")
                 
                 # Contador de cobros
@@ -2777,21 +2777,21 @@ def listado_recibos_deb_aut(recibos: list):
     output_counter = 0
     output_name = f'presentacion_{año}-{mes}-{dia}.txt'
 
-    while os.path.isfile(f'../reports/presentaciones_fiserv/{output_name}'):
+    while os.path.isfile(mant.re_path(f'reports/presentaciones_fiserv/{output_name}')):
         output_counter += 1
         output_name = f'presentacion_{año}-{mes}-{dia}_({output_counter}).txt'
 
     # Escritura de la cabecera de la presentacíon
-    with open(f'../reports/presentaciones_fiserv/{output_name}', 'w') as presentacion:
+    with open(mant.re_path(f'reports/presentaciones_fiserv/{output_name}'), 'w') as presentacion:
         presentacion.write(f"{nro_comercio_fiserv}1{dia}{mes}{año2c}{str(contador_fiserv).rjust(7, '0')}0{str(int(val_total)).rjust(12, '0')}00{91*filler}")
 
     # Escritura del detalle de la presentación
     try:
-        with open('../reports/presentaciones_fiserv/temp/pres_det.txt', 'r') as detalle:
+        with open(mant.re_path('reports/presentaciones_fiserv/temp/pres_det.txt'), 'r') as detalle:
             lista = detalle.readlines()
 
         for linea in lista:
-            with open(f'../reports/presentaciones_fiserv/{output_name}', 'a') as presentacion:
+            with open(mant.re_path(f'reports/presentaciones_fiserv/{output_name}'), 'a') as presentacion:
                 presentacion.write(linea)
 
     except FileNotFoundError:
@@ -2807,18 +2807,18 @@ def listado_recibos_deb_aut(recibos: list):
     
     try:
         # Crea la carpeta si no existe
-        if not os.path.isdir(f'../reports/recibos/{nco}'):
-            os.mkdir(f'../reports/recibos/{nco}')
+        if not os.path.isdir(mant.re_path(f'reports/recibos/{nco}')):
+            os.mkdir(mant.re_path(f'reports/recibos/{nco}'))
 
         # Evita sobreescribir un archivo existente
         output_counter = 0
         output_name = f'listado_recibos_{año}-{mes}-{dia}.pdf'
 
-        while os.path.isfile(f'../reports/recibos/{output_name}'):
+        while os.path.isfile(mant.re_path(f'reports/recibos/{output_name}')):
             output_counter += 1
             output_name = f'listado_recibos_{año}-{mes}-{dia}_({output_counter}).pdf'
 
-        pdf.output(f'../reports/recibos/{nco}/{output_name}', 'F')
+        pdf.output(mant.re_path(f'reports/recibos/{nco}/{output_name}'), 'F')
         
     ############ ABRIR REPORT ############
 
@@ -2831,12 +2831,12 @@ def listado_recibos_deb_aut(recibos: list):
 
         print("Abriendo reporte. Cierre el archivo para continuar...")
 
-        ruta = f'../reports/recibos/{nco}/'
+        ruta = mant.re_path(f'reports/recibos/{nco}/')
         arch = f'listado_recibos_{año}-{mes}-{dia}.pdf'
         os.chdir(ruta)
         os.system(arch)
 
-        ruta = '../../../modulos/'
+        ruta = mant.MODULES_DIR
         os.chdir(ruta)
 
     except UnboundLocalError:
@@ -3065,8 +3065,8 @@ def recibos_documentos() -> list:
                     
                     elif fac == 'nob': #                                                <----- HEADER DE NOB
                     #     # Logo
-                    #     pdf.image('../docs/logo_nob.jpg', 11, 4, 10)
-                    #     pdf.image('../docs/logo_nob.jpg', 108, 4, 10)
+                    #     pdf.image(mant.re_path('docs/logo_nob.jpg'), 11, 4, 10)
+                    #     pdf.image(mant.re_path('docs/logo_nob.jpg'), 108, 4, 10)
                     #     pdf.set_font('Arial', 'I', 7)
                     #     pdf.cell(190, 3.1, '', 0, 1, 'L')
                     #     pdf.ln(1)
@@ -3261,18 +3261,18 @@ def recibos_documentos() -> list:
     ############ GUARDAR REPORT ############
     try:
         # Crea la carpeta si no existe
-        if not os.path.isdir(f'../reports/recibos/documentos'):
-            os.mkdir(f'../reports/recibos/documentos')
+        if not os.path.isdir(mant.re_path('reports/recibos/documentos')):
+            os.mkdir(mant.re_path('reports/recibos/documentos'))
 
         # Evita la sobreescritura de archivos existentes
         output_counter = 0
         output_name = f'recibos_{año}-{mes}-{dia}.pdf'
         
-        while os.path.isfile(f'../reports/recibos/documentos/{output_name}'):
+        while os.path.isfile(mant.re_path(f'reports/recibos/documentos/{output_name}')):
             output_counter += 1
             output_name = f'recibos_{año}-{mes}-{dia}_({output_counter}).pdf'
         
-        pdf.output(f'../reports/recibos/documentos/{output_name}', 'F')
+        pdf.output(mant.re_path(f'reports/recibos/documentos/{output_name}'), 'F')
 
         ############ ABRIR REPORT ############
 
@@ -3285,12 +3285,12 @@ def recibos_documentos() -> list:
 
         print("Abriendo reporte. Cierre el archivo para continuar...")
 
-        ruta = f'../reports/recibos/documentos'
+        ruta = mant.re_path('reports/recibos/documentos')
         arch = output_name.replace('(', '^(')
         os.chdir(ruta)
         os.system(arch)
 
-        ruta = '../../../modulos/'
+        ruta = mant.MODULES_DIR
         os.chdir(ruta)
 
     except UnboundLocalError:
@@ -3433,7 +3433,7 @@ def listado_recibos_documentos(lista_recibos: list):
               - Importe
             """            
             # Logo
-            self.image('../docs/logo_bicon.jpg', 14.5, 12, 15)
+            self.image(mant.re_path('docs/logo_bicon.jpg'), 14.5, 12, 15)
             # Arial bold 15
             self.set_font('Arial', 'B', 15)
             # Title
@@ -3479,7 +3479,7 @@ def listado_recibos_documentos(lista_recibos: list):
             # Firma
             self.set_font('Arial', 'I', 8)
             self.cell(-10, 10, f'Reporte generado en *MORELLA v{mant.SHORT_VERSION}* by ', 0, 0, 'R')
-            self.image('../docs/mf_logo.jpg', 190, 274, 8)
+            self.image(mant.re_path('docs/mf_logo.jpg'), 190, 274, 8)
 
     # Instantiation of inherited class
     pdf = PDF()
@@ -3544,17 +3544,17 @@ def listado_recibos_documentos(lista_recibos: list):
     pdf.cell(23, 5, f'$ {imp_acu:.2f}', 'RTB', 0, 'R')
     
     try:
-        if not os.path.isdir(f'../reports/recibos/documentos'):
-            os.mkdir(f'../reports/recibos/documentos')
+        if not os.path.isdir(mant.re_path('reports/recibos/documentos')):
+            os.mkdir(mant.re_path('reports/recibos/documentos'))
     
         output_counter = 0
         output_name = f'listado_recibos_{año}-{mes}-{dia}.pdf'
     
-        while os.path.isfile(f'../reports/recibos/documentos/{output_name}'):
+        while os.path.isfile(mant.re_path(f'reports/recibos/documentos/{output_name}')):
             output_counter += 1
             output_name = f'listado_recibos_{año}-{mes}-{dia}_({output_counter}).pdf'
     
-        pdf.output(f'../reports/recibos/documentos/{output_name}', 'F')
+        pdf.output(mant.re_path(f'reports/recibos/documentos/{output_name}'), 'F')
 
     ############ ABRIR REPORT ############
 
@@ -3567,12 +3567,12 @@ def listado_recibos_documentos(lista_recibos: list):
 
         print("Abriendo reporte. Cierre el archivo para continuar...")
     
-        ruta = f'../reports/recibos/documentos/'
+        ruta = mant.re_path('reports/recibos/documentos/')
         arch = output_name.replace('(', '^(')
         os.chdir(ruta)
         os.system(arch)
     
-        ruta = '../../../modulos/'
+        ruta = mant.MODULES_DIR
         os.chdir(ruta)
     
     except UnboundLocalError:
@@ -3695,8 +3695,8 @@ def reimpresion_recibo(ndr: int):
     
     elif fac == 'nob':
         # Logo
-        pdf.image('../docs/logo_nob.jpg', 11, 4, 10)
-        pdf.image('../docs/logo_nob.jpg', 108, 4, 10)
+        pdf.image(mant.re_path('docs/logo_nob.jpg'), 11, 4, 10)
+        pdf.image(mant.re_path('docs/logo_nob.jpg'), 108, 4, 10)
         pdf.set_font('Arial', 'I', 7)
         pdf.cell(190, 3.1, '', 0, 1, 'L')
         pdf.ln(1)
@@ -3877,9 +3877,9 @@ def reimpresion_recibo(ndr: int):
     pdf.cell(190, 13, ' ', 0, 1, 'L')
     
     try:
-        if not os.path.isdir(f'../reports/temp'):
-            os.mkdir(f'../reports/temp')
-        pdf.output(f'../reports/temp/recibo_{str(ndr).rjust(7, "0")}.pdf', 'F')
+        if not os.path.isdir(mant.re_path('reports/temp')):
+            os.mkdir(mant.re_path('reports/temp'))
+        pdf.output(mant.re_path(f'reports/temp/recibo_{str(ndr).rjust(7, "0")}.pdf'), 'F')
 
         ############ ABRIR REPORT ############
 
@@ -3892,12 +3892,12 @@ def reimpresion_recibo(ndr: int):
 
         print("Abriendo recibo. Cierre el archivo para continuar...")
     
-        ruta = f'../reports/temp/'
+        ruta = mant.re_path('reports/temp')
         arch = f'recibo_{str(ndr).rjust(7, "0")}.pdf'
         os.chdir(ruta)
         os.system(arch)
     
-        ruta = '../../modulos/'
+        ruta = mant.MODULES_DIR
         os.chdir(ruta)
     
     except UnboundLocalError:
@@ -4007,7 +4007,7 @@ def recibo_adelanto(ndr: int, cobrador: int, periodo_h: str, año_h: str, valor_
     # NOB
     elif fac == 'nob':
         # Logo
-        pdf.image('../docs/logo_nob.jpg', 11, 14, 10)
+        pdf.image(mant.re_path('docs/logo_nob.jpg'), 11, 14, 10)
         pdf.set_font('Arial', 'I', 7)
         pdf.cell(190, 3.1, '', 0, 1, 'L')
         pdf.ln(1)
@@ -4115,10 +4115,10 @@ def recibo_adelanto(ndr: int, cobrador: int, periodo_h: str, año_h: str, valor_
     # Guardado de archivo
     try:
         # Creación de la carpeta si no existe
-        if not os.path.isdir(f'../reports/temp'):
-            os.mkdir(f'../reports/temp')
+        if not os.path.isdir(mant.re_path('reports/temp')):
+            os.mkdir(mant.re_path('reports/temp'))
     
-        pdf.output(f'../reports/temp/recibo_{str(ndr).rjust(7, "0")}.pdf', 'F')
+        pdf.output(mant.re_path(f'reports/temp/recibo_{str(ndr).rjust(7, "0")}.pdf'), 'F')
 
         ############ ABRIR REPORT ############
 
@@ -4131,12 +4131,12 @@ def recibo_adelanto(ndr: int, cobrador: int, periodo_h: str, año_h: str, valor_
 
         print("Abriendo recibo. Cierre el archivo para continuar...")
         
-        ruta = f'../reports/temp/'
+        ruta = mant.re_path('reports/temp/')
         arch = f'recibo_{str(ndr).rjust(7, "0")}.pdf'
         os.chdir(ruta)
         os.system(arch)
         
-        ruta = '../../modulos/'
+        ruta = mant.MODULES_DIR
         os.chdir(ruta)
 
     except UnboundLocalError:
@@ -4251,9 +4251,9 @@ def report_estado_cta(nro_socio: int, nombre: str, dni: int, facturacion: str, d
             """
             # Logo
             if facturacion == 'bicon':
-                self.image('../docs/logo_bicon.jpg', 14.5, 12, 15)
+                self.image(mant.re_path('docs/logo_bicon.jpg'), 14.5, 12, 15)
             elif facturacion == 'nob':
-                self.image('../docs/logo_nob.jpg', 14.5, 12, 13)
+                self.image(mant.re_path('docs/logo_nob.jpg'), 14.5, 12, 13)
             # Arial bold 15
             self.set_font('Arial', 'B', 15)
             # Title
@@ -4304,7 +4304,7 @@ def report_estado_cta(nro_socio: int, nombre: str, dni: int, facturacion: str, d
             # Firma
             self.set_font('Arial', 'I', 8)
             self.cell(-10, 10, f'Reporte generado en *MORELLA v{mant.SHORT_VERSION}* by ', 0, 0, 'R')
-            self.image('../docs/mf_logo.jpg', 190, 274, 8)
+            self.image(mant.re_path('docs/mf_logo.jpg'), 190, 274, 8)
 
     # Instantiation of inherited class
     pdf = PDF()
@@ -4482,7 +4482,7 @@ def report_estado_cta(nro_socio: int, nombre: str, dni: int, facturacion: str, d
     pdf.cell(0, 5, f'{float(ctas.deuda_por_socio(nro_socio)):.2f}', 0, 1, 'L')
     
     # Export
-    pdf.output(f'../reports/temp/estado_cta.pdf', 'F')
+    pdf.output(mant.re_path('reports/temp/estado_cta.pdf'), 'F')
         
 
     ############ ABRIR REPORT ############
@@ -4498,12 +4498,12 @@ def report_estado_cta(nro_socio: int, nombre: str, dni: int, facturacion: str, d
     print("Abriendo reporte. Cierre el archivo para continuar...")
     print()
     
-    ruta = f'../reports/temp'
+    ruta = mant.re_path('reports/temp')
     arch = f'estado_cta.pdf'
     os.chdir(ruta)
     os.system(arch)
     
-    ruta = '../../modulos/'
+    ruta = mant.MODULES_DIR
     os.chdir(ruta)
            
 ############################################### FIN DE REPORT ###################################################
@@ -4598,9 +4598,9 @@ def report_estado_cta_mail(nro_socio: int, nombre: str, dni: int, facturacion: s
             """
             # Logo
             if facturacion == 'bicon':
-                self.image('../docs/logo_bicon.jpg', 14.5, 12, 15)
+                self.image(mant.re_path('docs/logo_bicon.jpg'), 14.5, 12, 15)
             elif facturacion == 'nob':
-                self.image('../docs/logo_nob.jpg', 14.5, 12, 13)
+                self.image(mant.re_path('docs/logo_nob.jpg'), 14.5, 12, 13)
             # Arial bold 15
             self.set_font('Arial', 'B', 15)
             # Title
@@ -4654,7 +4654,7 @@ def report_estado_cta_mail(nro_socio: int, nombre: str, dni: int, facturacion: s
             # Firma
             self.set_font('Arial', 'I', 8)
             self.cell(-10, 10, f'Reporte generado en *MORELLA v{mant.SHORT_VERSION}* by ', 0, 0, 'R')
-            self.image('../docs/mf_logo.jpg', 190, 274, 8)
+            self.image(mant.re_path('docs/mf_logo.jpg'), 190, 274, 8)
 
     # Instantiation of inherited class
     pdf = PDF()
@@ -4840,7 +4840,7 @@ def report_estado_cta_mail(nro_socio: int, nombre: str, dni: int, facturacion: s
         pprint(errores)
         print('\n\n\n\n')
 
-    pdf.output(f'../reports/temp/estado_cta_mail.pdf', 'F')
+    pdf.output(mant.re_path('reports/temp/estado_cta_mail.pdf'), 'F')
         
 ############################################### FIN DE REPORT ###################################################
 
@@ -4906,7 +4906,7 @@ def report_morosos_det():
             - Fecha y hora (Arial 10p).
             """
             # Logo
-            self.image('../docs/logo_bicon.jpg', 14.5, 12, 15)
+            self.image(mant.re_path('docs/logo_bicon.jpg'), 14.5, 12, 15)
             # Arial bold 15
             self.set_font('Arial', 'B', 15)
             # Title
@@ -4937,7 +4937,7 @@ def report_morosos_det():
             # Firma
             self.set_font('Arial', 'I', 8)
             self.cell(-10, 10, f'Reporte generado en *MORELLA v{mant.SHORT_VERSION}* by ', 0, 0, 'R')
-            self.image('../docs/mf_logo.jpg', 190, 274, 8)
+            self.image(mant.re_path('docs/mf_logo.jpg'), 190, 274, 8)
 
     # Instantiation of inherited class
     pdf = PDF()
@@ -5097,7 +5097,7 @@ def report_morosos_det():
     pdf.cell(0, 5, f'DEUDA TOTAL MOROSOS: $ {deuda_total_morosos:.2f}', 1, 1, 'R')
     
     # Export
-    pdf.output(f'../reports/temp/morosos.pdf', 'F')
+    pdf.output(mant.re_path('reports/temp/morosos.pdf'), 'F')
         
 
     ############ ABRIR REPORT ############
@@ -5112,12 +5112,12 @@ def report_morosos_det():
     print("Abriendo reporte. Cierre el archivo para continuar...")
     print()
 
-    ruta = f'../reports/temp'
+    ruta = mant.re_path('reports/temp')
     arch = f'morosos.pdf'
     os.chdir(ruta)
     os.system(arch)
     
-    ruta = '../../modulos/'
+    ruta = mant.MODULES_DIR
     os.chdir(ruta)
     
     os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
@@ -5247,7 +5247,7 @@ def report_morosos_comp():
               - Deuda
             """
             # Logo
-            self.image('../docs/logo_bicon.jpg', 14.5, 12, 15)
+            self.image(mant.re_path('docs/logo_bicon.jpg'), 14.5, 12, 15)
             
             # Title
             self.set_font('Arial', 'B', 15)
@@ -5296,7 +5296,7 @@ def report_morosos_comp():
             # Firma
             self.set_font('Arial', 'I', 8)
             self.cell(-10, 10, f'Reporte generado en *MORELLA v{mant.SHORT_VERSION}* by ', 0, 0, 'R')
-            self.image('../docs/mf_logo.jpg', 190, 274, 8)
+            self.image(mant.re_path('docs/mf_logo.jpg'), 190, 274, 8)
 
     # Instantiation of inherited class
     pdf = PDF()
@@ -5347,7 +5347,7 @@ def report_morosos_comp():
     pdf.cell(0, 5, f'DEUDA TOTAL MOROSOS: $ {deuda_total_morosos:.2f}', 1, 1, 'R')
     
     # Export
-    pdf.output(f'../reports/temp/morosos-comp.pdf', 'F')
+    pdf.output(mant.re_path('reports/temp/morosos-comp.pdf'), 'F')
         
 
     ############ ABRIR REPORT ############
@@ -5362,12 +5362,12 @@ def report_morosos_comp():
     print("Abriendo reporte. Cierre el archivo para continuar...")
     print()
 
-    ruta = f'../reports/temp'
+    ruta = mant.re_path('reports/temp')
     arch = f'morosos-comp.pdf'
     os.chdir(ruta)
     os.system(arch)
 
-    ruta = '../../modulos/'
+    ruta = mant.MODULES_DIR
     os.chdir(ruta)
 
     os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
@@ -5441,7 +5441,7 @@ def report_excel_socios():
     
     # Export
     try:
-        wb.save(f"../reports/excel/listado_socios-{fecha}.xlsx")
+        wb.save(mant.re_path(f"reports/excel/listado_socios-{fecha}.xlsx"))
         print()
         print("Archivo creado exitosamente.")
 
@@ -5457,12 +5457,12 @@ def report_excel_socios():
         print("Abriendo reporte. Cierre el archivo para continuar...")
         print()
 
-        ruta = f'../reports/excel'
+        ruta = mant.re_path('reports/excel')
         arch = f'listado_socios-{fecha}.xlsx'
         os.chdir(ruta)
         os.system(arch)
         
-        ruta = '../../modulos/'
+        ruta = mant.MODULES_DIR
         os.chdir(ruta)
     
     except PermissionError:
@@ -5537,7 +5537,7 @@ def report_excel_modif_caja():
 
     # Export
     try:
-        wb.save(f"../reports/excel/modificaciones_de_caja-{fecha}.xlsx")
+        wb.save(mant.re_path(f"reports/excel/modificaciones_de_caja-{fecha}.xlsx"))
         print()
         print("Archivo creado exitosamente.")
 
@@ -5553,12 +5553,12 @@ def report_excel_modif_caja():
         print("Abriendo reporte. Cierre el archivo para continuar...")
         print()
 
-        ruta = f'../reports/excel'
+        ruta = mant.re_path('reports/excel')
         arch = f'modificaciones_de_caja-{fecha}.xlsx'
         os.chdir(ruta)
         os.system(arch)
         
-        ruta = '../../modulos/'
+        ruta = mant.MODULES_DIR
         os.chdir(ruta)
 
     except PermissionError:
@@ -5641,7 +5641,7 @@ def report_deb_aut(mes: str, año: str):
 
     # Export
     try:
-        wb.save(f"../reports/excel/listado_socios-{fecha_hoy}.xlsx")
+        wb.save(mant.re_path(f"reports/excel/listado_socios-{fecha_hoy}.xlsx"))
         print()
         print("Archivo creado exitosamente.")
 
@@ -5657,12 +5657,12 @@ def report_deb_aut(mes: str, año: str):
         print("Abriendo reporte. Cierre el archivo para continuar...")
         print()
     
-        ruta = f'../reports/excel'
+        ruta = mant.re_path('reports/excel')
         arch = f'listado_socios-{fecha_hoy}.xlsx'
         os.chdir(ruta)
         os.system(arch)
     
-        ruta = '../../modulos/'
+        ruta = mant.MODULES_DIR
         os.chdir(ruta)
     
     except PermissionError:
@@ -5729,7 +5729,7 @@ def report_cobradores():
               - Nombre del cobrador
             """
             # Logo
-            self.image('../docs/logo_bicon.jpg', 14.5, 12, 15)
+            self.image(mant.re_path('docs/logo_bicon.jpg'), 14.5, 12, 15)
             # Arial bold 15
             self.set_font('Arial', 'B', 15)
             # Title
@@ -5766,7 +5766,7 @@ def report_cobradores():
             # Firma
             self.set_font('Arial', 'I', 8)
             self.cell(-10, 10, f'Reporte generado en *MORELLA v{mant.SHORT_VERSION}* by ', 0, 0, 'R')
-            self.image('../docs/mf_logo.jpg', 190, 274, 8)
+            self.image(mant.re_path('docs/mf_logo.jpg'), 190, 274, 8)
 
     # Instantiation of inherited class
     pdf = PDF()
@@ -5788,7 +5788,7 @@ def report_cobradores():
     os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
     
     # Export
-    pdf.output(f'../reports/temp/listado_cobradores.pdf', 'F')
+    pdf.output(mant.re_path('reports/temp/listado_cobradores.pdf'), 'F')
     
     ############ ABRIR REPORT ############
 
@@ -5802,12 +5802,12 @@ def report_cobradores():
     print("Abriendo reporte. Cierre el archivo para continuar...")
     print()
     
-    ruta = f'../reports/temp'
+    ruta = mant.re_path('reports/temp')
     arch = f'listado_cobradores.pdf'
     os.chdir(ruta)
     os.system(arch)
     
-    ruta = '../../modulos/'
+    ruta = mant.MODULES_DIR
     os.chdir(ruta)
 
 ############################################### FIN DE REPORT ###################################################
@@ -5864,7 +5864,7 @@ def report_panteones():
               - Nombre del panteón.
             """
             # Logo
-            self.image('../docs/logo_bicon.jpg', 14.5, 12, 15)
+            self.image(mant.re_path('docs/logo_bicon.jpg'), 14.5, 12, 15)
             # Arial bold 15
             self.set_font('Arial', 'B', 15)
             # Title
@@ -5901,7 +5901,7 @@ def report_panteones():
             # Firma
             self.set_font('Arial', 'I', 8)
             self.cell(-10, 10, f'Reporte generado en *MORELLA v{mant.SHORT_VERSION}* by ', 0, 0, 'R')
-            self.image('../docs/mf_logo.jpg', 190, 274, 8)
+            self.image(mant.re_path('docs/mf_logo.jpg'), 190, 274, 8)
 
     # Instantiation of inherited class
     pdf = PDF()
@@ -5923,7 +5923,7 @@ def report_panteones():
     os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
     
     # Export
-    pdf.output(f'../reports/temp/listado_panteones.pdf', 'F')
+    pdf.output(mant.re_path('reports/temp/listado_panteones.pdf'), 'F')
         
 
     ############ ABRIR REPORT ############
@@ -5938,12 +5938,12 @@ def report_panteones():
     print("Abriendo reporte. Cierre el archivo para continuar...")
     print()
     
-    ruta = f'../reports/temp'
+    ruta = mant.re_path('reports/temp')
     arch = f'listado_panteones.pdf'
     os.chdir(ruta)
     os.system(arch)
     
-    ruta = '../../modulos/'
+    ruta = mant.MODULES_DIR
     os.chdir(ruta)
 
 ############################################### FIN DE REPORT ###################################################
@@ -6073,7 +6073,7 @@ def report_ult_recibo(cobrador: int, facturacion: str):
         if ' ' in n_cob:
             n_cob = n_cob.replace(' ', '_')
     
-        wb.save(f"../reports/excel/ultimos_recibos_{n_cob}.xlsx")
+        wb.save(mant.re_path(f"reports/excel/ultimos_recibos_{n_cob}.xlsx"))
         print()
         print("Archivo creado exitosamente.")
 
@@ -6089,12 +6089,12 @@ def report_ult_recibo(cobrador: int, facturacion: str):
         print("Abriendo reporte. Cierre el archivo para continuar...")
         print()
     
-        ruta = f'../reports/excel'
+        ruta = mant.re_path('reports/excel')
         arch = f'ultimos_recibos_{n_cob}.xlsx'
         os.chdir(ruta)
         os.system(arch)
     
-        ruta = '../../modulos/'
+        ruta = mant.MODULES_DIR
         os.chdir(ruta)
     
     except PermissionError:

@@ -9,7 +9,7 @@ from PySide6.QtWidgets import (QApplication, QWidget, QPushButton, QMainWindow, 
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon, QPixmap
 
-from funciones_mantenimiento import VERSION, DATABASE
+from funciones_mantenimiento import VERSION, DATABASE, re_path
 
 
 HOY = datetime.now().date()
@@ -44,7 +44,7 @@ class Ventana(QMainWindow):
         # Título
         self.setWindowTitle(f'Registrar cambio en estado de cuenta manual    |   Morella v{VERSION} Admin Tools v2.1')
         # Ícono
-        self.setWindowIcon(QIcon('../docs/logo_morella.png'))
+        self.setWindowIcon(QIcon(re_path('docs/logo_morella.png')))
         # Tamaño fijo
         self.setFixedSize(800, 400)
 
@@ -468,7 +468,7 @@ class Ventana(QMainWindow):
                 aviso_ok = QMessageBox(self)
                 aviso_ok.setWindowTitle('Pago registrado correctamente')
                 aviso_ok.setText('La última fecha de pago fue actualizada satisfactoriamente.')
-                aviso_ok.setIconPixmap(QPixmap("../docs/ok.png"))
+                aviso_ok.setIconPixmap(QPixmap(re_path("docs/ok.png")))
                 aviso_ok.exec()
 
             else:

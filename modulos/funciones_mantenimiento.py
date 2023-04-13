@@ -1,14 +1,23 @@
+import os
+from pathlib import Path
+
 VERSION = '1.4.2.2304'
 SHORT_VERSION = VERSION[:3]
 TYPE_VERSION = 'RC'
 
-ARCH_INI = "../databases/database.ini"
-ARCH_LOG_ERROR = "../error.log"
+MODULES_DIR = os.getcwd()
+BASE_DIR = Path(MODULES_DIR).resolve().parent
+
+ARCH_INI = os.path.join(BASE_DIR, 'databases/database.ini')
+ARCH_LOG_ERROR = os.path.join(BASE_DIR, 'error.log')
+ARCH_CATEG_ING = os.path.join(BASE_DIR, 'databases/categ_ing.mf')
+ARCH_CATEG_EGR = os.path.join(BASE_DIR, 'databases/categ_egr.mf')
+ARCH_COB = os.path.join(BASE_DIR, 'databases/cobradores.mf')
+ARCH_PANT = os.path.join(BASE_DIR, 'databases/panteones.mf')
 
 AFIRMATIVO = ['S', 's', 'Si', 'SI', 'sI', 'si']
 NEGATIVO = ['N', 'n', 'No', 'NO', 'nO', 'no']
 
-import os
 import psycopg2 as sql
 import psycopg2.errors
 
@@ -130,6 +139,18 @@ def iniciar_sesion() -> tuple:
         i_d = -1
         nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
         return i_d, nom, ape, tel, dom, use, pas, pri, act
+
+
+def re_path(path: str) -> str:
+    """
+    Recibe una ruta relativa y retorna la ruta absoluta a partir de la ruta base
+
+    :param path: Ruta relativa de la carpeta o archivo
+    :type path: str
+
+    :rtype: str
+    """
+    return os.path.join(BASE_DIR, path)
 
 
 def barra_progreso(progreso: int, total: int, titulo:str=None, solo_titulo=False):
@@ -1817,10 +1838,10 @@ def agregar_panteon(idu: int):
                     input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                     return
 
-                with open('../databases/categ_ing.mf', 'a', encoding='Utf-8') as archivo_categ:
+                with open(ARCH_CATEG_ING, 'a', encoding='Utf-8') as archivo_categ:
                     archivo_categ.write(f"\nMantenimiento {nuevo_panteon}")
                 
-                with open("../databases/panteones.mf", 'a', encoding='Utf-8') as archivo_pant:
+                with open(ARCH_PANT, 'a', encoding='Utf-8') as archivo_pant:
                     archivo_pant.write(f'\nMantenimiento {nuevo_panteon}')
                 
                 print()
@@ -2696,7 +2717,7 @@ def alta_cobrador(idu: int):
                     input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
                     return
         
-                with open("../databases/cobradores.mf", 'a', encoding='Utf-8') as archivo_cob:
+                with open(ARCH_COB, 'a', encoding='Utf-8') as archivo_cob:
                     archivo_cob.write(f'\n{nuevo_cobrador}')
                 
                 print()
