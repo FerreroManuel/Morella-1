@@ -3,7 +3,6 @@ database.ini
 database_prueba.ini
 
 # Archivos no relacionados al funcionamiento del sistema
-*.txt
 
 -Planificación
 
