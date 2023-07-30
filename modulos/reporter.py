@@ -1922,7 +1922,7 @@ def recibos(facturacion: str, recibos: list):
 ############################################## LISTADO DE RECIBOS ###############################################
 #################################################################################################################
 
-def listado_recibos(id_cobrador: int, recibos: list):
+def listado_recibos(id_cobrador: int, recibos: list, ops_arregladas: list):
     """Genera un reporte en PDF que contiene un listado con la información de todos
     los recibos correspondientes a las operaciones recibidas como parámetro, luego
     lo guarda y lo abre con el programa predeterminado.
@@ -2028,7 +2028,7 @@ def listado_recibos(id_cobrador: int, recibos: list):
             self.set_y(-30)
             # Arial italic 8
             self.set_font('Arial', 'I', 8)
-            self.cell(0, 5, '* El asociado adeuda cuotas', 0, 1, 'L')
+            self.cell(0, 5, '* El asociado adeuda cuotas | En negrita: Cuotas a favor arregladas', 0, 1, 'L')
             self.cell(0, 1, '_______________________________________________________________________________________________', 0, 1, 'C')
             # Page number
             self.cell(0, 10, 'Página ' + str(self.page_no()) + ' de {nb}', 0, 0, 'C')
@@ -2087,9 +2087,13 @@ def listado_recibos(id_cobrador: int, recibos: list):
                 if q_rec_impagos:
                     if rend.obtener_recibos_impagos_op(id_o)[-1][2] == periodo_actual:
                         debe -= 1
-    
+
+                pdf.set_font('Arial', '', 10)
+
+                # Poniendo en negrita las operaciones con arreglo de cuotas a favor
+                if id_o in ops_arregladas: pdf.set_font('Arial', 'B', 10)
+
                 if debe > 0:
-                    pdf.set_font('Arial', '', 10)
                     pdf.cell(14, 5, f'{nro}'.rjust(6, '0'), 0, 0, 'L ')
                     pdf.cell(65,5, f'{nom}*', 0, 0, 'L')
                     pdf.cell(1, 5, '', 0, 0, 'L')
@@ -2100,7 +2104,6 @@ def listado_recibos(id_cobrador: int, recibos: list):
                     imp_acu = imp_acu + float(val_mant)
                 
                 else:
-                    pdf.set_font('Arial', '', 10)
                     pdf.cell(14, 5, f'{nro}'.rjust(6, '0'), 0, 0, 'L ')
                     pdf.cell(65,5, f'{nom}', 0, 0, 'L')
                     pdf.cell(1, 5, '', 0, 0, 'L')

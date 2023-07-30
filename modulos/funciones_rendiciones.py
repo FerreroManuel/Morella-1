@@ -643,18 +643,36 @@ def emitir_recibos():
                 print()
                 print("POR FAVOR, NO CIERRE LA APLICACIÓN NI APAGUE EL SISTEMA MIENTRAS SE REALIZAN LAS ACCIONES SOLICITADAS")
                 print()
+                
+                # Buscando y corrigiendo cuotas a favor afectadas por el error corregido con el Fix #23041301
+                print('Corrigiendo posibles errores en cuotas a favor...')
+                print()
+                _mes = datetime.now().strftime('%m')
+                _año = datetime.now().strftime('%Y')
+                prox_mes = (datetime.strptime(f'{_mes}/{_año}', '%m/%Y') + rd(months=1)).strftime('%m/%Y')
+
+                ops_arregladas = []
+
+                for op in buscar_recibos(facturacion, cobrador):
+                    id_o, _, _, _, _, _, _, _, _, fup, _, c_f, _, _, _, _, _ = op
+                    
+                    if c_f == 1 and fup != prox_mes:
+                        mant.edit_registro('operaciones', 'cuotas_favor', 0, id_o)
+                        ops_arregladas.append(id_o)
+
                 print("Emitiendo recibos...")
+                print()
                 recibos = buscar_recibos(facturacion, cobrador)
+
 
                 # NO débito automático
                 if cobrador != 6:
                     thread1 = Thread(target=rep.recibos, args=(facturacion, recibos))
-                    thread2 = Thread(target=rep.listado_recibos, args=(cobrador, recibos))
+                    thread2 = Thread(target=rep.listado_recibos, args=(cobrador, recibos, ops_arregladas))
                     thread1.start()
                     thread2.start()
                     thread1.join()
                     thread2.join()
-                    print()
                     return
 
                 # Débito automático
@@ -665,7 +683,6 @@ def emitir_recibos():
                     thread2.start()
                     thread1.join()
                     thread2.join()
-                    print()
                     return
     
             elif msj in mant.NEGATIVO:
