@@ -1,9 +1,9 @@
 import os
 from pathlib import Path
 
-VERSION = '1.4.2.2304'
+VERSION = '1.4.3.2307'
 SHORT_VERSION = VERSION[:3]
-TYPE_VERSION = 'RC'
+TYPE_VERSION = 'BETA'
 
 MODULES_DIR = os.getcwd()
 BASE_DIR = Path(MODULES_DIR).resolve().parent
