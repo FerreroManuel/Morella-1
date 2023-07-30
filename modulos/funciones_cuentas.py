@@ -1,3 +1,7 @@
+
+#! f"SELECT * FROM recibos WHERE operacion = {id_op} ORDER BY nro_recibo;"
+#! f"SELECT * FROM caja WHERE observacion LIKE '%Op: {str(id_op).rjust(7, '0')}%' ORDER BY id;"
+
 import os
 import psycopg2 as sql
 import psycopg2.errors
