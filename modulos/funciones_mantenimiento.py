@@ -231,11 +231,10 @@ def log_error():
     y lo vuelca en el Log de errores
     """
     exc = format_exc()
-    log_error = open(ARCH_LOG_ERROR, 'a')
-    log_error.write(f"{datetime.now().strftime('%d/%m/%Y %H:%M:%S')}: \n")
-    log_error.write(exc)
-    log_error.write("\n_________________________________________________\n\n")
-    log_error.close
+    with open(ARCH_LOG_ERROR, 'a') as log_error:
+        log_error.write(f"{datetime.now().strftime('%d/%m/%Y %H:%M:%S')}: \n")
+        log_error.write(exc)
+        log_error.write("\n_________________________________________________\n\n")
 
 
 def reemplazar_comilla(cadena: str) -> str:
