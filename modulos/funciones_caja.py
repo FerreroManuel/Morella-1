@@ -2829,7 +2829,7 @@ def cierre_caja():
             ##                                             ##
             #################################################
             #################################################
-    """+Back.BLACK+Fore.LIGHTYELLOW_EX)
+            """+Back.BLACK+Fore.LIGHTYELLOW_EX)
             print()
             getpass("Presione enter para cerrar el módulo...")
             return
@@ -2864,14 +2864,18 @@ def cierre_caja():
         print()
         init()
         print(Fore.RED+Back.YELLOW+"""
-#################################################
-#################################################
-##                                             ##
-##--------------------ERROR--------------------##
-##                                             ##
-##       NO SE REGISTRÓ EL CIERRE DE CAJA      ##
-##             VUELVA A INTENTARLO             ##
-##                                             ##
-#################################################
-#################################################
-"""+Back.BLACK+Fore.LIGHTYELLOW_EX)
+        #################################################
+        #################################################
+        ##                                             ##
+        ##--------------------ERROR--------------------##
+        ##                                             ##
+        ##       COMUNÍQUESE CON EL ADMINISTRADOR      ##
+        ##                                             ##
+        ##       NO SE REGISTRÓ EL CIERRE DE CAJA      ##
+        ##                                             ##
+        #################################################
+        #################################################
+        """+Back.BLACK+Fore.LIGHTYELLOW_EX)
+        print()
+        getpass("Presione enter para cerrar el módulo...")
+        return
