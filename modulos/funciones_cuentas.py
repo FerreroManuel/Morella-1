@@ -516,6 +516,11 @@ def buscar_op_cod_nicho(cod_nicho: str, ret: bool = False) -> tuple | None:
     print()
     print(f"CÓDIGO DE NICHO: {f'{cod_nicho}'.rjust(10, '0')}. PANTEÓN: {panteon}. PISO: {pis}. FILA: {fil}. NICHO: {num}. CATEGORÍA: {categ}")
     print()
+    
+    if not datos:
+        print(f"EL NICHO NO TIENE OPERACIONES ASOCIADAS")
+        return
+    
     print(f"OPERACION: {str(datos[0][0]).rjust(7, '0')}")
     print("-".rjust(154, '-'))
     print("{:<10} {:<38} {:<38} {:<35} {:<20} {:<10}".format('N° SOCIO', 'APELLIDO Y NOMBRE', 'DOMICILIO', 'TELÉFONOS', 'COBRADOR', '¿MOROSO?'))
