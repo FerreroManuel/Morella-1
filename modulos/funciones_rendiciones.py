@@ -132,6 +132,11 @@ def ingresar_cobro(idu: int):
                 print("         ERROR. Número de recibo inválido. No se han realizado cambios en el registro.")
                 print()
                 return
+            except psycopg2.errors.NumericValueOutOfRange:
+                print()
+                print("         ERROR. Número de recibo inválido. No se han realizado cambios en el registro.")
+                print()
+                return
             except:
                 mant.log_error()
                 print()
