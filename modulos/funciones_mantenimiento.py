@@ -5,6 +5,8 @@ VERSION = '1.4.3.2307'
 SHORT_VERSION = VERSION[:3]
 TYPE_VERSION = 'BETA'
 
+DEV_EMAIL = 'contacto@manuelferrero.com.ar'
+
 MODULES_DIR = os.getcwd()
 BASE_DIR = Path(MODULES_DIR).resolve().parent
 

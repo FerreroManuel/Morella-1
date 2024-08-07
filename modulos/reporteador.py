@@ -5,6 +5,7 @@ import psycopg2.errors
 
 from getpass import getpass
 
+import correo as email
 import funciones_caja as caja
 import funciones_mantenimiento as mant
 import funciones_ventas as vent
@@ -37,11 +38,12 @@ def opcion_menu() -> int:                                                       
     print("   5. Listado de panteones")
     print("   6. Listado de cobradores")
     print("   7. Listado de últimos recibos impagos (Excel)")
+    print("   8. Errores del sistema")
     print("   0. Salir")
     print()
     try:
         opcion = int(input("Ingrese una opción: "))
-        while opcion < 0 or opcion > 7:
+        while opcion < 0 or opcion > 8:
             print()
             print("Opción incorrecta.")
             print()
@@ -81,6 +83,8 @@ def menu(idu: int):                                                             
             cobradores(idu)
         elif opcion == 7:   # Listado de últimos recibos impagos (Excel)
             ultimos_recibos(idu)
+        elif opcion == 8:   # Errores de sistema
+            errores_sistema(idu)
         elif opcion == 0:   # Salir
             return
 
@@ -347,6 +351,86 @@ def ultimos_recibos(idu: int):
         
         rep.report_ult_recibo(cobrador, facturacion)
         print()
+
+
+def opcion_errores_sistema() -> int:
+    """Muestra al usuario un menú y luego le solicita ingresar una de las
+    opciones mostradas a través del número correspondiente. En caso de no
+    ingresar una opción correcta, se le volverá a solicitar.
+
+    :rtype: int
+    """
+    print()
+    print("********** Acciones disponibles **********")
+    print()
+    print("   1. Ver log de errores")
+    print("   2. Enviar log al administrador")
+    print("   3. Limpiar log de errores")
+    print("   0. Volver")
+    print()
+    try:
+        opcion = int(input("Ingrese una opción: "))
+        while opcion < 0 or opcion > 3:
+            print()
+            print("Opción incorrecta.")
+            print()
+            opcion = int(input("Ingrese una opción: "))
+    except ValueError: 
+        print("Opción incorrecta.")
+        opcion = -1
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
+        print()
+        opcion = -1
+    return opcion
+
+
+def errores_sistema(idu: int):
+    """Recibe el ID del usuario. Luego llama a la función donde se muestra las
+    opciones y recibe, a través de ella, la opción ingresada por el usuario.
+    Luego, según la opción ingresada, llama a la función correspondiente, a la
+    cual le transmite el ID del usuario.
+
+    :param idu: ID de usuario
+    :type idu: int
+    """
+    i_d, nom, ape, tel, dom, use, pas, pri, act = mant.buscar_usuario_por_id(idu)
+    
+    if pri < 1:
+        print("No posee privilegios para realizar esta acción")
+        print()
+    
+    else:
+        opcion = -1
+        while opcion != 0:
+            opcion = opcion_errores_sistema()
+            if opcion == 1:
+                print()
+                print('    Abriendo log de errores... Cierre el archivo para continuar...')
+                os.system(f'notepad {mant.ARCH_LOG_ERROR}')
+            elif opcion == 2:
+                print()
+                print('    Enviando log de errores...')
+                try:
+                    email.envio_de_errores()
+                    log = open(mant.ARCH_LOG_ERROR, 'w')
+                    log.close()
+                    print()
+                    getpass('Enviado con éxito... Presione enter para continuar...')
+                    print()
+                except Exception as e:
+                    mant.manejar_excepcion_gral(e)
+                    print()
+            elif opcion == 3:
+                print()
+                print('    Limpiando log de errores... Aguarde un momento...')
+                log = open(mant.ARCH_LOG_ERROR, 'w')
+                log.close()
+                print()
+                getpass('    Hecho... Presione enter para continuar...')
+                print()
+            elif opcion == 0:
+                return
 
 
 #######################################################################################################################################################

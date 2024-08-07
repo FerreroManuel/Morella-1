@@ -253,3 +253,58 @@ def aviso_de_mora(id_operacion: int):
         
         # Apagamos conexion SMTP
         server.quit()
+
+
+def envio_de_errores():
+    # Datos del remitente
+    i_d, eti, addr_from, smtp_server, smtp_user, smtp_pass = obtener_mail(1)
+
+    # Construimos el mail
+    msg = MIMEMultipart() 
+    msg['To'] = mant.DEV_EMAIL
+    msg['From'] = addr_from
+    msg['Subject'] = f"Log de errores de Morella - Bicon S.A."
+
+    # Cuerpo del mensaje
+    html = """Envío del log de errores de <b>Morella</b><br> a través del reporteador.
+        \r<br>______________________________<br><br><b>Grupo Bicon S.A.</b><br>430 9999 / 430 8800<br>Córdoba 2915 - 2000
+        \r<br>ROSARIO, Santa Fe<br><br><i>Este mensaje fue generado automáticamente, por favor no lo responda. Si usted
+        \rcree que se trata de un error póngase en contacto con la administración para notificarlo. Muchas Gracias.</i>"""
+
+    plain = """Envío del log de errores de Morella a través del reporteador.
+        \r______________________________\n\n<b>Grupo Bicon S.A.\n\n430 9999 / 430 8800\nCórdoba 2915 - 2000
+        \rROSARIO, Santa Fe\n\n\nEste mensaje fue generado automáticamente, por favor no lo responda. Si usted \
+        cree que se trata de un error póngase en contacto con la administración para notificarlo. Muchas Gracias."""
+
+    msg.attach(MIMEText(html,'html'))
+    msg.attach(MIMEText(plain,'plain'))
+
+    # Cargamos el archivo a adjuntar
+    fp = open(mant.ARCH_LOG_ERROR,'rb')
+    adjunto = MIMEBase('multipart', 'encrypted')
+
+    # Lo insertamos en una variable
+    adjunto.set_payload(fp.read()) 
+    fp.close()
+
+    # Lo encriptamos en base64 para enviarlo
+    encoders.encode_base64(adjunto) 
+
+    # Agregamos una cabecera y le damos un nombre al archivo que adjuntamos puede ser el mismo u otro
+    adjunto.add_header('Content-Disposition', 'attachment', filename=f"error.log")
+
+    # Lo adjuntamos al mensaje
+    msg.attach(adjunto) 
+
+    # Inicializamos el SMTP para hacer el envío
+    server = smtplib.SMTP(smtp_server, 587)
+    server.starttls() 
+
+    # Logeamos con los datos ya seteados en la parte superior
+    server.login(smtp_user,smtp_pass)
+
+    # Enviamos
+    server.sendmail(addr_from, mant.DEV_EMAIL, msg.as_string())
+
+    # Cerramos conexion SMTP
+    server.quit()
