@@ -49,10 +49,8 @@ def opcion_menu() -> int:                                                       
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
-    except:
-        mant.log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         opcion = -1
     return opcion
@@ -137,10 +135,8 @@ def ingresar_cobro(idu: int):
                 print("         ERROR. Número de recibo inválido. No se han realizado cambios en el registro.")
                 print()
                 return
-            except:
-                mant.log_error()
-                print()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
                 print()
                 return
         
@@ -157,10 +153,8 @@ def ingresar_cobro(idu: int):
             print("         ERROR. La operación no tiene nicho asociado.")
             print()
             return
-        except:
-            mant.log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            mant.manejar_excepcion_gral(e)
             print()
             return
         
@@ -244,10 +238,8 @@ def ingresar_cobro(idu: int):
                     print("Número de rendición inválido. No se han realizado cambios en el registro.")
                     print()
                     return
-                except:
-                    mant.log_error()
-                    print()
-                    input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                except Exception as e:
+                    mant.manejar_excepcion_gral(e)
                     print()
                     return
         
@@ -309,10 +301,8 @@ def ingresar_cobro(idu: int):
                                                 print("         ERROR. El dato solicitado debe ser de tipo numérico")
                                                 print()
                                                 loop = -1
-                                            except:
-                                                mant.log_error()
-                                                print()
-                                                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                                            except Exception as e:
+                                                mant.manejar_excepcion_gral(e)
                                                 print()
                                                 return
                                         deb_aut = 0
@@ -335,10 +325,8 @@ def ingresar_cobro(idu: int):
                                         print("         ERROR. El dato solicitado debe ser de tipo numérico.")
                                         print()
                                         deb_aut = 1
-                                    except:
-                                        mant.log_error()
-                                        print()
-                                        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                                    except Exception as e:
+                                        mant.manejar_excepcion_gral(e)
                                         print()
                                         return
         
@@ -731,10 +719,8 @@ def ingresar_adelantos(idu: int):
     except ValueError:
         print("         ERROR. El dato solicitado debe ser de tipo numérico")
         return
-    except:
-        mant.log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
     print()
@@ -759,10 +745,8 @@ def ingresar_adelantos(idu: int):
     except TypeError:
         print("         ERROR. Número de operación inexistente.")
         return
-    except:
-        mant.log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
     
@@ -777,10 +761,8 @@ def ingresar_adelantos(idu: int):
         print("         ERROR. La operación no tiene nicho asociado.")
         print()
         return
-    except:
-        mant.log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
     
@@ -818,10 +800,8 @@ def ingresar_adelantos(idu: int):
     except ValueError:
         print("         ERROR. El dato solicitado debe ser de tipo numérico")
         return
-    except:
-        mant.log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
     
@@ -838,10 +818,8 @@ def ingresar_adelantos(idu: int):
     except ValueError:
         print("         ERROR. El dato solicitado debe ser de tipo numérico")
         return
-    except:
-        mant.log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
     print()
@@ -909,10 +887,8 @@ def ingresar_adelantos(idu: int):
                                 print("         ERROR. El dato solicitado debe ser de tipo numérico")
                                 print()
                                 loop = -1
-                            except:
-                                mant.log_error()
-                                print()
-                                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                            except Exception as e:
+                                mant.manejar_excepcion_gral(e)
                                 print()
                                 return
                         deb_aut = 0
@@ -935,10 +911,8 @@ def ingresar_adelantos(idu: int):
                         print("         ERROR. El dato solicitado debe ser de tipo numérico.")
                         print()
                         deb_aut = 1
-                    except:
-                        mant.log_error()
-                        print()
-                        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                    except Exception as e:
+                        mant.manejar_excepcion_gral(e)
                         print()
                         return
 
@@ -1036,10 +1010,8 @@ def registrar_debito_automatico(idu: int):
         except ValueError:
             print("         ERROR. El dato solicitado debe ser de tipo numérico")
             return
-        except:
-            mant.log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            mant.manejar_excepcion_gral(e)
             print()
             return
     
@@ -1052,10 +1024,8 @@ def registrar_debito_automatico(idu: int):
             print("         ERROR. Número de recibo inexistente.")
             print()
             return
-        except:
-            mant.log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            mant.manejar_excepcion_gral(e)
             print()
             return
     
@@ -1072,10 +1042,8 @@ def registrar_debito_automatico(idu: int):
             print("         ERROR. La operación no tiene nicho asociado.")
             print()
             return
-        except:
-            mant.log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            mant.manejar_excepcion_gral(e)
             print()
             return
     
@@ -1186,9 +1154,9 @@ def registrar_debito_automatico(idu: int):
                                     print("ERROR: No fue posible conectarse a internet. El recibo no ha sido enviado.")
                                     print()
                                     getpass("Presione enter para continuar...")
-                                except:
-                                    mant.log_error()
-                                    print("         ERROR. El recibo no ha sido enviado. Póngase en contacto con el administrador.")
+                                except Exception as e:
+                                    mant.manejar_excepcion_gral(e, False)
+                                    print("         ATENCIÓN! El recibo NO ha sido enviado.")
                                     print()
                                     getpass("Presione enter para continuar...")
     
@@ -1238,10 +1206,8 @@ def reimprimir_recibo():
             print("         ERROR. El dato solicitado debe ser de tipo numérico")
             print()
             ndr = 0
-        except:
-            mant.log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            mant.manejar_excepcion_gral(e)
             print()
             return
     
@@ -1263,10 +1229,8 @@ def reimprimir_recibo():
         print()
         print("         ERROR. Número de recibo inválido.")
         print()
-    except:
-        mant.log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
     
 
@@ -1380,10 +1344,8 @@ def opcion_menu_facturacion() -> int:
         except ValueError: 
             print("Opción incorrecta.")
             opcion = -1
-        except:
-            mant.log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            mant.manejar_excepcion_gral(e)
             print()
             opcion = -1
 
@@ -1459,10 +1421,8 @@ def menu_cobradores() -> int:
             print("         ERROR. Debe ingresar un dato de tipo numérico.")
             print()
             loop = -1
-        except:
-            mant.log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            mant.manejar_excepcion_gral(e)
             print()
             return
     

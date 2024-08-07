@@ -221,10 +221,8 @@ def aviso_de_mora(id_operacion: int):
         except FileNotFoundError:
             mant.log_error()
             pass
-        except:
-            mant.log_error()
-            print()
-            print("         ERROR. Comuníquese con el administrador...")
+        except Exception as e:
+            mant.manejar_excepcion_gral(e, False)
             print()
             pass
         

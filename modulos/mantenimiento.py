@@ -103,10 +103,8 @@ try:
         if mantenimiento == "admin":
             try:
                 func.mant_database()
-            except:
-                func.log_error()
-                print()
-                func.getpass("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                func.manejar_excepcion_gral(e)
 
     if idu > 0:
         if pri >= 1:
@@ -123,8 +121,6 @@ try:
     func.cerrar_consola()
 
     os.system('color 0E')   # Colores del módulo (Amarillo sobre negro)
-except:
-    func.log_error()
-    print()
-    func.getpass("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+except Exception as e:
+    func.manejar_excepcion_gral(e)
     print()

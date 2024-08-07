@@ -171,10 +171,8 @@ def obtener_precio_venta(id_cat: int, pis: str, fil: str) -> tuple:
                 print()
                 print()
                 loop = -1
-            except:
-                mant.log_error()
-                print()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
                 loop = -1
     
     with sql.connect(mant.DATABASE) as conn:
@@ -321,10 +319,8 @@ def opcion_menu() -> int:                                                       
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
-    except:
-        mant.log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
     return opcion
@@ -406,10 +402,8 @@ def venta_nicho(idu: int):
         except ValueError: 
             print("Opción incorrecta.")
             opcion = -1
-        except:
-            mant.log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            mant.manejar_excepcion_gral(e)
             print()
             return
         
@@ -438,10 +432,8 @@ def venta_nicho(idu: int):
                     print("         ERROR. El dato solicitado debe ser de tipo numérico.")
                     print()
                     loop = -1
-                except:
-                    mant.log_error()
-                    print()
-                    input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                except Exception as e:
+                    mant.manejar_excepcion_gral(e)
                     print()
                     return
         
@@ -492,10 +484,8 @@ def venta_nicho(idu: int):
                 print("         ERROR. El dato solicitado debe ser de tipo numérico.")
                 print()
                 loop = -1
-            except:
-                mant.log_error()
-                print()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
                 print()
                 return
         
@@ -609,10 +599,8 @@ def crear_socio(idu: int, ret: bool= True) -> tuple | None:
                 print("         ERROR. El dato solicitado debe ser de tipo numérico.")
                 print()
                 loop = -1
-            except:
-                mant.log_error()
-                print()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
                 print()
                 return
         
@@ -695,10 +683,8 @@ def crear_socio(idu: int, ret: bool= True) -> tuple | None:
                 print("         ERROR. El dato solicitado debe ser de tipo numérico.")
                 print()
                 loop = -1
-            except:
-                mant.log_error()
-                print()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
                 print()
                 return
         
@@ -773,10 +759,8 @@ def opcion_menu_editar_socio() -> int:                                          
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
-    except:
-        mant.log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
     return opcion
@@ -811,10 +795,8 @@ def menu_editar_socio(idu: int):                                                
             print("         ERROR. No existe nro. de socio.")
             print()
             loop = -1
-        except:
-            mant.log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            mant.manejar_excepcion_gral(e)
             print()
             return
     opcion = -1
@@ -825,10 +807,8 @@ def menu_editar_socio(idu: int):                                                
             print("         ERROR. No existe nro. de socio.")
             print()
             return
-        except:
-            mant.log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            mant.manejar_excepcion_gral(e)
             print()
             return
         if act == 1:
@@ -945,10 +925,8 @@ def edit_dni(idu: int, id_soc: int):
                 print("         ERROR. El dato solicitado debe ser de tipo numérico.")
                 print()
                 loop = -1
-            except:
-                mant.log_error()
-                print()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
                 print()
                 return
     
@@ -997,10 +975,8 @@ def edit_tel(idu: int, id_soc: int):
                 print("         ERROR. El dato solicitado debe ser de tipo numérico.")
                 print()
                 loop = -1
-            except:
-                mant.log_error()
-                print()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
                 print()
                 return
         tel_nuevo = input("Ingrese teléfono nuevo o presione enter para eliminar el teléfono actual: ").title()
@@ -1138,10 +1114,8 @@ def edit_loc(idu: int, id_soc: int):
                 print("         ERROR. El dato solicitado debe ser de tipo numérico.")
                 print()
                 loop = -1
-            except:
-                mant.log_error()
-                print()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
                 print()
                 return
 
@@ -1352,10 +1326,8 @@ def crear_op(idu: int, id_socio: int, ret: bool= False) -> int | None:
                 print("         ERROR. El nicho indicado no existe. Proceda a crearlo")
                 print()
                 exist = ""
-            except:
-                mant.log_error()
-                print()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
                 print()
                 return -1
         
@@ -1387,10 +1359,8 @@ def crear_op(idu: int, id_socio: int, ret: bool= False) -> int | None:
             except TypeError:
                 return -1
             
-            except:
-                mant.log_error()
-                print()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
                 print()
                 return -1
             print()
@@ -1422,10 +1392,8 @@ def crear_op(idu: int, id_socio: int, ret: bool= False) -> int | None:
                         print("         ERROR. El nro. de socio indicado no existe. Proceda a crearlo")
                         exist = ""
                         print()
-                    except:
-                        mant.log_error()
-                        print()
-                        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                    except Exception as e:
+                        mant.manejar_excepcion_gral(e)
                         print()
                         return -1
         
@@ -1462,10 +1430,8 @@ def crear_op(idu: int, id_socio: int, ret: bool= False) -> int | None:
                     print("         ERROR. El dato solicitado debe ser de tipo numérico")
                     print()
                     loop = -1
-                except:
-                    mant.log_error()
-                    print()
-                    input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                except Exception as e:
+                    mant.manejar_excepcion_gral(e)
                     print()
                     return        
             deb_aut = 0
@@ -1507,10 +1473,8 @@ def crear_op(idu: int, id_socio: int, ret: bool= False) -> int | None:
                 print("         ERROR. El dato solicitado debe ser de tipo numérico.")
                 print()
                 deb_aut = 1
-            except:
-                mant.log_error()
-                print()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
                 print()
                 return
         
@@ -1541,10 +1505,8 @@ def crear_op(idu: int, id_socio: int, ret: bool= False) -> int | None:
                         print("         ERROR. El dato solicitado debe ser de tipo numérico.")
                         print()
                         return
-                    except:
-                        mant.log_error()
-                        print()
-                        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                    except Exception as e:
+                        mant.manejar_excepcion_gral(e)
                         print()
                         return
         
@@ -1657,10 +1619,8 @@ def opcion_menu_buscar_op() -> int:                                             
         print("Opción incorrecta.")
         print()
         opcion = -1
-    except:
-        mant.log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
     return opcion
@@ -1702,10 +1662,8 @@ def menu_buscar_op():                                                           
                 print("El dato solicitado debe ser de tipo numérico.")
                 print()
                 return
-            except:
-                mant.log_error()
-                print()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
                 print()
                 return
     
@@ -1730,10 +1688,8 @@ def menu_buscar_op():                                                           
                 print("El dato solicitado debe ser de tipo numérico.")
                 print()
                 return
-            except:
-                mant.log_error()
-                print()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
                 print()
                 return
         
@@ -1774,10 +1730,8 @@ def menu_buscar_op():                                                           
                 print("El dato solicitado debe ser de tipo numérico.")
                 print()
                 return
-            except:
-                mant.log_error()
-                print()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
                 print()
                 return
         
@@ -1814,10 +1768,8 @@ def ver_operacion():
             print("         ERROR. No existe nro. de operación.")
             print()
             loop = -1
-        except:
-            mant.log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            mant.manejar_excepcion_gral(e)
             print()
             return
     
@@ -1828,10 +1780,8 @@ def ver_operacion():
         print("         ERROR. No existe nro. de operación.")
         print()
         return
-    except:
-        mant.log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
     
@@ -1845,10 +1795,8 @@ def ver_operacion():
             dat_comp = None
         except TypeError:
             dat_comp = None
-        except:
-            mant.log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            mant.manejar_excepcion_gral(e)
             print()
             return
     
@@ -1860,10 +1808,8 @@ def ver_operacion():
     
     except TypeError:
         cod_nic = 'n/d'
-    except:
-        mant.log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
     
@@ -2000,10 +1946,8 @@ def opcion_menu_editar_op() -> int:                                             
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
-    except:
-        mant.log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
     return opcion
@@ -2044,10 +1988,8 @@ def menu_editar_op(idu: int):                                                   
             print("         ERROR. No existe nro. de operación.")
             print()
             loop = -1
-        except:
-            mant.log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            mant.manejar_excepcion_gral(e)
             print()
             return
     
@@ -2060,10 +2002,8 @@ def menu_editar_op(idu: int):                                                   
             print("         ERROR. No existe nro. de operación.")
             print()
             return
-        except:
-            mant.log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            mant.manejar_excepcion_gral(e)
             print()
             return
     
@@ -2169,10 +2109,8 @@ def transferir_op(idu: int, id_op: int):
                 print()
                 opcion = -1
                 loop = -1
-            except:
-                mant.log_error()
-                print()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
                 print()
                 return
 
@@ -2219,10 +2157,8 @@ def transferir_op(idu: int, id_op: int):
                     print("         ERROR. El dato solicitado debe ser de tipo numérico.")
                     print()
                     loop = -1
-                except:
-                    mant.log_error()
-                    print()
-                    input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                except Exception as e:
+                    mant.manejar_excepcion_gral(e)
                     print()
                     return
 
@@ -2233,10 +2169,8 @@ def transferir_op(idu: int, id_op: int):
             print("         ERROR. No existe nro. de operación.")
             print()
             return
-        except:
-            mant.log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            mant.manejar_excepcion_gral(e)
             print()
             return
 
@@ -2247,10 +2181,8 @@ def transferir_op(idu: int, id_op: int):
             print("         ERROR. No existe nro. de socio.")
             print()
             return
-        except:
-            mant.log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            mant.manejar_excepcion_gral(e)
             print()
             return
 
@@ -2359,10 +2291,8 @@ def cambiar_nicho(idu: int, id_op: int):
                         print()
                         opcion = -1
                         loop = -1
-                    except:
-                        mant.log_error()
-                        print()
-                        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                    except Exception as e:
+                        mant.manejar_excepcion_gral(e)
                         print()
                         return
             
@@ -2374,10 +2304,8 @@ def cambiar_nicho(idu: int, id_op: int):
             
                 except TypeError:
                     return
-                except:
-                    mant.log_error()
-                    print()
-                    input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                except Exception as e:
+                    mant.manejar_excepcion_gral(e)
                     print()
                     return
                 print()
@@ -2425,10 +2353,8 @@ def cambiar_nicho(idu: int, id_op: int):
             print("         ERROR. No existe nro. de operación.")
             print()
             return
-        except:
-            mant.log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            mant.manejar_excepcion_gral(e)
             print()
             return
         
@@ -2539,10 +2465,8 @@ def editar_ruta(idu: int, id_op: int):
             print("         ERROR. El dato solicitado debe ser de tipo numérico.")
             print()
             return
-        except:
-            mant.log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            mant.manejar_excepcion_gral(e)
             print()
             return
         print()
@@ -2582,10 +2506,8 @@ def editar_tarjeta(idu: int, id_op: int):
             print("         ERROR. El dato solicitado debe ser de tipo numérico.")
             print()
             return
-        except:
-            mant.log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            mant.manejar_excepcion_gral(e)
             print()
             return
         print()
@@ -2632,10 +2554,8 @@ def editar_op_cobol(idu: int, id_op: int):
                 print("         ERROR. El dato solicitado debe ser de tipo numérico.")
                 print()
                 return
-            except:
-                mant.log_error()
-                print()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
                 print()
                 return
         

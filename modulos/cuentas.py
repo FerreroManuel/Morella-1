@@ -34,10 +34,8 @@ try:
         if mantenimiento == "admin":
             try:
                 mant.mant_database()
-            except:
-                mant.log_error()
-                print()
-                func.getpass("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
     
     if idu > 0:
         if pri >= 1:
@@ -92,9 +90,8 @@ try:
                     print()
                     print("         ERROR. El archivo se encuentra abierto. Ciérrelo y vuelva a intentarlo")
                     print()
-                except:
-                    mant.log_error()
-                    print(f"         ERROR. Comuníquese con el administrador del sistema.")
+                except Exception as e:
+                    mant.manejar_excepcion_gral(e, False)
                     print()
             if salir == 1:
                 ########## CERRANDO CONSOLA ########## 
@@ -112,8 +109,6 @@ try:
                 
             mant.cerrar_consola()
             os.system('color 0d')   # Colores del módulo (Púrpura sobre negro)
-except:
-    mant.log_error()
-    print()
-    input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+except Exception as e:
+    mant.manejar_excepcion_gral(e)
     print()

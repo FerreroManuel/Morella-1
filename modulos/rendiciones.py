@@ -36,10 +36,8 @@ try:
         if mantenimiento == "admin":
             try:
                 mant.mant_database()
-            except:
-                mant.log_error()
-                print()
-                func.getpass("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
     
     if idu > 0:
         if pri >= 2:
@@ -58,8 +56,6 @@ try:
             
     os.system('color 09')   # Colores del módulo (Azul sobre negro)
             
-except:
-    mant.log_error()
-    print()
-    input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+except Exception as e:
+    mant.manejar_excepcion_gral(e)
     print()

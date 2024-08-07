@@ -104,9 +104,8 @@ def iniciar_caja() -> float:
                 print(" *** ERROR. EL MONTO DEBE SER NUMÉRICO ***")
                 print()
                 loop = -1
-            except:
-                mant.log_error()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
                 print()
                 loop = -1
     
@@ -399,9 +398,8 @@ def opcion_menu() -> int:                                                       
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
-    except:
-        mant.log_error()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         opcion = -1
     return opcion
@@ -472,9 +470,8 @@ def menu_oficinas() -> int:                                                     
     except ValueError: 
         print("Opción incorrecta.")
         oficina = -1
-    except:
-        mant.log_error()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         oficina -1
     return oficina
@@ -534,9 +531,8 @@ def reg_gastos_of(idu: int):
                 print("         ERROR. El monto debe ser numérico. No se registró ningún movimiento.")
                 print()
                 return
-            except:
-                mant.log_error()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
                 print()
                 return
             
@@ -553,9 +549,8 @@ def reg_gastos_of(idu: int):
             try:
                 mant.run_query(query)
             
-            except:
-                mant.log_error()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
                 print()
                 return
             
@@ -586,9 +581,8 @@ def reg_gastos_of(idu: int):
                 print("         ERROR. El monto debe ser numérico. No se registró ningún movimiento.")
                 print()
                 return
-            except:
-                mant.log_error()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
                 print()
                 return
             
@@ -605,9 +599,8 @@ def reg_gastos_of(idu: int):
             try:
                 mant.run_query(query)
             
-            except:
-                mant.log_error()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
                 print()
                 return
             
@@ -638,9 +631,8 @@ def reg_gastos_of(idu: int):
                 print("         ERROR. El monto debe ser numérico. No se registró ningún movimiento.")
                 print()
                 return
-            except:
-                mant.log_error()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
                 print()
                 return
             
@@ -657,9 +649,8 @@ def reg_gastos_of(idu: int):
             try:
                 mant.run_query(query)
             
-            except:
-                mant.log_error()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
                 print()
                 return
             
@@ -690,9 +681,8 @@ def reg_gastos_of(idu: int):
                 print("         ERROR. El monto debe ser numérico. No se registró ningún movimiento.")
                 print()
                 return
-            except:
-                mant.log_error()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
                 print()
                 return
             
@@ -709,9 +699,8 @@ def reg_gastos_of(idu: int):
             try:
                 mant.run_query(query)
             
-            except:
-                mant.log_error()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
                 print()
                 return
             
@@ -764,9 +753,8 @@ def reg_pago_alquiler(idu: int):
         print("         ERROR. El monto debe ser numérico. No se registró ningún movimiento.")
         print()
         return
-    except:
-        mant.log_error()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
     
@@ -783,9 +771,8 @@ def reg_pago_alquiler(idu: int):
     try:
         mant.run_query(query)
     
-    except:
-        mant.log_error()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
     
@@ -838,9 +825,8 @@ def reg_pago_sueldo(idu: int):
         print("         ERROR. El monto debe ser numérico. No se registró ningún movimiento.")
         print()
         return
-    except:
-        mant.log_error()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
     
@@ -857,9 +843,8 @@ def reg_pago_sueldo(idu: int):
     try:
         mant.run_query(query)
 
-    except:
-        mant.log_error()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
 
@@ -952,10 +937,8 @@ def reg_pago_comision(idu: int):
         print()
         print("         ERROR. El dato solicitado debe ser de tipo numérico.")
         return
-    except:
-        mant.log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
 
@@ -1010,9 +993,8 @@ def reg_alivio(idu: int):
         print()
         return
     
-    except:
-        mant.log_error()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
     
@@ -1078,9 +1060,8 @@ def reg_ingreso_extraordinario(idu: int):
         print("         ERROR. El monto debe ser numérico. No se registró ningún movimiento.")
         print()
         return
-    except:
-        mant.log_error()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
     
@@ -1128,9 +1109,8 @@ def opcion_menu_rendiciones() -> int:                                           
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
-    except:
-        mant.log_error()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         opcion = -1
     return opcion
@@ -1207,9 +1187,8 @@ def a_rendir(idu: int):
         print("         ERROR. El monto debe ser numérico. No se registró ningún movimiento.")
         print()
         return
-    except:
-        mant.log_error()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
     
@@ -1228,9 +1207,8 @@ def a_rendir(idu: int):
     try:
         mant.run_query(query)
     
-    except:
-        mant.log_error()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
     
@@ -1289,9 +1267,8 @@ def rend_adeudada(idu: int):
         print("         ERROR. El monto debe ser numérico. No se registró ningún movimiento.")
         print()
         return
-    except:
-        mant.log_error()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
     
@@ -1310,9 +1287,8 @@ def rend_adeudada(idu: int):
     try:
         mant.run_query(query)
     
-    except:
-        mant.log_error()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
     
@@ -1365,9 +1341,8 @@ def sin_listado(idu: int):
         print("         ERROR. El monto debe ser numérico. No se registró ningún movimiento.")
         print()
         return
-    except:
-        mant.log_error()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
     
@@ -1386,9 +1361,8 @@ def sin_listado(idu: int):
     try:
         mant.run_query(query)
     
-    except:
-        mant.log_error()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
     
@@ -1448,9 +1422,8 @@ def listado_adeudado(idu: int):
         print("         ERROR. El monto debe ser numérico. No se registró ningún movimiento.")
         print()
         return
-    except:
-        mant.log_error()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
     
@@ -1469,9 +1442,8 @@ def listado_adeudado(idu: int):
     try:
         mant.run_query(query)
     
-    except:
-        mant.log_error()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
     
@@ -1508,9 +1480,8 @@ def opcion_menu_edit() -> int:                                                  
     except ValueError: 
         print("Opción incorrecta.")
         accion = -1
-    except:
-        mant.log_error()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         accion = -1
     return accion
@@ -1608,9 +1579,8 @@ def opcion_menu_buscar() -> int:                                                
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
-    except:
-        mant.log_error()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         opcion = -1
     return opcion
@@ -1690,9 +1660,8 @@ def menu_buscar():                                                              
             except ValueError:
                 print()
                 print("         ERROR. El monto debe ser numérico.")
-            except:
-                mant.log_error()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
                 print()
     
         elif opcion == 6:   # Buscar por egreso
@@ -1708,9 +1677,8 @@ def menu_buscar():                                                              
             except ValueError:
                 print()
                 print("         ERROR. El monto debe ser numérico.")
-            except:
-                mant.log_error()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
                 print()
     
         elif opcion == 7:   # Buscar por observación
@@ -1850,9 +1818,8 @@ def opcion_menu_buscar_fecha() -> int:                                          
     except ValueError: 
         print("Opción incorrecta.")
         accion = -1
-    except:
-        mant.log_error()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         accion = -1
     return accion
@@ -2066,9 +2033,8 @@ def opcion_menu_modif_registro() -> int:                                        
     except ValueError: 
         print("Opción incorrecta.")
         accion = -1
-    except:
-        mant.log_error()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         accion = -1
     return accion
@@ -2147,9 +2113,8 @@ def menu_modif_registro(id: int, idu: int):                                     
             except ValueError:
                 print()
                 print("         ERROR. El monto debe ser numérico.")
-            except:
-                mant.log_error()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
                 print()
         
         elif opcion == 4:   # Modificar egreso
@@ -2170,9 +2135,8 @@ def menu_modif_registro(id: int, idu: int):                                     
             except ValueError:
                 print()
                 print("         ERROR. El monto debe ser numérico.")
-            except:
-                mant.log_error()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
                 print()
         
         elif opcion == 5:   # Modificar observación
@@ -2220,9 +2184,8 @@ def modif_registro(idu: int):
     except ValueError:
         print()
         print("         ERROR. El número de registro debe ser numérico.")
-    except:
-        mant.log_error()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
 
 
@@ -2388,9 +2351,8 @@ def eliminar_registro(idu: int):
             print()
             print("         ERROR. Indique un número de registro válido.")
             print()
-        except:
-            mant.log_error()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            mant.manejar_excepcion_gral(e)
             print()
     
     else:
@@ -2526,9 +2488,8 @@ def opcion_menu_caja_mensual() -> int:                                          
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
-    except:
-        mant.log_error()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         opcion = -1
     return opcion
@@ -2571,9 +2532,8 @@ def menu_caja_mensual():                                                        
     
                 rep.report_caja_mensual_det(mes, año)
     
-            except:
-                mant.log_error()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
                 print()
     
         elif opcion == 2:   # Imprimir caja mensual comprimida
@@ -2596,9 +2556,8 @@ def menu_caja_mensual():                                                        
     
                 rep.report_caja_mensual_comp(mes, año)
     
-            except: 
-                mant.log_error()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
                 print()
     
         elif opcion == 3:   # Imprimir cobros por cobrador
@@ -2621,9 +2580,8 @@ def menu_caja_mensual():                                                        
     
                 rep.report_caja_mensual_por_cob(mes, año)
     
-            except: 
-                mant.log_error()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
                 print()
     
         elif opcion == 0:   # Volver
@@ -2654,9 +2612,8 @@ def reg_cobros_federacion(idu: int):
         print("         ERROR. El monto debe ser numérico. No se registró ningún movimiento.")
         print()
         return
-    except:
-        mant.log_error()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
     
@@ -2739,9 +2696,8 @@ def reg_bonif_mant(idu: int):
             print("         ERROR. La operación indicada no existe.")
             print()
             oper = ''
-        except:
-            mant.log_error()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            mant.manejar_excepcion_gral(e)
             print()
             return
 
@@ -2759,9 +2715,8 @@ def reg_bonif_mant(idu: int):
         print("         ERROR. El monto debe ser numérico. No se registró ningún movimiento.")
         print()
         return
-    except:
-        mant.log_error()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
     

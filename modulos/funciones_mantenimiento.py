@@ -18,6 +18,11 @@ ARCH_PANT = os.path.join(BASE_DIR, 'databases/panteones.mf')
 AFIRMATIVO = ['S', 's', 'Si', 'SI', 'sI', 'si']
 NEGATIVO = ['N', 'n', 'No', 'NO', 'nO', 'no']
 
+SQL_CONN_ERR_ARGS = [
+    'Is the server running on that host and accepting TCP/IP connections?',
+    'server closed the connection unexpectedly',
+]
+
 import psycopg2 as sql
 import psycopg2.errors
 
@@ -132,10 +137,8 @@ def iniciar_sesion() -> tuple:
         i_d = -1
         nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
         return i_d, nom, ape, tel, dom, use, pas, pri, act
-    except:
-        log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        manejar_excepcion_gral(e)
         i_d = -1
         nom, ape, tel, dom, use, pas, pri, act = "", "", "", "", "", "", "", ""
         return i_d, nom, ape, tel, dom, use, pas, pri, act
@@ -244,6 +247,44 @@ def buscar_usuario_por_id(idu: int) -> tuple:
 
     i_d, nom, ape, tel, dom, use, pas, pri, act = datos
     return i_d, nom, ape, tel, dom, use, pas, pri, act
+
+
+def es_error_de_conexion(e: Exception) -> bool:
+    """Recibe una excepción y retorna True o False dependiendo si es o no un error de conexión con la base de datos
+
+    :param e: Excepción a chequear
+    :type e: Exception
+    """
+    if not Exception.__instancecheck__(e): return False
+    if not e.args or type(e.args[0]) != str: return False
+    return any([err.lower() in e.args[0].lower() for err in SQL_CONN_ERR_ARGS])
+
+
+def manejar_excepcion_gral(e: Exception, interrupir: bool=True):
+    """Recibe una excepción, realiza el log y luego imprime el error correspondiente dependiendo si es un error de
+    conexión con la base de datos o no
+
+    :param e: Excepción a manejar
+    :type e: Exception
+
+    :param interrumpir: Interrumpir la ejecución del programa hasta que se presione `enter`?
+    :type interrumpir: bool
+    """
+    log_error()
+    print()
+
+    if es_error_de_conexion(e):
+        print("         ERROR. La base de datos no responde. Asegurese de estar conectado a la red y que el servidor se encuentre encendido.")
+        print("         Si es así y el problema persiste, comuníquese con el administrador del sistema...")
+
+    else:
+        print("         ERROR. Comuníquese con el administrador...")
+
+    if interrupir: 
+        print()
+        getpass("         Presione enter para continuar...")
+
+    print()
 
 
 def log_error():
@@ -847,10 +888,8 @@ def opcion_menu() -> int:                                                       
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
-    except:
-        log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        manejar_excepcion_gral(e)
         opcion -1
     return opcion
     
@@ -914,10 +953,8 @@ def opcion_menu_usuarios() -> int:                                              
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
-    except:
-        log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        manejar_excepcion_gral(e)
         opcion -1
     return opcion
 
@@ -1036,10 +1073,8 @@ def crear_usuario(idu: int):
             print("         ERROR. Debe indicar un valor numérico entre el 1 y el 4")
             print()
             return
-        except:
-            log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            manejar_excepcion_gral(e)
             return 
 
         while privilegios_usuario > pri:
@@ -1104,10 +1139,8 @@ def opcion_modificar_usuarios() -> int:                                         
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
-    except:
-        log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        manejar_excepcion_gral(e)
         opcion -1
     return opcion
 
@@ -1169,10 +1202,8 @@ def modificar_usuario(idu: int):
             except TypeError:
                 print("         ERROR. Nombre de usuario inexistente")
                 return
-            except:
-                log_error()
-                print()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                manejar_excepcion_gral(e)
                 return
             print()
             
@@ -1190,10 +1221,8 @@ def modificar_usuario(idu: int):
                     except TypeError:
                         print("         ERROR. Nombre de usuario inexistente")
                         return
-                    except:
-                        log_error()
-                        print()
-                        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                    except Exception as e:
+                        manejar_excepcion_gral(e)
                         return
             
                 elif usuario == "":
@@ -1232,10 +1261,8 @@ def modificar_usuario(idu: int):
             except TypeError:
                 print("         ERROR. Nombre de usuario inexistente")
                 return
-            except:
-                log_error()
-                print()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                manejar_excepcion_gral(e)
                 return
             print()
             
@@ -1253,10 +1280,8 @@ def modificar_usuario(idu: int):
                     except TypeError:
                         print("         ERROR. Nombre de usuario inexistente")
                         return
-                    except:
-                        log_error()
-                        print()
-                        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                    except Exception as e:
+                        manejar_excepcion_gral(e)
                         return
             
                 elif usuario == "":
@@ -1295,10 +1320,8 @@ def modificar_usuario(idu: int):
             except TypeError:
                 print("         ERROR. Nombre de usuario inexistente")
                 return
-            except:
-                log_error()
-                print()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                manejar_excepcion_gral(e)
                 return
             print()
             
@@ -1316,10 +1339,8 @@ def modificar_usuario(idu: int):
                     except TypeError:
                         print("         ERROR. Nombre de usuario inexistente")
                         return
-                    except:
-                        log_error()
-                        print()
-                        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                    except Exception as e:
+                        manejar_excepcion_gral(e)
                         return
             
                 elif usuario == "":
@@ -1341,10 +1362,8 @@ def modificar_usuario(idu: int):
             except TypeError:
                 print("         ERROR. Nombre de usuario inexistente")
                 return
-            except:
-                log_error()
-                print()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                manejar_excepcion_gral(e)
                 return
             print()
             
@@ -1362,10 +1381,8 @@ def modificar_usuario(idu: int):
                     except TypeError:
                         print("         ERROR. Nombre de usuario inexistente")
                         return
-                    except:
-                        log_error()
-                        print()
-                        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                    except Exception as e:
+                        manejar_excepcion_gral(e)
                         return
             
                 elif usuario == "":
@@ -1451,10 +1468,8 @@ def modificar_usuario(idu: int):
                     except TypeError:
                         print("         ERROR. Nombre de usuario inexistente")
                         return
-                    except:
-                        log_error()
-                        print()
-                        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                    except Exception as e:
+                        manejar_excepcion_gral(e)
                         return
                     print()
 
@@ -1500,10 +1515,8 @@ def modificar_usuario(idu: int):
                 except TypeError:
                     print("         ERROR. Nombre de usuario inexistente")
                     return
-                except:
-                    log_error()
-                    print()
-                    input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                except Exception as e:
+                    manejar_excepcion_gral(e)
                     return
             
                 while i_d_m == i_d or pri <= pri_m:
@@ -1527,9 +1540,8 @@ def modificar_usuario(idu: int):
                         print("         ERROR. Nombre de usuario inexistente")
                         print()
                         return
-                    except:
-                        log_error()
-                        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                    except Exception as e:
+                        manejar_excepcion_gral(e)
                         print()
                         return
             
@@ -1540,10 +1552,8 @@ def modificar_usuario(idu: int):
                     print("         ERROR. Debe indicar un valor numérico entre el 1 y el 4")
                     print()
                     return
-                except:
-                    log_error()
-                    print()
-                    input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                except Exception as e:
+                    manejar_excepcion_gral(e)
                     return
                 print()
             
@@ -1558,10 +1568,8 @@ def modificar_usuario(idu: int):
                         print("         ERROR. Debe indicar un valor numérico entre el 1 y el 4")
                         print()
                         return
-                    except:
-                        log_error()
-                        print()
-                        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                    except Exception as e:
+                        manejar_excepcion_gral(e)
                         return
             
                 edit_registro('usuarios', 'privilegios', nuevo_privilegio, i_d_m)
@@ -1595,10 +1603,8 @@ def activar_usuario(idu: int):
         except TypeError:
             print("         ERROR. Nombre de usuario inexistente")
             return
-        except:
-            log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            manejar_excepcion_gral(e)
             return
 
         while i_d_m == i_d:
@@ -1612,10 +1618,8 @@ def activar_usuario(idu: int):
             except TypeError:
                 print("         ERROR. Nombre de usuario inexistente")
                 return
-            except:
-                log_error()
-                print()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                manejar_excepcion_gral(e)
                 return
 
         msj = ""
@@ -1667,10 +1671,8 @@ def inactivar_usuario(idu: int):
         except TypeError:
             print("         ERROR. Nombre de usuario inexistente")
             return
-        except:
-            log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            manejar_excepcion_gral(e)
             return
 
         while i_d_m == i_d:
@@ -1684,10 +1686,8 @@ def inactivar_usuario(idu: int):
             except TypeError:
                 print("         ERROR. Nombre de usuario inexistente")
                 return
-            except:
-                log_error()
-                print()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                manejar_excepcion_gral(e)
                 return
 
         msj = ""
@@ -1763,10 +1763,8 @@ def opcion_menu_panteones() -> int:                                             
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
-    except:
-        log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        manejar_excepcion_gral(e)
         opcion = -1
     return opcion
 
@@ -1832,10 +1830,8 @@ def agregar_panteon(idu: int):
                     print("         ERROR. Ya existe un panteón con ese nombre. No se realizaron cambios en el registro.")
                     print()
                     return
-                except:
-                    log_error()
-                    print()
-                    input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                except Exception as e:
+                    manejar_excepcion_gral(e)
                     return
 
                 with open(ARCH_CATEG_ING, 'a', encoding='Utf-8') as archivo_categ:
@@ -1933,10 +1929,8 @@ def opcion_menu_nichos() -> int:                                                
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
-    except:
-        log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        manejar_excepcion_gral(e)
         opcion = -1
     return opcion
 
@@ -2009,10 +2003,8 @@ def alta_nicho(idu: int, ret: bool = False):
             print("         ERROR. Debe ingresar un dato de tipo numérico.")
             print()
             return
-        except:
-            log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            manejar_excepcion_gral(e)
             return
 
         while panteon < 1 or panteon > counter:
@@ -2026,10 +2018,8 @@ def alta_nicho(idu: int, ret: bool = False):
                 print("         ERROR. Debe ingresar un dato de tipo numérico.")
                 print()
                 return
-            except:
-                log_error()
-                print()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                manejar_excepcion_gral(e)
                 return
 
         piso = input("Indique el piso: ").upper()
@@ -2054,10 +2044,8 @@ def alta_nicho(idu: int, ret: bool = False):
             print("         ERROR. Debe ingresar un dato de tipo numérico.")
             print()
             return
-        except:
-            log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            manejar_excepcion_gral(e)
             return
 
         try:
@@ -2071,10 +2059,8 @@ def alta_nicho(idu: int, ret: bool = False):
             print("         ERROR. Debe ingresar un dato de tipo numérico.")
             print()
             return
-        except:
-            log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            manejar_excepcion_gral(e)
             return
 
         print("Indique categoría del nicho: ")
@@ -2094,10 +2080,8 @@ def alta_nicho(idu: int, ret: bool = False):
             print("         ERROR. Debe ingresar un dato de tipo numérico.")
             print()
             return
-        except:
-            log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            manejar_excepcion_gral(e)
             return
 
         while cat_nicho < 1 or cat_nicho > counter:
@@ -2112,10 +2096,8 @@ def alta_nicho(idu: int, ret: bool = False):
                 print("         ERROR. Debe ingresar un dato de tipo numérico.")
                 print()
                 return
-            except:
-                log_error()
-                print()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                manejar_excepcion_gral(e)
                 return
 
         fallecido = input("Si se encuentra ocupado coloque los datos del fallecido de lo contrario presione enter: ")
@@ -2161,10 +2143,8 @@ def alta_nicho(idu: int, ret: bool = False):
                     elif ret == True:
                         return cod_nicho
 
-                except:
-                    log_error()
-                    print()
-                    input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                except Exception as e:
+                    manejar_excepcion_gral(e)
 
                     if ret == False:
                         return
@@ -2215,10 +2195,8 @@ def ocupar_nicho(idu: int):
         except TypeError:
             print("         ERROR. El nicho indicado no se encuentra dado de alta.")
             return
-        except:
-            log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            manejar_excepcion_gral(e)
             return
         
         if ocu == 1:
@@ -2306,10 +2284,8 @@ def cambiar_cat_nicho(idu: int):
         except TypeError:
             print("         ERROR. El nicho indicado no se encuentra dado de alta.")
             return
-        except:
-            log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            manejar_excepcion_gral(e)
             return
     
         i_d_ant, categ_nicho_ant, val_bic_ant, val_nob_ant = rend.obtener_categoria(cat)
@@ -2332,10 +2308,8 @@ def cambiar_cat_nicho(idu: int):
             print("         ERROR. Debe ingresar un dato de tipo numérico.")
             print()
             return
-        except:
-            log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            manejar_excepcion_gral(e)
             return
         
         while cat_nicho < 1 or cat_nicho > counter:
@@ -2350,10 +2324,8 @@ def cambiar_cat_nicho(idu: int):
                 print("         ERROR. Debe ingresar un dato de tipo numérico.")
                 print()
                 return
-            except:
-                log_error()
-                print()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                manejar_excepcion_gral(e)
                 return
         
         i_d_ant, nueva_categ_nicho, val_bic_ant, val_nob_ant = rend.obtener_categoria(cat_nicho)
@@ -2413,10 +2385,8 @@ def eliminar_nicho(idu: int):
         except TypeError:
             print("         ERROR. El nicho indicado no se encuentra dado de alta.")
             return
-        except:
-            log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            manejar_excepcion_gral(e)
             return
     
         operacion = buscar_op_por_nicho(cod_nicho)
@@ -2491,10 +2461,8 @@ def agregar_categoria(idu: int):
         except ValueError:
             print("         ERROR. Se debe indicar un dato de tipo numérico.")
             return
-        except:
-            log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            manejar_excepcion_gral(e)
             return
         print()
     
@@ -2504,10 +2472,8 @@ def agregar_categoria(idu: int):
         except ValueError:
             print("         ERROR. Se debe indicar un dato de tipo numérico.")
             return
-        except:
-            log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            manejar_excepcion_gral(e)
             return
         print()
 
@@ -2522,10 +2488,8 @@ def agregar_categoria(idu: int):
         except sql.errors.UniqueViolation:
             print("         ERROR. Ya existe una categoría con ese nombre. No se realizaron cambios en el registro.")
             print()
-        except:
-            log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            manejar_excepcion_gral(e)
             print()
         print()
 
@@ -2567,10 +2531,8 @@ def eliminar_categoria(idu: int):
             print("         ERROR. Debe ingresar un dato de tipo numérico.")
             print()
             return
-        except:
-            log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            manejar_excepcion_gral(e)
             return
         
         while cat_nicho < 1 or cat_nicho > counter:
@@ -2585,10 +2547,8 @@ def eliminar_categoria(idu: int):
                 print("         ERROR. Debe ingresar un dato de tipo numérico.")
                 print()
                 return
-            except:
-                log_error()
-                print()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                manejar_excepcion_gral(e)
                 return
         
         i_d, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat_nicho)
@@ -2639,10 +2599,8 @@ def opcion_menu_cobradores() -> int:                                            
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
-    except:
-        log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        manejar_excepcion_gral(e)
         opcion = -1
     return opcion
 
@@ -2711,10 +2669,8 @@ def alta_cobrador(idu: int):
                     print("         ERROR. Ya existe un cobrador con ese nombre. No se realizaron cambios en el registro.")
                     print()
                     return
-                except:
-                    log_error()
-                    print()
-                    input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                except Exception as e:
+                    manejar_excepcion_gral(e)
                     return
         
                 with open(ARCH_COB, 'a', encoding='Utf-8') as archivo_cob:
@@ -2806,10 +2762,8 @@ def opcion_menu_centros_egresos() -> int:                                       
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
-    except:
-        log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        manejar_excepcion_gral(e)
         opcion = -1
     return opcion
 
@@ -2926,10 +2880,8 @@ def opcion_menu_precios() -> int:                                               
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
-    except:
-        log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        manejar_excepcion_gral(e)
         opcion = -1
     return opcion
 
@@ -2979,11 +2931,9 @@ def opcion_menu_precios_venta() -> int:                                         
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
-    except:
-        log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
-        opcio = -1
+    except Exception as e:
+        manejar_excepcion_gral(e)
+        opcion = -1
     return opcion
 
 
@@ -3056,10 +3006,8 @@ def editar_precios_venta_manual(idu: int):
         except ValueError:
             print("         ERROR. El dato solicitado debe ser de tipo numérico.")
             return
-        except:
-            log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            manejar_excepcion_gral(e)
             return
 
         print()
@@ -3098,10 +3046,8 @@ def editar_precios_venta_porcent(idu: int):
             print("         ERROR. El dato solicitado debe ser de tipo numérico.")
             print()
             return
-        except:
-            log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            manejar_excepcion_gral(e)
             return
     
         if porcentaje <= 0:
@@ -3152,10 +3098,8 @@ def alta_precio(idu: int):       # OPCIÓN INAHABILITADA
                 print("         ERROR. El dato solicitado es de tipo numérico")
                 print()
                 return
-            except:
-                log_error()
-                print()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                manejar_excepcion_gral(e)
                 return
         
             print("Registrando nuevo precio...")
@@ -3207,10 +3151,8 @@ def eliminar_precio(idu):   # OPCIÓN INAHABILITADA
                 print("         ERROR. El dato solicitado debe ser de tipo numérico.")
                 print()
                 return
-            except:
-                log_error()
-                print()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                manejar_excepcion_gral(e)
                 return
         
             msj = ""
@@ -3262,10 +3204,8 @@ def opcion_menu_precios_mant() -> int:                                          
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
-    except:
-        log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        manejar_excepcion_gral(e)
         opcion = -1
     return opcion
 
@@ -3328,10 +3268,8 @@ def editar_precios_mant_manual(idu: int):
         except ValueError:
             print("         ERROR. El dato solicitado debe ser de tipo numérico.")
             return
-        except:
-            log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            manejar_excepcion_gral(e)
             return
     
         try:
@@ -3340,10 +3278,8 @@ def editar_precios_mant_manual(idu: int):
         except ValueError:
             print("         ERROR. El dato solicitado debe ser de tipo numérico.")
             return
-        except:
-            log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            manejar_excepcion_gral(e)
             return
     
         try:
@@ -3352,10 +3288,8 @@ def editar_precios_mant_manual(idu: int):
         except ValueError:
             print("         ERROR. El dato solicitado debe ser de tipo numérico.")
             return
-        except:
-            log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            manejar_excepcion_gral(e)
             return
         print()
     
@@ -3421,10 +3355,8 @@ def editar_precios_mant_porcent(idu: int):
             except ValueError: 
                 print("Opción incorrecta.")
                 opcion = -1
-            except:
-                log_error()
-                print()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                manejar_excepcion_gral(e)
                 print()
                 opcion = -1
     
@@ -3436,10 +3368,8 @@ def editar_precios_mant_porcent(idu: int):
             print("         ERROR. El dato solicitado debe ser de tipo numérico.")
             print()
             return
-        except:
-            log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            manejar_excepcion_gral(e)
             return
     
         if porcentaje <= 0:
@@ -3480,10 +3410,8 @@ def opcion_menu_mails() -> int:                                                 
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
-    except:
-        log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        manejar_excepcion_gral(e)
         opcion = -1
     return opcion
 
@@ -3606,10 +3534,8 @@ def alta_mail(idu: int):
             except sql.errors.UniqueViolation:
                 print("         ERROR. La cuenta que está intentando ingresar ya existe en la base de datos.")
                 print()
-            except:
-                log_error()
-                print()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                manejar_excepcion_gral(e)
                 print()
     
         else:
@@ -3645,10 +3571,8 @@ def opcion_editar_mail() -> int:                                                
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
-    except:
-        log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        manejar_excepcion_gral(e)
         opcion = -1
     return opcion
 
@@ -3708,10 +3632,8 @@ def editar_mail(idu: int):                                                      
                 except TypeError:
                     print("         ERROR. ID de mail inexistente")
                     return
-                except:
-                    log_error()
-                    print()
-                    input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                except Exception as e:
+                    manejar_excepcion_gral(e)
                     return
                 print()
                 
@@ -3736,10 +3658,8 @@ def editar_mail(idu: int):                                                      
                 except TypeError:
                     print("         ERROR. ID de mail inexistente")
                     return
-                except:
-                    log_error()
-                    print()
-                    input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                except Exception as e:
+                    manejar_excepcion_gral(e)
                     return
                 print()
                 
@@ -3764,10 +3684,8 @@ def editar_mail(idu: int):                                                      
                 except TypeError:
                     print("         ERROR. ID de mail inexistente")
                     return
-                except:
-                    log_error()
-                    print()
-                    input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                except Exception as e:
+                    manejar_excepcion_gral(e)
                     return
                 print()
                 
@@ -3821,10 +3739,8 @@ def editar_mail(idu: int):                                                      
                 except TypeError:
                     print("         ERROR. ID de mail inexistente")
                     return
-                except:
-                    log_error()
-                    print()
-                    input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                except Exception as e:
+                    manejar_excepcion_gral(e)
                     return
                 print()
                 
@@ -3875,10 +3791,8 @@ def eliminar_mail(idu: int):
             print("         ERROR. El dato solicitado debe ser de tipo numérico.")
             print()
             return
-        except:
-            log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            manejar_excepcion_gral(e)
             return
     
         msj = ""
@@ -3928,10 +3842,8 @@ def opcion_menu_fiserv() -> int:                                                
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
-    except:
-        log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        manejar_excepcion_gral(e)
         opcion = -1
     return opcion
 
@@ -3978,19 +3890,9 @@ def editar_nro_comercio_fiserv():
             with sql.connect(DATABASE) as conn:
                 cursor = conn.cursor()
                 cursor.execute(f"UPDATE comercio_fiserv SET nro_comercio = '{nro_comercio}';")
-        
-        except sql.OperationalError:
-            log_error()
-            print()
-            print("         ERROR. La base de datos no responde. Asegurese de estar conectado a la red y que el servidor se encuentre encendido.")
-            print()
-            print("         Si es así y el problema persiste, comuníquese con el administrador del sistema.")
-            print()
-            return
-        except:
-            log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+
+        except Exception as e:
+            manejar_excepcion_gral(e)
             return
 
         print()

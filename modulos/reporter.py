@@ -1905,10 +1905,8 @@ def recibos(facturacion: str, recibos: list):
         print()
         print("No se encontraron recibos impagos.")
         print()
-    except:
-        mant.log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print("")
         print()
         return
@@ -2124,13 +2122,11 @@ def listado_recibos(id_cobrador: int, recibos: list, ops_arregladas: list):
                         except SMTPAuthenticationError:
                             pass
                         except gaierror:
-                             pass
-                        except:
-                           mant.log_error()
-                           print()
-                           input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
-                           print()
-                           return
+                            pass
+                        except Exception as e:
+                            mant.manejar_excepcion_gral(e)
+                            print()
+                            return
                 
                 # Revisión estado de mora
                 if cuenta > 0:
@@ -2148,10 +2144,8 @@ def listado_recibos(id_cobrador: int, recibos: list, ops_arregladas: list):
                         except gaierror:
                             mant.log_error()
                             pass
-                        except:
-                            mant.log_error()
-                            print()
-                            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                        except Exception as e:
+                            mant.manejar_excepcion_gral(e)
                             print()
                             return
     
@@ -2201,10 +2195,8 @@ def listado_recibos(id_cobrador: int, recibos: list, ops_arregladas: list):
         print()
         print("No se encontraron recibos impagos.")
         print()
-    except:
-        mant.log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
           
@@ -2475,10 +2467,8 @@ def recibos_deb_aut(recibos: list):
             print()
             print("No se encontraron recibos impagos.")
             print()
-        except:
-            mant.log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            mant.manejar_excepcion_gral(e)
             print()
             return
 
@@ -2799,10 +2789,8 @@ def listado_recibos_deb_aut(recibos: list):
 
     except FileNotFoundError:
         print("         ERROR. No se encontraron recibos.")
-    except:
-        mant.log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
     
@@ -2846,10 +2834,8 @@ def listado_recibos_deb_aut(recibos: list):
         print()
         print("No se encontraron recibos impagos.")
         print()
-    except:
-        mant.log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
          
@@ -3300,10 +3286,8 @@ def recibos_documentos() -> list:
         print()
         print("No se encontraron recibos impagos.")
         print()
-    except:
-        mant.log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
     
@@ -3582,10 +3566,8 @@ def listado_recibos_documentos(lista_recibos: list):
         print()
         print("No se encontraron recibos impagos.")
         print()
-    except:
-        mant.log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
           
@@ -3907,10 +3889,8 @@ def reimpresion_recibo(ndr: int):
         print()
         print(f"No existe recibo con nro {str(ndr).rjust(7, '0')}.")
         print()
-    except:
-        mant.log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
         
@@ -4146,10 +4126,8 @@ def recibo_adelanto(ndr: int, cobrador: int, periodo_h: str, año_h: str, valor_
         print()
         print(f"No existe recibo con nro {str(ndr).rjust(7, '0')}.")
         print()
-    except:
-        mant.log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
         
@@ -4347,10 +4325,8 @@ def report_estado_cta(nro_socio: int, nombre: str, dni: int, facturacion: str, d
         except TypeError:
             nic = 0
             
-        except:
-            mant.log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            mant.manejar_excepcion_gral(e)
             print()
             return
 
@@ -4697,10 +4673,8 @@ def report_estado_cta_mail(nro_socio: int, nombre: str, dni: int, facturacion: s
         except TypeError:
             nic = 0
             
-        except:
-            mant.log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            mant.manejar_excepcion_gral(e)
             print()
             return
 
@@ -5471,10 +5445,8 @@ def report_excel_socios():
     except PermissionError:
         print()
         print("         ERROR. El archivo no pudo ser creado porque se encuentra en uso. Ciérrelo y vuelva a intentarlo.")
-    except:
-        mant.log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
 
@@ -5567,10 +5539,8 @@ def report_excel_modif_caja():
     except PermissionError:
         print()
         print("         ERROR. El archivo no pudo ser creado porque se encuentra en uso. Ciérrelo y vuelva a intentarlo.")
-    except:
-        mant.log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
 
@@ -5671,10 +5641,8 @@ def report_deb_aut(mes: str, año: str):
     except PermissionError:
         print()
         print("         ERROR. El archivo no pudo ser creado porque se encuentra en uso. Ciérrelo y vuelva a intentarlo.")
-    except:
-        mant.log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
 
@@ -6103,10 +6071,8 @@ def report_ult_recibo(cobrador: int, facturacion: str):
     except PermissionError:
         print()
         print("         ERROR. El archivo no pudo ser creado porque se encuentra en uso. Ciérrelo y vuelva a intentarlo.")
-    except:
-        mant.log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
 

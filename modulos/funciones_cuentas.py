@@ -45,10 +45,8 @@ def opcion_menu_buscar() -> int:                                                
     except ValueError: 
         print("Opción incorrecta.")
         opcion = -1
-    except:
-        mant.log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
     return opcion
 
 
@@ -74,10 +72,8 @@ def menu_buscar():                                                              
                 print()
                 print("         ERROR. Nro de operación inválido")
                 print()
-            except:
-                mant.log_error()
-                print()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
                 print()
         
         elif opcion == 2:   # Buscar por nombre
@@ -85,10 +81,8 @@ def menu_buscar():                                                              
                 nombre = input("Ingrese apellido y nombre del asociado o parte de él: ")
                 buscar_op_nombre_socio(nombre)
         
-            except:
-                mant.log_error()
-                print()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
                 print()
         
         elif opcion == 3:   # Buscar por DNI
@@ -100,10 +94,8 @@ def menu_buscar():                                                              
                 print()
                 print("         ERROR. DNI inválido. Recuerde que debe ingresarlo sin puntos.")
                 print()
-            except:
-                mant.log_error()
-                print()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
                 print()
         
         elif opcion == 4:   # Buscar por domicilio
@@ -111,10 +103,8 @@ def menu_buscar():                                                              
                 domicilio = input("Ingrese domicilio o parte de él: ")
                 buscar_op_domicilio(domicilio)
         
-            except:
-                mant.log_error()
-                print()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
                 print()
         
         elif opcion == 5:   # Buscar por código de nicho
@@ -122,10 +112,8 @@ def menu_buscar():                                                              
                 cod_nicho = input("Ingrese el código de nicho: ")
                 buscar_op_cod_nicho(cod_nicho)
         
-            except:
-                mant.log_error()
-                print()
-                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
                 print()
         
         elif opcion == 6:   # Buscar por ID de cobrador
@@ -183,10 +171,8 @@ def buscar_datos_cobol():
             print("Opción incorrecta.")
             print()
             opcion = -1
-        except:
-            mant.log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            mant.manejar_excepcion_gral(e)
             print()
     
         if opcion == 1:         # Buscar por nro. op. Cobol
@@ -200,10 +186,8 @@ def buscar_datos_cobol():
                 print()
                 print("         ERROR. El dato solicitado debe ser de tipo numérico.")
                 print()
-            except:
-                mant.log_error()
-                print()
-                input("         ERROR. Comuníquese con el administrador... Presione enter para continuar...")
+            except Exception as e:
+                mant.manejar_excepcion_gral(e)
                 print()
     
         elif opcion == 2:       # Buscar por nombre alternativo
@@ -350,10 +334,8 @@ def buscar_op_nro_socio(nro_socio: int):
     except TypeError:
         print("         ERROR. No existe un asociado con ese número.")
         print()
-    except:
-        mant.log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
 
 
@@ -393,10 +375,8 @@ def buscar_op_nombre_socio(nombre: str):
         print("         ERROR. Nombre inválido. No se pueden utilizar comillas simples (') en las busquedas")
         print()
         return
-    except:
-        mant.log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
 
@@ -459,10 +439,8 @@ def buscar_op_domicilio(domicilio: str):
         print("         ERROR. Domicilio inválido. Recuerde que no se pueden utilizar comillas simples (') en las busquedas")
         print()
         return
-    except:
-        mant.log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
 
@@ -495,10 +473,8 @@ def buscar_op_cod_nicho(cod_nicho: str, ret: bool = False) -> tuple | None:
         print("         ERROR. Código de nicho inválido")
         print()
         return
-    except:
-        mant.log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
     
@@ -655,10 +631,8 @@ def buscar_op_nom_alt(nom_alt: str):
         print("         ERROR. Nombre inválido. No se pueden utilizar comillas simples (') en las busquedas")
         print()
         return
-    except:
-        mant.log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
 
@@ -694,10 +668,8 @@ def buscar_op_dom_alt(dom_alt: str):
         print("         ERROR. Nombre inválido. No se pueden utilizar comillas simples (') en las busquedas")
         print()
         return
-    except:
-        mant.log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
 
@@ -921,10 +893,8 @@ def deuda_por_op(id_operacion: int) -> float | int:
         
         except TypeError:
             return deuda + deuda_vieja_por_op(id_operacion)
-        except:
-            mant.log_error()
-            print()
-            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+        except Exception as e:
+            mant.manejar_excepcion_gral(e)
             print()
             return
         
@@ -960,10 +930,8 @@ def deuda_vieja_por_op(id_operacion: int) -> float | int:
     
     except TypeError:
         return 0
-    except:
-        mant.log_error()
-        print()
-        input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
         print()
         return
     
