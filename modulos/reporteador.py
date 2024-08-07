@@ -4,11 +4,12 @@ import psycopg2 as sql
 import psycopg2.errors
 
 from getpass import getpass
+from smtplib import SMTPAuthenticationError, SMTPServerDisconnected
+from socket import gaierror
 
 import correo as email
 import funciones_caja as caja
 import funciones_mantenimiento as mant
-import funciones_ventas as vent
 import reporter as rep
 
 os.system(f'TITLE {mant.WINDOW_TITLE}')
@@ -363,9 +364,9 @@ def opcion_errores_sistema() -> int:
     print()
     print("********** Acciones disponibles **********")
     print()
-    print("   1. Ver log de errores")
-    print("   2. Enviar log al administrador")
-    print("   3. Limpiar log de errores")
+    print("   1. Ver informe de errores")
+    print("   2. Enviar informe al administrador")
+    print("   3. Limpiar informe de errores")
     print("   0. Volver")
     print()
     try:
@@ -399,31 +400,41 @@ def errores_sistema(idu: int):
     if pri < 1:
         print("No posee privilegios para realizar esta acción")
         print()
-    
+
     else:
         opcion = -1
         while opcion != 0:
             opcion = opcion_errores_sistema()
             if opcion == 1:
                 print()
-                print('    Abriendo log de errores... Cierre el archivo para continuar...')
+                print('    Abriendo informe de errores... Cierre el archivo para continuar...')
                 os.system(f'notepad {mant.ARCH_LOG_ERROR}')
             elif opcion == 2:
+                sended = False
                 print()
-                print('    Enviando log de errores...')
+                print('    Enviando informe de errores... Aguarde un momento...')
+                print()
                 try:
                     email.envio_de_errores()
                     log = open(mant.ARCH_LOG_ERROR, 'w')
                     log.close()
-                    print()
-                    getpass('Enviado con éxito... Presione enter para continuar...')
-                    print()
+                    sended = True
+                except SMTPAuthenticationError:
+                    print("    ERROR: Los datos de acceso al servidor son incorrectos.")
+                except SMTPServerDisconnected:
+                    print("    ERROR: Los datos de acceso al servidor son incorrectos.")
+                except gaierror:
+                    print("    ERROR: No fue posible conectarse a internet.")
                 except Exception as e:
                     mant.manejar_excepcion_gral(e)
+                finally:
+                    print()
+                    msg = 'Informe enviado con éxito...' if sended else 'El informe NO ha sido enviado...'
+                    getpass(f'    {msg} Presione enter para continuar...')                        
                     print()
             elif opcion == 3:
                 print()
-                print('    Limpiando log de errores... Aguarde un momento...')
+                print('    Limpiando informe de errores... Aguarde un momento...')
                 log = open(mant.ARCH_LOG_ERROR, 'w')
                 log.close()
                 print()

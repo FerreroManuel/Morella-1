@@ -25,7 +25,7 @@ def obtener_mail(id: int) -> tuple:
         instruccion = f"SELECT * FROM mail WHERE id = '{id}'"
         cursor.execute(instruccion)
         datos = cursor.fetchone()
-    return datos
+    return datos or ('', '', '', '', '', '')
 
 
 def envio_de_recibo(num_socio: int, id_op: int, periodo: str, nro_nicho: str, pan: int, t04: str, nom_cob: str, num_rec: int):
