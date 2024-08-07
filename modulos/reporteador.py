@@ -10,7 +10,7 @@ import funciones_mantenimiento as mant
 import funciones_ventas as vent
 import reporter as rep
 
-os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
+os.system(f'TITLE {mant.WINDOW_TITLE}')
 os.system('color 80')   # Colores del módulo (Negro sobre gris)
 
 

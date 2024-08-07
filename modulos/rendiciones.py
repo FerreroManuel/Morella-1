@@ -4,7 +4,7 @@ import os
 import funciones_mantenimiento as mant
 import funciones_rendiciones as func
 
-os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
+os.system(f'TITLE {mant.WINDOW_TITLE}')
 os.system('color 09')   # Colores del módulo (Azul sobre negro)
 
 try:

@@ -54,6 +54,10 @@ def obtener_database() -> str:
 
 DATABASE = obtener_database()
 
+DB_HOST = DATABASE.split('host=')[1].split(' ')[0]
+
+WINDOW_TITLE = f"Morella v{VERSION} - MF! Soluciones informáticas \t- conn@{DB_HOST}"
+
 
 def iniciar_sesion() -> tuple:
     """Permite al usuario ingresar al sistema a través de su usuario y contraseña.

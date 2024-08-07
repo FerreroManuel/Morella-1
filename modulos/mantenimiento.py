@@ -3,7 +3,7 @@ import os
 
 import funciones_mantenimiento as func
 
-os.system(f'TITLE Morella v{func.VERSION} - MF! Soluciones informáticas')
+os.system(f'TITLE {func.WINDOW_TITLE}')
 os.system('color 0a')   # Colores del módulo (Verde sobre negro)
 os.system('mode con: cols=160 lines=9999')
 
