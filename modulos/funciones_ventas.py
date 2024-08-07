@@ -1114,6 +1114,7 @@ def edit_loc(idu: int, id_soc: int):
                 print("         ERROR. El dato solicitado debe ser de tipo numérico.")
                 print()
                 loop = -1
+                continue
             except Exception as e:
                 mant.manejar_excepcion_gral(e)
                 print()
