@@ -130,7 +130,8 @@ def menu_buscar():                                                              
         
         elif opcion == 6:   # Buscar por ID de cobrador
             cobrador = rend.menu_cobradores()
-            buscar_op_cob(cobrador)
+            if cobrador == 0: opcion == -1
+            else: buscar_op_cob(cobrador)
         
         elif opcion == 7:   # Buscar morosos
             buscar_op_morosos()
@@ -516,7 +517,7 @@ def buscar_op_cod_nicho(cod_nicho: str, ret: bool = False) -> tuple | None:
     print()
     print(f"CÓDIGO DE NICHO: {f'{cod_nicho}'.rjust(10, '0')}. PANTEÓN: {panteon}. PISO: {pis}. FILA: {fil}. NICHO: {num}. CATEGORÍA: {categ}")
     print()
-    
+
     if not datos:
         print(f"EL NICHO NO TIENE OPERACIONES ASOCIADAS")
         return

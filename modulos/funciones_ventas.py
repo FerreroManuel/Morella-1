@@ -1444,6 +1444,8 @@ def crear_op(idu: int, id_socio: int, ret: bool= False) -> int | None:
             facturacion = 'bicon'
         
         cobrador = rend.menu_cobradores()
+
+        if cobrador == 0: return
         
         if cobrador == 6:
             deb_aut = 1
@@ -2494,6 +2496,7 @@ def cambiar_cobrador(idu: int, id_op: int, tarjeta: int):
         print("***** Editar tarjeta de crédito *****")
         print()
         cobrador = rend.menu_cobradores()
+        if cobrador == 0: return
     
         mant.edit_registro('operaciones', 'cobrador', cobrador, id_op)
         print("Cobrador modificado exitosamente.")

@@ -285,30 +285,32 @@ def ingresar_cobro(idu: int):
                                 print("         ATENCIÓN: A partir del pago ralizado el asociado deja de ser MOROSO, indique cobrador y ruta para la operación.")
                                 print()
         
-                                cobrador = menu_cobradores()
-        
-                                if cobrador == 6:
-                                    deb_aut = 1
-                                    ruta = 0
-        
-                                else:
-                                    loop = -1
-                                    while loop == -1:
-                                        try:
-                                            loop = ruta = int(input("Indique nro. de ruta: "))
-                                            print()
-        
-                                        except ValueError:
-                                            print("         ERROR. El dato solicitado debe ser de tipo numérico")
-                                            print()
-                                            loop = -1
-                                        except:
-                                            mant.log_error()
-                                            print()
-                                            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
-                                            print()
-                                            return
-                                    deb_aut = 0
+                                cobrador = 0
+                                while cobrador == 0:
+                                    cobrador = menu_cobradores()
+            
+                                    if cobrador == 6:
+                                        deb_aut = 1
+                                        ruta = 0
+            
+                                    elif cobrador != 0:
+                                        loop = -1
+                                        while loop == -1:
+                                            try:
+                                                loop = ruta = int(input("Indique nro. de ruta: "))
+                                                print()
+            
+                                            except ValueError:
+                                                print("         ERROR. El dato solicitado debe ser de tipo numérico")
+                                                print()
+                                                loop = -1
+                                            except:
+                                                mant.log_error()
+                                                print()
+                                                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                                                print()
+                                                return
+                                        deb_aut = 0
         
                                 while deb_aut == 1:
                                     try:
@@ -882,31 +884,33 @@ def ingresar_adelantos(idu: int):
                 print("         ATENCIÓN: A partir del pago ralizado el asociado deja de ser MOROSO, indique cobrador y ruta para la operación.")
                 print()
                 
-                cobrador = menu_cobradores()
-    
-                if cobrador == 6:
-                    deb_aut = 1
-                    ruta = 0
-    
-                else:
-                    loop = -1
-    
-                    while loop == -1:
-                        try:
-                            loop = ruta = int(input("Indique nro. de ruta: "))
-                            print()
-    
-                        except ValueError:
-                            print("         ERROR. El dato solicitado debe ser de tipo numérico")
-                            print()
-                            loop = -1
-                        except:
-                            mant.log_error()
-                            print()
-                            input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
-                            print()
-                            return
-                    deb_aut = 0
+                cobrador = 0
+                while cobrador == 0:
+                    cobrador = menu_cobradores()
+        
+                    if cobrador == 6:
+                        deb_aut = 1
+                        ruta = 0
+        
+                    elif cobrador != 0:
+                        loop = -1
+        
+                        while loop == -1:
+                            try:
+                                loop = ruta = int(input("Indique nro. de ruta: "))
+                                print()
+        
+                            except ValueError:
+                                print("         ERROR. El dato solicitado debe ser de tipo numérico")
+                                print()
+                                loop = -1
+                            except:
+                                mant.log_error()
+                                print()
+                                input("         ERROR. Comuníquese con el administrador...  Presione enter para continuar...")
+                                print()
+                                return
+                        deb_aut = 0
     
                 while deb_aut == 1:
                     try:

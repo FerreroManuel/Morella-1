@@ -921,6 +921,7 @@ def reg_pago_comision(idu: int):
             print()
             
             cob = mant.rend.menu_cobradores()
+            if cob == 0: return
         
         cobrador = obtener_nom_cobrador(cob)
         
@@ -1194,6 +1195,7 @@ def a_rendir(idu: int):
         print()
     
         cobrador = mant.rend.menu_cobradores()
+        if cobrador == 0: return
     
     try:
         while egreso == 0:
@@ -1275,6 +1277,7 @@ def rend_adeudada(idu: int):
         print()
     
     cobrador = mant.rend.menu_cobradores()
+    if cobrador == 0: return
     
     try:
         while ingreso == 0:
@@ -1350,6 +1353,7 @@ def sin_listado(idu: int):
     año = obtener_año()
     
     cobrador = mant.rend.menu_cobradores()
+    if cobrador == 0: return
     
     try:
         while ingreso == 0:
@@ -1432,6 +1436,7 @@ def listado_adeudado(idu: int):
         print()
     
         cobrador = mant.rend.menu_cobradores()
+        if cobrador == 0: return
     
     try:
         while egreso == 0:
