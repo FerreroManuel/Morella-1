@@ -655,6 +655,9 @@ def emitir_recibos():
                         mant.edit_registro('operaciones', 'cuotas_favor', 0, id_o)
                         ops_arregladas.append(id_o)
 
+                # Arreglando posibles inconsistencias en pagos de recibos
+                arreglar_inconsistencias_en_pagos()
+
                 print("Emitiendo recibos...")
                 print()
                 recibos = buscar_recibos(facturacion, cobrador)
@@ -1864,3 +1867,28 @@ def buscar_recibos_impagos(id_op: int) -> list:
         cursor.execute(f"SELECT * FROM recibos WHERE operacion = {id_op} AND pago = 0 ORDER BY nro_recibo;")
         datos = cursor.fetchall()
     return datos
+
+
+def arreglar_inconsistencias_en_pagos():
+    """Establece como pago todo recibo impago que su operación, periodo y año
+    coincida con un recibo pago. Esto puede suceder cuando se dan errores de
+    conexión durante el ingreso de un cobro.
+    """
+    with sql.connect(mant.DATABASE) as conn:
+        cursor = conn.cursor()
+        instruction = """\
+            WITH cte_errors AS (
+                SELECT operacion, periodo, año
+                FROM recibos
+                GROUP BY operacion, periodo, año
+                HAVING COUNT(DISTINCT pago) > 1
+            )
+            UPDATE recibos
+            SET pago = 1
+            WHERE (operacion, periodo, año) IN (
+                SELECT operacion, periodo, año
+                FROM cte_errors
+            )
+            AND pago = 0
+            ;"""
+        cursor.execute(instruction)
