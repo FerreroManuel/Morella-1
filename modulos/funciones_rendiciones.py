@@ -37,11 +37,12 @@ def opcion_menu() -> int:                                                       
     print("   3. Ingresar pagos por adelantado")
     print("   4. Registrar débito automático")
     print("   5. Reimprimir recibo (actualiza importe)")
+    print("   6. Reimprimir rendición (actualiza importes)")
     print("   0. Salir")
     print()
     try:
         opcion = int(input("Ingrese una opción: "))
-        while opcion < 0 or opcion > 5:
+        while opcion < 0 or opcion > 6:
             print()
             print("Opción incorrecta.")
             print()
@@ -77,6 +78,8 @@ def menu(idu: int):                                                             
             registrar_debito_automatico(idu)
         elif opcion == 5:
             reimprimir_recibo()
+        elif opcion == 6:
+            reimprimir_rendicion()
         elif opcion == 0:
             return
 
@@ -1536,6 +1539,8 @@ def calcular_periodo(mes: int) -> str:
         print()
         return
 
+    periodo = ''
+
     if mes == 1:
         periodo = "Enero - Febrero"
     elif mes == 2:
@@ -1935,3 +1940,141 @@ def contar_recibos_impagos_por_periodo_y_cobrador(cob: int, per: str, año: str)
         datos = cursor.fetchone()
 
     return datos[0]
+
+
+def menu_periodos() -> tuple[int, str]:
+    """Despliega un menú con los períodos bimestrales y permite al usuario
+    elegir uno, el cual es retornado en una tupla `(mes, periodo)`.
+    """
+    print("Indique el período: ")
+    
+    for i in range(1, 13):
+        print(f"    * {i}. {calcular_periodo(i)}")
+    
+    print(f"    * 0. Volver")
+    print()
+    
+    loop = -1
+    while loop == -1:
+        try:
+            loop = periodo = int(input("Período: "))
+            print()
+    
+            while periodo < 0 or periodo > 12:
+                print("         ERROR. Debe indicar un período válido.")
+                print()
+                periodo = int(input("Período: "))
+    
+        except ValueError:
+            print("         ERROR. Debe ingresar un dato de tipo numérico.")
+            print()
+            loop = -1
+        except Exception as e:
+            mant.manejar_excepcion_gral(e)
+            print()
+            return
+    
+    return (periodo, calcular_periodo(periodo))
+
+
+def reimprimir_rendicion():
+    """Permite al usuario reimprimir todos los recibos que se encuentren impagos,
+    pertenecientes a un cobrador y un período específico, y su respectivo listado,
+    con el importe actualizado al precio de la fecha.
+    """
+    id_cobrador = menu_cobradores()
+    if not id_cobrador: return
+
+    periodo = menu_periodos()
+    if not periodo: return
+
+    loop = -1
+    while loop == -1:
+        try:
+            loop = año = input('Indique el año: ')
+            print()
+            
+            año = año.rjust(3, '0').rjust(4, '2') if año != '' else ''
+
+            while int(año) < 2000 or int(año) > 9999:
+                print("         ERROR. Debe indicar un año válido.")
+                print()
+                año = int(input("Indique el año: "))
+
+        except ValueError:
+            print("         ERROR. Debe ingresar un dato de tipo numérico.")
+            print()
+            loop = -1
+        except Exception as e:
+            mant.manejar_excepcion_gral(e)
+            print()
+            return
+
+    facturacion = 'bicon' if periodo[0] % 2 == 0 else 'nob'
+
+    n_cob = caja.obtener_nom_cobrador(id_cobrador)
+    msj = ''
+    while msj == '':
+        msj = input(f"¿Reimprimir recibos actualizados de {n_cob} del período {periodo[1]} {año}? (S/N) ")
+
+        if msj in mant.AFIRMATIVO:
+            print()
+            instruccion = f"""\
+                SELECT
+                    r.nro_recibo,
+                    r.operacion,
+                    r.periodo,
+                    r.año,
+                    o.nicho,
+                    o.cobrador,
+                    o.ruta,
+                    o.cuotas_favor,
+                    o.nombre_alt,
+                    o.domicilio_alt,
+                    s.nro_socio,
+                    s.nombre,
+                    s.domicilio,
+                    s.localidad,
+                    s.cod_postal
+                FROM
+                    recibos r
+                    JOIN operaciones o ON r.operacion = o.id
+                    JOIN socios s ON o.socio = s.nro_socio
+                WHERE
+                    o.paga = 1
+                    AND s.activo = 1
+                    AND r.pago = 0
+                    AND o.cobrador = {id_cobrador}
+                    AND r.periodo = '{periodo[1]}'
+                    AND r.año = '{año}';
+                """
+
+            try:
+                with sql.connect(mant.DATABASE) as conn:
+                    cursor = conn.cursor()
+                    cursor.execute(instruccion)
+                    recibos = cursor.fetchall()
+
+            except Exception as e:
+                    mant.manejar_excepcion_gral(e)
+                    print()
+                    return
+
+            print(f"Reimprimiendo {len(recibos)} recibos actualizados. Por favor aguarde...")
+            print()
+
+            thread1 = Thread(target=rep.reimpresion_rendicion, args=(recibos, facturacion))
+            thread2 = Thread(target=rep.reimpresion_listado_rendicion, args=(id_cobrador, recibos, facturacion))
+            thread1.start()
+            thread2.start()
+            thread1.join()
+            thread2.join()
+
+        elif msj in mant.NEGATIVO:
+            print()
+            return
+        else:
+            print()
+            print("Debe ingresar S para confirmar o N para cancelar.")
+            print()
+            msj = ''
