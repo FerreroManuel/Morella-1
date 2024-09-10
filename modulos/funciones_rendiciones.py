@@ -671,7 +671,6 @@ def emitir_recibos():
                     thread2.start()
                     thread1.join()
                     thread2.join()
-                    return
 
                 # Débito automático
                 elif cobrador == 6:
@@ -681,8 +680,14 @@ def emitir_recibos():
                     thread2.start()
                     thread1.join()
                     thread2.join()
-                    return
-    
+
+                recibos_generados = contar_recibos_impagos_por_periodo_y_cobrador(cobrador, periodo, _año)
+                print()
+                print(f"Se generaron correctamente {recibos_generados} recibos.")
+                print()
+
+                return
+
             elif msj in mant.NEGATIVO:
                 msj = "N"
                 print()
@@ -695,7 +700,7 @@ def emitir_recibos():
                 print()
                 msj = input(f"¿Imprimir recibos de {periodo}, de {facturacion} - {ncobrador}? (S/N) ")
                 print()
-            
+
 
 def ingresar_adelantos(idu: int):
     """Permite al usuario ingresar el cobro de una o más cuotas sin 
@@ -1892,3 +1897,41 @@ def arreglar_inconsistencias_en_pagos():
             AND pago = 0
             ;"""
         cursor.execute(instruction)
+
+
+def contar_recibos_impagos_por_periodo_y_cobrador(cob: int, per: str, año: str) -> int:
+    """Cuenta todos los recibos impagos, de operaciones y usuarios activos,
+    pertenecientes a un cobrador específico en un período específico.
+    
+    :param cob: ID del cobrador
+    :type cob: int
+    
+    :param per: Período de facturación (ej.: `'Julio - Agosto'`)
+    :type per: str
+    
+    :param año: Año al cual pertenece el período de facturación, 4 dígitos (ej.: `'2024'`)
+    :type año: str
+
+    :rtype: int
+    """
+    query = f"""\
+    SELECT
+        COUNT(*)
+    FROM
+        recibos r
+        JOIN operaciones o ON r.operacion = o.id
+        JOIN socios s ON o.socio = s.nro_socio
+    WHERE
+        o.paga = 1
+        AND s.activo = 1
+        AND r.pago = 0
+        AND o.cobrador = {cob}
+        AND r.periodo = '{per}'
+        AND r.año = '{año}';
+    """
+    with sql.connect(mant.DATABASE) as conn:
+        cursor = conn.cursor()
+        cursor.execute(query)
+        datos = cursor.fetchone()
+
+    return datos[0]
