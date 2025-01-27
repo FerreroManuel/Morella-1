@@ -19,11 +19,8 @@ def obtener_saldo_inicial() -> float:
 
     :rtype: float
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT saldo FROM saldo_caja ORDER BY nro_caja DESC LIMIT 1"
-        cursor.execute(instruccion)
-        datos = cursor.fetchone()
+    instruccion = f"SELECT saldo FROM saldo_caja ORDER BY nro_caja DESC LIMIT 1"
+    datos = mant.run_query(instruccion, fetch="one")
     return datos[0]
 
 
@@ -33,11 +30,8 @@ def obtener_contador() -> int:
 
     :rtype: int
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT nro_caja FROM saldo_caja ORDER BY nro_caja DESC LIMIT 1"
-        cursor.execute(instruccion)
-        datos = cursor.fetchone()
+    instruccion = f"SELECT nro_caja FROM saldo_caja ORDER BY nro_caja DESC LIMIT 1"
+    datos = mant.run_query(instruccion, fetch="one")
     return datos[0]+1
 
 
@@ -47,11 +41,8 @@ def obtener_cobradores() -> list:
 
     :rtype: list
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM cobradores ORDER BY id"
-        cursor.execute(instruccion)
-        datos = cursor.fetchall()
+    instruccion = f"SELECT * FROM cobradores ORDER BY id"
+    datos = mant.run_query(instruccion, fetch="all")
     return datos
 
 
@@ -87,10 +78,8 @@ def iniciar_caja() -> float:
                 loop = saldo_inicial = float(input("Por favor ingrese el saldo actual de la caja: $ "))
                 print()
                 
-                with sql.connect(mant.DATABASE) as conn:
-                    cursor = conn.cursor()
-                    instruccion = f"UPDATE saldo_caja SET saldo = {saldo_inicial} WHERE saldo = -1"
-                    cursor.execute(instruccion)
+                instruccion = f"UPDATE saldo_caja SET saldo = {saldo_inicial} WHERE saldo = -1"
+                mant.run_query(instruccion)
                 print()
                 
                 print(f"Fecha: {fecha}")
@@ -229,11 +218,8 @@ def obtener_nom_cobrador(id_cobrador: int) -> str:
 
     :rtype: str
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT cobrador FROM cobradores WHERE id = '{id_cobrador}'"
-        cursor.execute(instruccion)
-        datos = cursor.fetchone()
+    instruccion = f"SELECT cobrador FROM cobradores WHERE id = '{id_cobrador}'"
+    datos = mant.run_query(instruccion, fetch="one")
     return datos[0]
 
 
@@ -262,11 +248,8 @@ def obtener_fecha_reg(id: int) -> tuple:
 
     :rtype: tuple
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM caja WHERE id = '{id}'"
-        cursor.execute(instruccion)
-        datos = cursor.fetchall()
+    instruccion = f"SELECT * FROM caja WHERE id = '{id}'"
+    datos = mant.run_query(instruccion, fetch="all")
 
     i_d, cat, des, tra, ing, egr, obs, dia, mes, año, cer, use = datos[0]
 
@@ -282,11 +265,8 @@ def obtener_comisiones(rendicion: str | int) -> list:
 
     :rtype: list
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instrucción = f"SELECT * FROM comisiones WHERE rendicion = '{rendicion}'"
-        cursor.execute(instrucción)
-        datos = cursor.fetchall()
+    instruccion = f"SELECT * FROM comisiones WHERE rendicion = '{rendicion}'"
+    datos = mant.run_query(instruccion, fetch="all")
     return datos
 
 
@@ -297,10 +277,8 @@ def eliminar_comisiones(rendicion: str | int):
     :param rendicion: Número de rendición
     :type rendición: str or int
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instrucción = f"DELETE FROM comisiones WHERE rendicion = '{rendicion}'"
-        cursor.execute(instrucción)
+    instruccion = f"DELETE FROM comisiones WHERE rendicion = '{rendicion}'"
+    mant.run_query(instruccion)
 
 
 def es_cerrada(id: int) -> int:
@@ -312,11 +290,8 @@ def es_cerrada(id: int) -> int:
 
     :rtype: int
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM caja WHERE id = '{id}'"
-        cursor.execute(instruccion)
-        datos = cursor.fetchall()
+    instruccion = f"SELECT * FROM caja WHERE id = '{id}'"
+    datos = mant.run_query(instruccion, fetch="all")
 
     i_d, cat, des, tra, ing, egr, obs, dia, mes, año, cer, use = datos[0]
 
@@ -329,10 +304,8 @@ def ult_reg() -> list:
 
     :rtype: list
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        cursor.execute(f"SELECT * FROM caja ORDER BY id DESC LIMIT 1")
-        ult_registro = cursor.fetchall()
+    instruccion = "SELECT * FROM caja ORDER BY id DESC LIMIT 1"
+    ult_registro = mant.run_query(instruccion, fetch="all")
 
     return list(ult_registro[0])
 
@@ -354,10 +327,8 @@ def total_ing_por_cob(cobrador: str, mes:str, año: str) -> float | int:
     """
     panteones = tuple(obtener_panteon())
 
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        cursor.execute(f"SELECT SUM(ingreso) FROM caja WHERE descripcion = '{cobrador}' AND mes='{mes}' AND año='{año}' AND categoria IN {panteones}")
-        datos = cursor.fetchone()
+    instruccion = f"SELECT SUM(ingreso) FROM caja WHERE descripcion = '{cobrador}' AND mes='{mes}' AND año='{año}' AND categoria IN {panteones}"
+    datos = mant.run_query(instruccion, fetch="one")
     
     if datos[0] == None:
         return 0
@@ -1520,12 +1491,9 @@ def ver_registros():
     dia = obtener_dia()
     mes = obtener_mes()
     año = obtener_año()
-    
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM caja WHERE dia = '{dia}' AND mes = '{mes}' AND año = '{año}' ORDER BY id"
-        cursor.execute(instruccion)
-        datos = cursor.fetchall()
+
+    instruccion = f"SELECT * FROM caja WHERE dia = '{dia}' AND mes = '{mes}' AND año = '{año}' ORDER BY id"
+    datos = mant.run_query(instruccion, fetch="all")
 
     print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
     print("{:<9} {:<27} {:<27} {:<11} {:<15} {:<15} {:<30} {:<10} {:<6}".format('    ID   ','CATEGORÍA', 'DESCRIPCIÓN', 'TRANSACCIÓN', 'INGRESO', 'EGRESO','OBSERVACIONES', '  FECHA', 'USER'))
@@ -1713,11 +1681,8 @@ def buscar_registro(columna: str, valor: str | int | float | bool):
     valor = mant.reemplazar_comilla(valor)
     
     try:
-        with sql.connect(mant.DATABASE) as conn:
-            cursor = conn.cursor()
-            instruccion = f"SELECT * FROM caja WHERE {columna} = '{valor}' ORDER BY id"
-            cursor.execute(instruccion)
-            datos = cursor.fetchall()
+        instruccion = f"SELECT * FROM caja WHERE {columna} = '{valor}' ORDER BY id"
+        datos = mant.run_query(instruccion, fetch="all")
 
     except sql.OperationalError:
         print("         ERROR. Se ha encontrado un caracter no permitido en la busqueda.")
@@ -1761,11 +1726,8 @@ def buscar_registro_like(columna: str, valor: str | int | float | bool):
     valor = mant.reemplazar_comilla(valor)
 
     try:
-        with sql.connect(mant.DATABASE) as conn:
-            cursor = conn.cursor()
-            instruccion = f"SELECT * FROM caja WHERE {columna} ILIKE '{valor}' ORDER BY id"
-            cursor.execute(instruccion)
-            datos = cursor.fetchall()
+        instruccion = f"SELECT * FROM caja WHERE {columna} ILIKE '{valor}' ORDER BY id"
+        datos = mant.run_query(instruccion, fetch="all")
 
     except sql.OperationalError:
         print("         ERROR. Se ha encontrado un caracter no permitido en la busqueda.")
@@ -1903,11 +1865,8 @@ def buscar_registro_fecha(dia: str, mes: str, año: str):
     :param año: Año, número de cuatro dígitos en una cadena.
     :type año: str
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM caja WHERE dia = '{dia}' AND mes = '{mes}' AND año = '{año}' ORDER BY id"
-        cursor.execute(instruccion)
-        datos = cursor.fetchall()
+    instruccion = f"SELECT * FROM caja WHERE dia = '{dia}' AND mes = '{mes}' AND año = '{año}' ORDER BY id"
+    datos = mant.run_query(instruccion, fetch="all")
 
     print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
     print("{:<9} {:<27} {:<27} {:<11} {:<15} {:<15} {:<30} {:<10} {:<6}".format('    ID   ','CATEGORÍA','DESCRIPCIÓN', 'TRANSACCIÓN', 'INGRESO', 'EGRESO','OBSERVACIONES', '  FECHA', 'USER'))
@@ -1941,11 +1900,8 @@ def buscar_registro_mes(mes: str, año: str):
     :param año: Año, número de cuatro dígitos en una cadena.
     :type año: str
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM caja WHERE mes = '{mes}' AND año = '{año}' ORDER BY id"
-        cursor.execute(instruccion)
-        datos = cursor.fetchall()
+    instruccion = f"SELECT * FROM caja WHERE mes = '{mes}' AND año = '{año}' ORDER BY id"
+    datos = mant.run_query(instruccion, fetch="all")
 
     print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
     print("{:<9} {:<27} {:<27} {:<11} {:<15} {:<15} {:<30} {:<10} {:<6}".format('    ID   ','CATEGORÍA','DESCRIPCIÓN', 'TRANSACCIÓN', 'INGRESO', 'EGRESO','OBSERVACIONES', '  FECHA', 'USER'))
@@ -1976,11 +1932,8 @@ def buscar_registro_año(año):
     :param año: Año, número de cuatro dígitos en una cadena.
     :type año: str
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM caja WHERE año = '{año}' ORDER BY id"
-        cursor.execute(instruccion)
-        datos = cursor.fetchall()
+    instruccion = f"SELECT * FROM caja WHERE año = '{año}' ORDER BY id"
+    datos = mant.run_query(instruccion, fetch="all")
 
     print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
     print("{:<9} {:<27} {:<27} {:<11} {:<15} {:<15} {:<30} {:<10} {:<6}".format('    ID   ','CATEGORÍA','DESCRIPCIÓN', 'TRANSACCIÓN', 'INGRESO', 'EGRESO','OBSERVACIONES', '  FECHA', 'USER'))
@@ -2204,10 +2157,8 @@ def edit_registro(id: int, columna: str, valor: str | int | float | bool):
     """
     valor = mant.reemplazar_comilla(valor)
 
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"UPDATE caja SET {columna} = '{valor}' WHERE id = '{id}'"
-        cursor.execute(instruccion)
+    instruccion = f"UPDATE caja SET {columna} = '{valor}' WHERE id = '{id}'"
+    mant.run_query(instruccion)
 
 
 def guardar_historial(id: int, idu: int):
@@ -2224,11 +2175,8 @@ def guardar_historial(id: int, idu: int):
     """
     fyh = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
 
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM caja WHERE id = {id} ORDER BY id"
-        cursor.execute(instruccion)
-        datos = cursor.fetchone()
+    instruccion = f"SELECT * FROM caja WHERE id = {id} ORDER BY id"
+    datos = mant.run_query(instruccion, fetch="one")
 
     i_d, cat, des, tra, ing, egr, obs, dia, mes, año, cer, use = datos
 
@@ -2258,11 +2206,8 @@ def mostrar_registro(id: int):
     :param id: ID del movimiento de caja
     :type id: int
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM caja WHERE id = {id} ORDER BY id"
-        cursor.execute(instruccion)
-        datos = cursor.fetchall()
+    instruccion = f"SELECT * FROM caja WHERE id = {id} ORDER BY id"
+    datos = mant.run_query(instruccion, fetch="all")
 
     print("--------------------------------------------------------------------------------------------------------------------------------------------------------------")
     print("{:<9} {:<27} {:<27} {:<11} {:<15} {:<15} {:<30} {:<10} {:<6}".format('    ID   ','CATEGORÍA','DESCRIPCIÓN', 'TRANSACCIÓN', 'INGRESO', 'EGRESO','OBSERVACIONES', '  FECHA', 'USER'))
@@ -2315,12 +2260,8 @@ def eliminar_registro(idu: int):
                     if msj in mant.AFIRMATIVO:
                         msj = "S"
                         guardar_historial(id, idu)
-                        conn = sql.connect(mant.DATABASE)
-                        cursor = conn.cursor()
                         instruccion = f"UPDATE historial_caja SET observacion = '[REGISTRO ELIMINADO]' WHERE id = '{id}'"
-                        cursor.execute(instruccion)
-                        conn.commit()
-                        conn.close()
+                        mant.run_query(instruccion)
                         delete_row("id", id)
                         print()
                         print("Registro eliminado exitosamente.")
@@ -2374,11 +2315,9 @@ def delete_row(columna: str, valor: str | int | float | bool):
     :type valor: str or int or float or bool
     """
     valor = mant.reemplazar_comilla(valor)
-    
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"DELETE FROM caja WHERE {columna} = '{valor}'"
-        cursor.execute(instruccion)
+
+    instruccion = f"DELETE FROM caja WHERE {columna} = '{valor}'"
+    mant.run_query(instruccion)
 
 
 def ver_estado_caja(idu: int):
@@ -2413,11 +2352,8 @@ def ver_estado_caja(idu: int):
     print()
     
     try:
-        with sql.connect(mant.DATABASE) as conn:
-            cursor = conn.cursor()
-            instruccion = f"SELECT * FROM caja WHERE cerrada = 0 ORDER BY id"
-            cursor.execute(instruccion)
-            datos = cursor.fetchall()
+        instruccion = f"SELECT * FROM caja WHERE cerrada = 0 ORDER BY id"
+        datos = mant.run_query(instruccion, fetch="all")
     
     except sql.OperationalError:
         print("         ERROR. Se ha encontrado un caracter no permitido en la busqueda.")
@@ -2676,10 +2612,8 @@ def reg_bonif_mant(idu: int):
             oper = int(input("Indique número de operación: "))
             print()
 
-            with sql.connect(mant.DATABASE) as conn:
-                cursor = conn.cursor()
-                cursor.execute(f"SELECT id FROM operaciones WHERE id = {oper}")
-                datos = cursor.fetchall()
+            instruccion = f"SELECT id FROM operaciones WHERE id = {oper}"
+            datos = mant.run_query(instruccion, fetch="all")
             
             if not datos:
                 print("         ERROR. La operación indicada no existe.")
@@ -2805,17 +2739,13 @@ def cierre_caja():
         print()
 
         ##### CERRANDO REGISTROS ####
-        with sql.connect(mant.DATABASE) as conn:
-            cursor = conn.cursor()
-            instruccion = f"UPDATE caja SET cerrada = '1' WHERE cerrada = '0'"
-            cursor.execute(instruccion)
+        instruccion = f"UPDATE caja SET cerrada = '1' WHERE cerrada = '0'"
+        mant.run_query(instruccion)
         
         ##### GUARDANDO SALDO DE CAJA #####
-        with sql.connect(mant.DATABASE) as conn:
-            cursor = conn.cursor()
-            parameters = str((saldo_final, fyh))
-            instruccion = f"INSERT INTO saldo_caja (saldo, fecha_y_hora_cierre) VALUES {parameters}"
-            cursor.execute(instruccion)
+        parameters = str((saldo_final, fyh))
+        instruccion = f"INSERT INTO saldo_caja (saldo, fecha_y_hora_cierre) VALUES {parameters}"
+        mant.run_query(instruccion)
 
         print("Saldo de caja actualizado [OK]")
 

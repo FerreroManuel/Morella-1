@@ -175,11 +175,8 @@ def obtener_precio_venta(id_cat: int, pis: str, fil: str) -> tuple:
                 mant.manejar_excepcion_gral(e)
                 loop = -1
     
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM precios_venta WHERE id = '{id_p_vent}'"
-        cursor.execute(instruccion)
-        datos = cursor.fetchone()
+    instruccion = f"SELECT * FROM precios_venta WHERE id = '{id_p_vent}'"
+    datos = mant.run_query(instruccion, fetch="one")
     
     i_d, nom, pre, ant, cuo = datos
     return i_d, nom, pre, ant, cuo
@@ -213,11 +210,8 @@ def buscar_socio_dni(dni: int|str) -> tuple:
     :param dni: Documento de identidad sin puntos
     :type dni: int or str
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM socios WHERE dni = '{dni}'"
-        cursor.execute(instruccion)
-        datos = cursor.fetchall()
+    instruccion = f"SELECT * FROM socios WHERE dni = '{dni}'"
+    datos = mant.run_query(instruccion, fetch="all")
     return datos[0]
 
 
@@ -229,11 +223,8 @@ def obtener_localidad(c_p: int) -> tuple:
     :param c_p: Código postal corto (sólo números)
     :type c_p: int
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT localidad FROM cod_post WHERE cp = {c_p}"
-        cursor.execute(instruccion)
-        datos = cursor.fetchone()
+    instruccion = f"SELECT localidad FROM cod_post WHERE cp = {c_p}"
+    datos = mant.run_query(instruccion, fetch="one")
     return datos[0]
 
 
@@ -243,11 +234,8 @@ def obtener_cobradores() -> list:
 
     :rtype: list
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM cobradores ORDER BY id"
-        cursor.execute(instruccion)
-        datos = cursor.fetchall()
+    instruccion = f"SELECT * FROM cobradores ORDER BY id"
+    datos = mant.run_query(instruccion, fetch="all")
     return datos
 
 
@@ -260,11 +248,8 @@ def obtener_datos_complementarios(id_op: int) -> tuple:
 
     :rtype: tuple
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM datos_complementarios WHERE id_op = {id_op}"
-        cursor.execute(instruccion)
-        datos = cursor.fetchone()
+    instruccion = f"SELECT * FROM datos_complementarios WHERE id_op = {id_op}"
+    datos = mant.run_query(instruccion, fetch="one")
 
     id_op, dat_comp = datos
     return dat_comp
@@ -285,10 +270,8 @@ def edit_registro_socio(columna: str, nuevo_valor: str|int|float|bool, nro_socio
     """
     nuevo_valor = mant.reemplazar_comilla(nuevo_valor)
     
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"UPDATE socios SET {columna} = '{nuevo_valor}' WHERE nro_socio = '{nro_socio}'"
-        cursor.execute(instruccion)
+    instruccion = f"UPDATE socios SET {columna} = '{nuevo_valor}' WHERE nro_socio = '{nro_socio}'"
+    mant.run_query(instruccion)
 
 
 def opcion_menu() -> int:                                                                           # OPCIÓN MENÚ PRINCIPAL
@@ -715,7 +698,7 @@ def crear_socio(idu: int, ret: bool= True) -> tuple | None:
         print("Ingresando socio a la base de datos. No interrumpa el proceso ni apague la computadora.")
         parameters = (nombre, documento, telefono_1, telefono_2, email, domicilio, localidad, cod_postal, f_nacimiento, f_alta, 1)
         query = "INSERT INTO socios (nombre, dni, telefono_1, telefono_2, mail, domicilio, localidad, cod_postal, fecha_nacimiento, fecha_alta, activo) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-        mant.run_query_w_par(query, parameters)
+        mant.run_query(query, params=parameters)
         
         print("[OK!]")
         print()
@@ -1574,7 +1557,7 @@ def crear_op(idu: int, id_socio: int, ret: bool= False) -> int | None:
         print("Ingresando socio a la base de datos. No interrumpa el proceso ni apague la computadora.", end="  ")
         parameters = (id_socio, cod_nicho, facturacion, cobrador, tarjeta, ruta, ult_pago, ult_año, fecha_ult_pago, moroso, cuotas_favor, ult_rec, paga, op_cobol, nombre_alt, domicilio_alt)
         query = f"INSERT INTO operaciones (socio, nicho, facturacion, cobrador, tarjeta, ruta, ult_pago, ult_año, fecha_ult_pago, moroso, cuotas_favor, ult_rec, paga, op_cobol, nombre_alt, domicilio_alt) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-        mant.run_query_w_par(query, parameters)
+        mant.run_query(query, params=parameters)
         
         print("[OK!]")
         print()

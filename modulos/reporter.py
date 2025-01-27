@@ -58,11 +58,8 @@ def report_caja_diaria(s_final: float | int):
 
         :rtype: list
         """
-        with sql.connect(mant.DATABASE) as conn:
-            cursor = conn.cursor()
-            instruccion = f"SELECT * FROM caja WHERE categoria='{categ}' AND cerrada = '0'"
-            cursor.execute(instruccion)
-            datos = cursor.fetchall()
+        instruccion = f"SELECT * FROM caja WHERE categoria='{categ}' AND cerrada = '0'"
+        datos = mant.run_query(instruccion, fetch="all")
         return datos
 
 
@@ -76,10 +73,8 @@ def report_caja_diaria(s_final: float | int):
 
         :rtype: float or int
         """
-        with sql.connect(mant.DATABASE) as conn:
-            cursor = conn.cursor()
-            cursor.execute(f"SELECT SUM(ingreso) FROM caja WHERE categoria = '{categ}' AND cerrada = '0'")
-            ingresos = cursor.fetchone()
+        instruccion = f"SELECT SUM(ingreso) FROM caja WHERE categoria = '{categ}' AND cerrada = '0'"
+        ingresos = mant.run_query(instruccion, fetch="one")
         
         if ingresos[0]:
             return ingresos[0]
@@ -97,10 +92,8 @@ def report_caja_diaria(s_final: float | int):
 
         :rtype: float or int
         """
-        with sql.connect(mant.DATABASE) as conn:
-            cursor = conn.cursor()
-            cursor.execute(f"SELECT SUM(egreso) FROM caja WHERE categoria = '{categ}' AND cerrada = '0'")
-            egresos = cursor.fetchone()
+        instruccion = f"SELECT SUM(egreso) FROM caja WHERE categoria = '{categ}' AND cerrada = '0'"
+        egresos = mant.run_query(instruccion, fetch="one")
         
         if egresos[0]:
             return egresos[0]
@@ -217,10 +210,8 @@ def report_caja_diaria(s_final: float | int):
 
         :rtype: float or int
         """
-        with sql.connect(mant.DATABASE) as conn:
-            cursor = conn.cursor()
-            cursor.execute(f"SELECT SUM(ingreso) FROM caja WHERE cerrada = 0")
-            tot_ingresos = cursor.fetchone()[0]
+        instruccion = "SELECT SUM(ingreso) FROM caja WHERE cerrada = 0"
+        tot_ingresos = mant.run_query(instruccion, fetch="one")[0]
         
         if tot_ingresos == None:
             tot_ingresos = 0
@@ -237,10 +228,8 @@ def report_caja_diaria(s_final: float | int):
 
         :rtype: float or int
         """
-        with sql.connect(mant.DATABASE) as conn:
-            cursor = conn.cursor()
-            cursor.execute(f"SELECT SUM(egreso) FROM caja WHERE cerrada = 0")
-            tot_egresos = cursor.fetchone()[0]
+        instruccion = "SELECT SUM(egreso) FROM caja WHERE cerrada = 0"
+        tot_egresos = mant.run_query(instruccion, fetch="one")[0]
 
         if tot_egresos == None:
             tot_egresos = 0
@@ -431,11 +420,8 @@ def report_caja_mensual_det(mes: int, año: int):
 
         :rtype: list
         """
-        with sql.connect(mant.DATABASE) as conn:
-            cursor = conn.cursor()
-            instruccion = f"SELECT * FROM caja WHERE categoria='{categ}' AND mes='{mes}' AND año='{año}'"
-            cursor.execute(instruccion)
-            datos = cursor.fetchall()
+        instruccion = f"SELECT * FROM caja WHERE categoria='{categ}' AND mes='{mes}' AND año='{año}'"
+        datos = mant.run_query(instruccion, fetch="all")
 
         return datos
 
@@ -449,10 +435,8 @@ def report_caja_mensual_det(mes: int, año: int):
 
         :rtype: float or int
         """
-        with sql.connect(mant.DATABASE) as conn:
-            cursor = conn.cursor()
-            cursor.execute(f"SELECT SUM(ingreso) FROM caja WHERE categoria='{categ}' AND mes='{mes}' AND año='{año}'")
-            ingresos = cursor.fetchone()
+        instruccion = f"SELECT SUM(ingreso) FROM caja WHERE categoria='{categ}' AND mes='{mes}' AND año='{año}'"
+        ingresos = mant.run_query(instruccion, fetch="one")
         
         if ingresos[0]:
             return ingresos[0]
@@ -470,10 +454,8 @@ def report_caja_mensual_det(mes: int, año: int):
 
         :rtype: float or int
         """
-        with sql.connect(mant.DATABASE) as conn:
-            cursor = conn.cursor()
-            cursor.execute(f"SELECT SUM(egreso) FROM caja WHERE categoria='{categ}' AND mes='{mes}' AND año='{año}'")
-            egresos = cursor.fetchone()
+        instruccion = f"SELECT SUM(egreso) FROM caja WHERE categoria='{categ}' AND mes='{mes}' AND año='{año}'"
+        egresos = mant.run_query(instruccion, fetch="one")
         
         if egresos[0]:
             return egresos[0]
@@ -593,10 +575,8 @@ def report_caja_mensual_det(mes: int, año: int):
 
         :rtype: float or int
         """
-        with sql.connect(mant.DATABASE) as conn:
-            cursor = conn.cursor()
-            cursor.execute(f"SELECT SUM (ingreso) FROM caja WHERE mes = '{mes}' AND año = '{año}'")
-            tot_ingresos = cursor.fetchone()[0]
+        instruccion = f"SELECT SUM (ingreso) FROM caja WHERE mes = '{mes}' AND año = '{año}'"
+        tot_ingresos = mant.run_query(instruccion, fetch="one")[0]
         
         if tot_ingresos:
             return tot_ingresos
@@ -611,10 +591,8 @@ def report_caja_mensual_det(mes: int, año: int):
 
         :rtype: float or int
         """
-        with sql.connect(mant.DATABASE) as conn:
-            cursor = conn.cursor()
-            cursor.execute(f"SELECT SUM (egreso) FROM caja WHERE mes = '{mes}' AND año = '{año}'")
-            tot_egresos = cursor.fetchone()[0]
+        instruccion = f"SELECT SUM (egreso) FROM caja WHERE mes = '{mes}' AND año = '{año}'"
+        tot_egresos = mant.run_query(instruccion, fetch="one")[0]
         
         if tot_egresos:
             return tot_egresos
@@ -836,11 +814,8 @@ def report_caja_mensual_comp(mes: int, año: int):
 
         :rtype: list
         """
-        with sql.connect(mant.DATABASE) as conn:
-            cursor = conn.cursor()
-            instruccion = f"SELECT * FROM caja WHERE categoria='{categ}' AND mes='{mes}' AND año='{año}'"
-            cursor.execute(instruccion)
-            datos = cursor.fetchall()
+        instruccion = f"SELECT * FROM caja WHERE categoria='{categ}' AND mes='{mes}' AND año='{año}'"
+        datos = mant.run_query(instruccion, fetch="all")
         return datos
 
 
@@ -853,10 +828,8 @@ def report_caja_mensual_comp(mes: int, año: int):
 
         :rtype: float or int
         """
-        with sql.connect(mant.DATABASE) as conn:
-            cursor = conn.cursor()
-            cursor.execute(f"SELECT SUM(ingreso) FROM caja WHERE categoria='{categ}' AND mes='{mes}' AND año='{año}'")
-            ingresos = cursor.fetchone()
+        instruccion = f"SELECT SUM(ingreso) FROM caja WHERE categoria='{categ}' AND mes='{mes}' AND año='{año}'"
+        ingresos = mant.run_query(instruccion, fetch="one")
         
         if ingresos[0]:
             return ingresos[0]
@@ -874,10 +847,8 @@ def report_caja_mensual_comp(mes: int, año: int):
 
         :rtype: float or int
         """
-        with sql.connect(mant.DATABASE) as conn:
-            cursor = conn.cursor()
-            cursor.execute(f"SELECT SUM(egreso) FROM caja WHERE categoria='{categ}' AND mes='{mes}' AND año='{año}'")
-            egresos = cursor.fetchone()
+        instruccion = f"SELECT SUM(egreso) FROM caja WHERE categoria='{categ}' AND mes='{mes}' AND año='{año}'"
+        egresos = mant.run_query(instruccion, fetch="one")
         
         if egresos[0]:
             return egresos[0]
@@ -945,10 +916,8 @@ def report_caja_mensual_comp(mes: int, año: int):
 
         :rtype: float or int
         """
-        with sql.connect(mant.DATABASE) as conn:
-            cursor = conn.cursor()
-            cursor.execute(f"SELECT SUM (ingreso) FROM caja WHERE mes = '{mes}' AND año = '{año}'")
-            tot_ingresos = cursor.fetchone()[0]
+        instruccion = f"SELECT SUM (ingreso) FROM caja WHERE mes = '{mes}' AND año = '{año}'"
+        tot_ingresos = mant.run_query(instruccion, fetch="one")[0]
         
         if tot_ingresos:
             return tot_ingresos
@@ -963,10 +932,8 @@ def report_caja_mensual_comp(mes: int, año: int):
 
         :rtype: float or int
         """
-        with sql.connect(mant.DATABASE) as conn:
-            cursor = conn.cursor()
-            cursor.execute(f"SELECT SUM (egreso) FROM caja WHERE mes = '{mes}' AND año = '{año}'")
-            tot_egresos = cursor.fetchone()[0]
+        instruccion = f"SELECT SUM (egreso) FROM caja WHERE mes = '{mes}' AND año = '{año}'"
+        tot_egresos = mant.run_query(instruccion, fetch="one")[0]
         
         if tot_egresos:
             return tot_egresos
@@ -1195,11 +1162,8 @@ def report_caja_mensual_por_cob(mes: int, año: int):
 
         :rtype: list
         """
-        with sql.connect(mant.DATABASE) as conn:
-            cursor = conn.cursor()
-            instruccion = f"SELECT * FROM caja WHERE descripcion='{cobrador}' AND mes='{mes}' AND año='{año}'"
-            cursor.execute(instruccion)
-            datos = cursor.fetchall()
+        instruccion = f"SELECT * FROM caja WHERE descripcion='{cobrador}' AND mes='{mes}' AND año='{año}'"
+        datos = mant.run_query(instruccion, fetch="all")
 
         return datos
 
@@ -2891,10 +2855,8 @@ def recibos_documentos() -> list:
         
         :rtype: list
         """
-        with sql.connect(mant.DATABASE) as conn:
-            cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM documentos ORDER BY id_op")
-            documentos = cursor.fetchall()
+        instruccion = f"SELECT * FROM documentos ORDER BY id_op"
+        documentos = mant.run_query(instruccion, fetch="all")
         return documentos
 
     def obtener_añovar(mes: str, año: str) -> str:
@@ -3336,10 +3298,8 @@ def listado_recibos_documentos(lista_recibos: list):
         
         :rtype: tuple
         """
-        with sql.connect(mant.DATABASE) as conn:
-            cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM documentos WHERE id_op = {id_op}")
-            documento = cursor.fetchone()
+        instruccion = f"SELECT * FROM documentos WHERE id_op = {id_op}"
+        documento = datos = mant.run_query(instruccion, fetch="one")
         return documento
 
     def obtener_añovar(mes: str, año: str) -> str:
@@ -3369,10 +3329,8 @@ def listado_recibos_documentos(lista_recibos: list):
         :param cant_cuotas: Cantidad de cuotas.
         :type cant_cuotas: int
         """
-        with sql.connect(mant.DATABASE) as conn:
-            cursor = conn.cursor()
-            instruccion = f"UPDATE documentos SET cant_cuotas = '{cant_cuotas-1}' WHERE id_op = '{id_op}'"
-            cursor.execute(instruccion)
+        instruccion = f"UPDATE documentos SET cant_cuotas = '{cant_cuotas-1}' WHERE id_op = '{id_op}'"
+        mant.run_query(instruccion)
 
     ############ FIN DE FUNCIONES ############
 
@@ -3394,10 +3352,8 @@ def listado_recibos_documentos(lista_recibos: list):
         :type id_op: int
         """
         ult_rec = f'{int_mes_sig}-{año_var}'
-        with sql.connect(mant.DATABASE) as conn:
-            cursor = conn.cursor()
-            instruccion = f"UPDATE documentos SET ult_rec = '{ult_rec}' WHERE id_op = '{id_op}'"
-            cursor.execute(instruccion)
+        instruccion = f"UPDATE documentos SET ult_rec = '{ult_rec}' WHERE id_op = '{id_op}'"
+        mant.run_query(instruccion)
 
     ############ FIN DE FUNCIONES DEPENDIENTES ############
 
@@ -6055,11 +6011,8 @@ def report_excel_socios():
 
     ############ INICIO DE FUNCIONES ############
 
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = "SELECT * FROM socios"
-        cursor.execute(instruccion)
-        datos = cursor.fetchall()
+    instruccion = "SELECT * FROM socios"
+    datos = mant.run_query(instruccion, fetch="all")
 
     ############ FIN DE FUNCIONES ############
 
@@ -6155,11 +6108,8 @@ def report_excel_modif_caja():
 
     ############ INICIO DE FUNCIONES ############
 
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = "SELECT * FROM historial_caja"
-        cursor.execute(instruccion)
-        datos = cursor.fetchall()
+    instruccion = "SELECT * FROM historial_caja"
+    datos = mant.run_query(instruccion, fetch="all")
 
     ############ FIN DE FUNCIONES ############
 
@@ -6256,11 +6206,8 @@ def report_deb_aut(mes: str, año: str):
 
     ############ INICIO DE FUNCIONES ############
 
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM debitos_automaticos WHERE mes = '{mes}' AND año = '{año}'"
-        cursor.execute(instruccion)
-        datos = cursor.fetchall()
+    instruccion = f"SELECT * FROM debitos_automaticos WHERE mes = '{mes}' AND año = '{año}'"
+    datos = mant.run_query(instruccion, fetch="all")
 
     ############ FIN DE FUNCIONES ############
 
@@ -6353,11 +6300,8 @@ def report_cobradores():
 
     ############ INICIO DE FUNCIONES ############
     
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM cobradores ORDER BY id"
-        cursor.execute(instruccion)
-        cobradores = cursor.fetchall()
+    instruccion = f"SELECT * FROM cobradores ORDER BY id"
+    cobradores = mant.run_query(instruccion, fetch="all")
 
     ############ FIN DE FUNCIONES ############
 
@@ -6488,11 +6432,8 @@ def report_panteones():
 
     ############ INICIO DE FUNCIONES ############
 
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM panteones ORDER BY id"
-        cursor.execute(instruccion)
-        panteones = cursor.fetchall()
+    instruccion = f"SELECT * FROM panteones ORDER BY id"
+    panteones = mant.run_query(instruccion, fetch="all")
 
     ############ FIN DE FUNCIONES ############
 
@@ -6670,10 +6611,7 @@ def report_ult_recibo(cobrador: int, facturacion: str):
         )
         ORDER BY r.nro_recibo;
         """
-        with sql.connect(mant.DATABASE) as conn:
-            cursor = conn.cursor()
-            cursor.execute(instruccion)
-            ultimos_recibos = cursor.fetchall()
+        ultimos_recibos = mant.run_query(instruccion, fetch="all")
         return ultimos_recibos
 
     ############ FIN DE FUNCIONES ############

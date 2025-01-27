@@ -217,7 +217,9 @@ def buscar_usuario_por_user(user: str) -> tuple:
     :rtype: tuple
     """
     try:
-        conn = sql.connect(DATABASE)
+        instruccion = f"SELECT * FROM usuarios WHERE user_name = '{user}'"
+        datos = run_query(instruccion, fetch="one")
+
     except sql.OperationalError:
         log_error()
         print()
@@ -226,12 +228,6 @@ def buscar_usuario_por_user(user: str) -> tuple:
         print("         Si es así y el problema persiste, comuníquese con el administrador del sistema.")
         print()
         return 0, 0, 0, 0, 0, 0, 0, 0, 0
-    cursor = conn.cursor()
-    instruccion = f"SELECT * FROM usuarios WHERE user_name = '{user}'"
-    cursor.execute(instruccion)
-    datos = cursor.fetchone()
-    conn.commit()
-    conn.close()
 
     i_d, nom, ape, tel, dom, use, pas, pri, act = datos
     return i_d, nom, ape, tel, dom, use, pas, pri, act
@@ -246,11 +242,8 @@ def buscar_usuario_por_id(idu: int) -> tuple:
 
     :rtype: tuple
     """
-    with sql.connect(DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM usuarios WHERE id = '{idu}'"
-        cursor.execute(instruccion)
-        datos = cursor.fetchone()
+    instruccion = f"SELECT * FROM usuarios WHERE id = '{idu}'"
+    datos = run_query(instruccion, fetch="one")
 
     i_d, nom, ape, tel, dom, use, pas, pri, act = datos
     return i_d, nom, ape, tel, dom, use, pas, pri, act
@@ -324,30 +317,45 @@ def reemplazar_comilla(cadena: str) -> str:
     return cadena
 
 
-def run_query(query: str):
-    """Recibe una consulta SQL y la ejecuta en la base de datos
+def run_query(query: str, fetch:str = "", params:tuple =  ()):
+    """Recibe una consulta SQL y la ejecuta en la base de datos.
+    Si se pasa un valor válido en fetch, se traen los datos y se retornan,
+    siempre que la consulta sea de tipo SELECT.
 
-    :param query: Consulta SQL
-    :type query: str
-    """
-    with sql.connect(DATABASE) as conn:
-        cursor = conn.cursor()
-        cursor.execute(query)
-
-
-def run_query_w_par(query: str, parameters:tuple = ()):
-    """Recibe una consulta SQL con parámetros y la ejecuta en la base de datos
+    Si se desea se pueden pasar parámetros en una tupla para incorparar en
+    una consulta con comodines (%s, %d, %f, etc...)
 
     :param query: Consulta SQL
     :type query: str
 
-    :param parameters: Tupla que contiene los parámetros a pasar en la consulta
-    :type parameters: tuple
-    """
-    with sql.connect(DATABASE) as conn:
-        cursor = conn.cursor()
-        cursor.execute(query, parameters)
+    :param fetch: Cantidad de datos a traer
+    :type fetch: "" | "one" | "many" | "all"
 
+    :param params: Parámetros a pasar a la query
+    :type params: tuple
+
+    :returns: None | tuple
+    """
+    datos = None
+    with sql.connect(DATABASE) as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(query, params or None)
+
+            if not query.upper().startswith("SELECT"):
+                fetch = ""
+
+            if fetch == "one":
+                datos = cursor.fetchone()
+
+            if fetch == "many":
+                datos = cursor.fetchmany()
+
+            if fetch == "all":
+                datos = cursor.fetchall()
+
+    conn.close()
+
+    return datos
 
 def delete_row(tabla: str, columna: str, valor: str|int|float|bool):
     """Elimina el o los renglones que cumplan una condición
@@ -364,10 +372,8 @@ def delete_row(tabla: str, columna: str, valor: str|int|float|bool):
     """
     valor = reemplazar_comilla(valor)
 
-    with sql.connect(DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"DELETE FROM {tabla} WHERE {columna} = '{valor}'"
-        cursor.execute(instruccion)
+    instruccion = f"DELETE FROM {tabla} WHERE {columna} = '{valor}'"
+    run_query(instruccion)
 
 
 def ult_reg(tabla: str, columna: str) -> list:
@@ -382,10 +388,8 @@ def ult_reg(tabla: str, columna: str) -> list:
 
     :rtype: list
     """
-    with sql.connect(DATABASE) as conn:
-        cursor = conn.cursor()
-        cursor.execute(f"SELECT * FROM {tabla} ORDER BY {columna} DESC LIMIT 1")
-        ult_registro = cursor.fetchall()
+    instruccion = f"SELECT * FROM {tabla} ORDER BY {columna} DESC LIMIT 1"
+    ult_registro = run_query(instruccion, fetch="all")
 
     ult_reg_list = list(ult_registro[0])
     return ult_reg_list
@@ -400,11 +404,8 @@ def buscar_op_por_nicho(cod_nicho: str) -> list:
 
     :rtype: list
     """
-    with sql.connect(DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM operaciones WHERE nicho = '{cod_nicho}'"
-        cursor.execute(instruccion)
-        datos = cursor.fetchall()
+    instruccion = f"SELECT * FROM operaciones WHERE nicho = '{cod_nicho}'"
+    datos = run_query(instruccion, fetch="all")
     return datos
 
 
@@ -436,11 +437,8 @@ def mostrar_precios_venta(ret: bool = False):
     """
     counter = 0
 
-    with sql.connect(DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM precios_venta ORDER BY id"
-        cursor.execute(instruccion)
-        datos = cursor.fetchall()
+    instruccion = f"SELECT * FROM precios_venta ORDER BY id"
+    datos = run_query(instruccion, fetch="all")
 
     print("------------------------------------------------------------------------------------------")
     print("{:<4} {:<40} {:<15} {:<15} {:<15}".format('ID','DESCRIPCIÓN', '   PRECIO', '   ANTICIPO', 'CUOTAS (x10)'))
@@ -471,11 +469,8 @@ def mostrar_precios_mant(ret: bool = False):
     """
     counter = 0
 
-    with sql.connect(DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM cat_nichos ORDER BY id"
-        cursor.execute(instruccion)
-        datos = cursor.fetchall()
+    instruccion = f"SELECT * FROM cat_nichos ORDER BY id"
+    datos = run_query(instruccion, fetch="all")
 
     print("--------------------------------------------------------------------------")
     print("{:<4} {:<40} {:<15} {:<15}".format('ID','CATEGORÍA', 'PRECIO BICON', '  PRECIO NOB'))
@@ -506,11 +501,8 @@ def mostrar_cuentas_mail(ret: bool = False):
     """
     counter = 0
 
-    with sql.connect(DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM mail ORDER BY id"
-        cursor.execute(instruccion)
-        datos = cursor.fetchall()
+    instruccion = f"SELECT * FROM mail ORDER BY id"
+    datos = run_query(instruccion, fetch="all")
 
     print("------------------------------------------------------------------------------------------------------------------------------------------------")
     print("{:<4} {:<20} {:<40} {:<40} {:<40}".format('ID','ETIQUETA','CUENTA EMAIL','SERVIDOR SMTP','USUARIO SMTP'))
@@ -537,11 +529,8 @@ def buscar_mail(id: int) -> tuple:
     :param id: ID de la cuenta a buscar
     :type id: int
     """
-    with sql.connect(DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM mail WHERE id = {id}"
-        cursor.execute(instruccion)
-        datos = cursor.fetchone()
+    instruccion = f"SELECT * FROM mail WHERE id = {id}"
+    datos = run_query(instruccion, fetch="one")
 
     i_d, etiq, mail, server, user, pw = datos
     return i_d, etiq, mail, server, user, pw
@@ -575,10 +564,8 @@ def cambio_precio_venta_manual(id_precio: int, nuevo_valor: int):
     """
     anticipo, cuota_r = calcular_precio_venta_manual(nuevo_valor)
 
-    with sql.connect(DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"UPDATE precios_venta SET precio = {nuevo_valor}, anticipo = {anticipo}, cuotas = {cuota_r} WHERE id = {id_precio}"
-        cursor.execute(instruccion)
+    instruccion = f"UPDATE precios_venta SET precio = {nuevo_valor}, anticipo = {anticipo}, cuotas = {cuota_r} WHERE id = {id_precio}"
+    run_query(instruccion)
 
 
 def cambio_precio_venta_porcentaje(porcentaje: int):
@@ -594,11 +581,8 @@ def cambio_precio_venta_porcentaje(porcentaje: int):
     pcnt = 1+(porcentaje/100)
 
     # Recuperación de precios actuales
-    with sql.connect(DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM precios_venta ORDER BY id"
-        cursor.execute(instruccion)
-        datos = cursor.fetchall()
+    instruccion = f"SELECT * FROM precios_venta ORDER BY id"
+    datos = run_query(instruccion, fetch="all")
 
     # Actualización de precios
     for i in datos:
@@ -616,10 +600,8 @@ def cambio_precio_venta_porcentaje(porcentaje: int):
         n_cuo_r = float(truncate(n_cuo, -2))
 
         # Registro de nuevos precios
-        with sql.connect(DATABASE) as conn:
-            cursor = conn.cursor()
-            instruccion = f"UPDATE precios_venta SET precio = {n_pre_r}, anticipo = {n_ant}, cuotas = {n_cuo_r} WHERE id = {i_d}"
-            cursor.execute(instruccion)
+        instruccion = f"UPDATE precios_venta SET precio = {n_pre_r}, anticipo = {n_ant}, cuotas = {n_cuo_r} WHERE id = {i_d}"
+        run_query(instruccion)
 
 
 def cambio_precio_mant_manual(id_cat: int, nuevo_val_mant_bic: int, nuevo_val_mant_nob: int):
@@ -635,10 +617,8 @@ def cambio_precio_mant_manual(id_cat: int, nuevo_val_mant_bic: int, nuevo_val_ma
     :param nuevo_val_mant_nob: Nuevo precio de mantenimiento para NOB
     :type nuevo_val_mant_nob: int
     """
-    with sql.connect(DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"UPDATE cat_nichos SET valor_mant_bicon = {nuevo_val_mant_bic}, valor_mant_nob = {nuevo_val_mant_nob} WHERE id = {id_cat}"
-        cursor.execute(instruccion)
+    instruccion = f"UPDATE cat_nichos SET valor_mant_bicon = {nuevo_val_mant_bic}, valor_mant_nob = {nuevo_val_mant_nob} WHERE id = {id_cat}"
+    run_query(instruccion)
 
 
 def cambio_precio_mant_porcentaje(facturacion: str, porcentaje: int):
@@ -656,11 +636,8 @@ def cambio_precio_mant_porcentaje(facturacion: str, porcentaje: int):
     pcnt = 1+(porcentaje/100)
 
     # Recuperación de precios actuales
-    with sql.connect(DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM cat_nichos ORDER BY id"
-        cursor.execute(instruccion)
-        datos = cursor.fetchall()
+    instruccion = f"SELECT * FROM cat_nichos ORDER BY id"
+    datos = run_query(instruccion, fetch="all")
 
     # Actualización de precios
     for i in datos:
@@ -685,9 +662,7 @@ def cambio_precio_mant_porcentaje(facturacion: str, porcentaje: int):
             instruccion = f"UPDATE cat_nichos SET valor_mant_nob = {n_vmn_t} WHERE id = {i_d}"
 
         # Registro de nuevos precios
-        with sql.connect(DATABASE) as conn:
-            cursor = conn.cursor()
-            cursor.execute(instruccion)
+        run_query(instruccion)
 
 
 def edit_registro(tabla: str, columna: str, nuevo_valor: str|int|float|bool, id: int):
@@ -708,10 +683,8 @@ def edit_registro(tabla: str, columna: str, nuevo_valor: str|int|float|bool, id:
     """
     nuevo_valor = reemplazar_comilla(nuevo_valor)
 
-    with sql.connect(DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"UPDATE {tabla} SET {columna} = '{nuevo_valor}' WHERE id = '{id}'"
-        cursor.execute(instruccion)
+    instruccion = f"UPDATE {tabla} SET {columna} = '{nuevo_valor}' WHERE id = '{id}'"
+    run_query(instruccion)
 
 
 def set_null_registro(tabla: str, columna_null: str, columna_filtro: str, valor: str|int|float|bool):
@@ -730,10 +703,8 @@ def set_null_registro(tabla: str, columna_null: str, columna_filtro: str, valor:
     :param valor: Valor que se buscará en la columna indicada
     :type valor: str or int or float or bool
     """
-    with sql.connect(DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"UPDATE {tabla} SET {columna_null} = NULL WHERE {columna_filtro} = '{valor}'"
-        cursor.execute(instruccion)
+    instruccion = f"UPDATE {tabla} SET {columna_null} = NULL WHERE {columna_filtro} = '{valor}'"
+    run_query(instruccion)
 
 
 def edit_nicho(columna: str, nuevo_valor: str|int|float|bool, cod_nicho: str):
@@ -751,10 +722,8 @@ def edit_nicho(columna: str, nuevo_valor: str|int|float|bool, cod_nicho: str):
     """
     nuevo_valor = reemplazar_comilla(nuevo_valor)
 
-    with sql.connect(DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"UPDATE nichos SET {columna} = '{nuevo_valor}' WHERE codigo = '{cod_nicho}'"
-        cursor.execute(instruccion)
+    instruccion = f"UPDATE nichos SET {columna} = '{nuevo_valor}' WHERE codigo = '{cod_nicho}'"
+    run_query(instruccion)
 
 
 def obtener_panteones() -> list:
@@ -763,11 +732,8 @@ def obtener_panteones() -> list:
 
     :rtype: list
     """
-    with sql.connect(DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM panteones ORDER BY id"
-        cursor.execute(instruccion)
-        datos = cursor.fetchall()
+    instruccion = f"SELECT * FROM panteones ORDER BY id"
+    datos = run_query(instruccion, fetch="all")
     return datos
 
 
@@ -777,11 +743,8 @@ def obtener_cat_nichos() -> list:
 
     :rtype: list
     """
-    with sql.connect(DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM cat_nichos ORDER BY id"
-        cursor.execute(instruccion)
-        datos = cursor.fetchall()
+    instruccion = f"SELECT * FROM cat_nichos ORDER BY id"
+    datos = run_query(instruccion, fetch="all")
     return datos
 
 
@@ -1009,11 +972,8 @@ def mostrar_usuarios(idu: int):
         print()
 
     elif pri >= 3:
-        with sql.connect(DATABASE) as conn:
-            cursor = conn.cursor()
-            instruccion = f"SELECT * FROM usuarios ORDER BY user"
-            cursor.execute(instruccion)
-            datos = cursor.fetchall()
+        instruccion = f"SELECT * FROM usuarios ORDER BY user"
+        datos = run_query(instruccion, fetch="all")
         
         print("-".rjust(113, '-'))
         print("{:<7} {:<30} {:<25} {:<30} {:<6} {:<10}".format('USER', 'NOMBRE', 'TELÉFONO', 'DOMICILIO', 'NIVEL', 'ESTADO'))
@@ -3894,9 +3854,8 @@ def editar_nro_comercio_fiserv():
     
     else:
         try:
-            with sql.connect(DATABASE) as conn:
-                cursor = conn.cursor()
-                cursor.execute(f"UPDATE comercio_fiserv SET nro_comercio = '{nro_comercio}';")
+            instruccion = f"UPDATE comercio_fiserv SET nro_comercio = '{nro_comercio}';"
+            run_query(instruccion)
 
         except Exception as e:
             manejar_excepcion_gral(e)
@@ -3912,10 +3871,8 @@ def obtener_nro_comercio_fiserv() -> int:
 
     :rtype: int
     """
-    with sql.connect(DATABASE) as conn:
-        cursor = conn.cursor()
-        cursor.execute(f"SELECT nro_comercio FROM comercio_fiserv WHERE id = 1;")
-        datos = cursor.fetchone()
+    instruccion = f"SELECT nro_comercio FROM comercio_fiserv WHERE id = 1;"
+    datos = run_query(instruccion, fetch="one")
     return datos[0]
 
 
@@ -3928,11 +3885,9 @@ def mant_restaurar_admin():
     Esta función se encuentra dentro de un menú secreto al que sólo debe tener acceso el
     administrador.
     """
-    with sql.connect(DATABASE) as conn:
-        telefono = input("Teléfono: ")
-        cursor = conn.cursor()
-        instruccion = f"UPDATE usuarios SET nombre = 'Manuel', apellido = 'Ferrero', telefono = '{telefono}', domicilio = 'ADMIN', user_name = 'ferman', pass = '155606038', privilegios = 5, activo = 1 WHERE id = 1"
-        cursor.execute(instruccion)
+    telefono = input("Teléfono: ")
+    instruccion = f"UPDATE usuarios SET nombre = 'Manuel', apellido = 'Ferrero', telefono = '{telefono}', domicilio = 'ADMIN', user_name = 'ferman', pass = '155606038', privilegios = 5, activo = 1 WHERE id = 1"
+    run_query(instruccion)
 
     print("Cuenta ADMIN restaurada exitosamente.")
     print()

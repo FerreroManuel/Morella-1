@@ -20,11 +20,8 @@ def obtener_mail(id: int) -> tuple:
     :param id: ID de la cuenta de email
     :type id: int
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM mail WHERE id = '{id}'"
-        cursor.execute(instruccion)
-        datos = cursor.fetchone()
+    instruccion = f"SELECT * FROM mail WHERE id = '{id}'"
+    datos = mant.run_query(instruccion, fetch="one")
     return datos or ('', '', '', '', '', '')
 
 

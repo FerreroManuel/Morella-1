@@ -218,11 +218,9 @@ def buscar_op_nro_operacion(id_operacion: int, ret: bool = False) -> tuple | Non
 
     :rtype: tuple or None
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM operaciones WHERE id = '{id_operacion}'"
-        cursor.execute(instruccion)
-        datos = cursor.fetchall()
+    instruccion = f"SELECT * FROM operaciones WHERE id = '{id_operacion}'"
+    datos = mant.run_query(instruccion, fetch="all")
+
 
     if ret:
         return datos[0]
@@ -275,12 +273,9 @@ def buscar_op_nro_socio(nro_socio: int):
     """
     try:
         nro, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = rend.obtener_datos_socio(nro_socio)
-        
-        with sql.connect(mant.DATABASE) as conn:
-            cursor = conn.cursor()
-            instruccion = f"SELECT * FROM operaciones WHERE socio = '{nro_socio}'"
-            cursor.execute(instruccion)
-            datos = cursor.fetchall()
+
+        instruccion = f"SELECT * FROM operaciones WHERE socio = '{nro_socio}'"
+        datos = mant.run_query(instruccion, fetch="all")
 
         print()
         if te_1 != None and te_2 != None:
@@ -355,11 +350,8 @@ def buscar_op_nombre_socio(nombre: str):
         return
     
     try:
-        with sql.connect(mant.DATABASE) as conn:
-            cursor = conn.cursor()
-            instruccion = f"SELECT * FROM socios WHERE nombre ilike '%{nombre}%'"
-            cursor.execute(instruccion)
-            datos = cursor.fetchall()
+        instruccion = f"SELECT * FROM socios WHERE nombre ilike '%{nombre}%'"
+        datos = mant.run_query(instruccion, fetch="all")
 
         print()
         print("***********************************************************************************************************************************************************")
@@ -388,11 +380,9 @@ def buscar_op_dni(dni: int):
     :param dni: Documento de identidad del asociado a buscar (sin puntos).
     :type dni: int
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM socios WHERE dni = '{dni}'"
-        cursor.execute(instruccion)
-        datos = cursor.fetchall()
+    instruccion = f"SELECT * FROM socios WHERE dni = '{dni}'"
+    datos = mant.run_query(instruccion, fetch="all")
+
 
     print()
     print("***********************************************************************************************************************************************************")
@@ -419,11 +409,8 @@ def buscar_op_domicilio(domicilio: str):
         return
     
     try:
-        with sql.connect(mant.DATABASE) as conn:
-            cursor = conn.cursor()
-            instruccion = f"SELECT * FROM socios WHERE domicilio ilike '%{domicilio}%'"
-            cursor.execute(instruccion)
-            datos = cursor.fetchall()
+        instruccion = f"SELECT * FROM socios WHERE domicilio ilike '%{domicilio}%'"
+        datos = mant.run_query(instruccion, fetch="all")
 
         print()
         print("***********************************************************************************************************************************************************")
@@ -480,12 +467,9 @@ def buscar_op_cod_nicho(cod_nicho: str, ret: bool = False) -> tuple | None:
     
     panteon = rend.obtener_panteon(pan)
     id_nic, categ, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
-    
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM operaciones WHERE nicho = '{cod_nicho}'"
-        cursor.execute(instruccion)
-        datos = cursor.fetchall()
+
+    instruccion = f"SELECT * FROM operaciones WHERE nicho = '{cod_nicho}'"
+    datos = mant.run_query(instruccion, fetch="all")
 
     if ret:
         return datos[0]
@@ -544,11 +528,8 @@ def buscar_op_cob(id_cobrador: int):
     :param id_cobrador: ID del cobrador a buscar.
     :type id_cobrador: int
     """
-    with  sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM operaciones WHERE cobrador = '{id_cobrador}'"
-        cursor.execute(instruccion)
-        datos = cursor.fetchall()
+    instruccion = f"SELECT * FROM operaciones WHERE cobrador = '{id_cobrador}'"
+    datos = mant.run_query(instruccion, fetch="all")
 
     cobrador = caja.obtener_nom_cobrador(id_cobrador)
     
@@ -609,11 +590,8 @@ def buscar_op_nom_alt(nom_alt: str):
     :type nom_alt: str
     """
     try:
-        with sql.connect(mant.DATABASE) as conn:
-            cursor = conn.cursor()
-            instruccion = f"SELECT * FROM operaciones WHERE nombre_alt ilike '%{nom_alt}%'"
-            cursor.execute(instruccion)
-            datos = cursor.fetchall()
+        instruccion = f"SELECT * FROM operaciones WHERE nombre_alt ilike '%{nom_alt}%'"
+        datos = mant.run_query(instruccion, fetch="all")
 
         print()
         print("***********************************************************************************************************************************************************")
@@ -647,11 +625,8 @@ def buscar_op_dom_alt(dom_alt: str):
     :type nom_alt: str
     """
     try:
-        with sql.connect(mant.DATABASE) as conn:
-            cursor = conn.cursor()
-            instruccion = f"SELECT * FROM operaciones WHERE domicilio_alt ilike '%{dom_alt}%'"
-            cursor.execute(instruccion)
-            datos = cursor.fetchall()
+        instruccion = f"SELECT * FROM operaciones WHERE domicilio_alt ilike '%{dom_alt}%'"
+        datos = mant.run_query(instruccion, fetch="all")
 
         print()
         print("***********************************************************************************************************************************************************")
@@ -682,11 +657,8 @@ def buscar_op_cobol(op_cobol: int):
     :param op_cobol: Número de operación de Cobol a buscar.
     :type op_cobol: int
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM operaciones WHERE op_cobol = {op_cobol}"
-        cursor.execute(instruccion)
-        datos = cursor.fetchall()
+    instruccion = f"SELECT * FROM operaciones WHERE op_cobol = {op_cobol}"
+    datos = mant.run_query(instruccion, fetch="all")
 
     print()
     print("***********************************************************************************************************************************************************")
@@ -704,11 +676,8 @@ def obtener_op_morosos() -> list:
 
     :rtype: list
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM operaciones WHERE moroso = '{1}'"
-        cursor.execute(instruccion)
-    datos = cursor.fetchall()
+    instruccion = f"SELECT * FROM operaciones WHERE moroso = '{1}'"
+    datos = mant.run_query(instruccion, fetch="all")
     return datos
 
 
@@ -877,12 +846,10 @@ def deuda_por_op(id_operacion: int) -> float | int:
     :rtype: float or int
     """
     deuda = 0
-    
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM recibos WHERE operacion = '{id_operacion}' AND pago = '0'"
-        cursor.execute(instruccion)
-        datos = cursor.fetchall()
+
+    instruccion = f"SELECT * FROM recibos WHERE operacion = '{id_operacion}' AND pago = '0'"
+    datos = mant.run_query(instruccion, fetch="all")
+
 
     for d in datos:
         nro, ope, per, año, pag = d
@@ -959,11 +926,8 @@ def buscar_recibos_por_op(id_operacion: int) -> list:
 
     :rtype: list
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM recibos WHERE operacion = '{id_operacion}' AND pago = '0'"
-        cursor.execute(instruccion)
-        datos = cursor.fetchall()
+    instruccion = f"SELECT * FROM recibos WHERE operacion = '{id_operacion}' AND pago = '0'"
+    datos = mant.run_query(instruccion, fetch="all")
     return datos
 
 
@@ -981,12 +945,9 @@ def deuda_por_socio(nro_socio: int) -> float | int:
     :rtype: float or int
     """
     deuda = 0
-    
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM operaciones WHERE socio = '{nro_socio}'"
-        cursor.execute(instruccion)
-        datos = cursor.fetchall()
+
+    instruccion = f"SELECT * FROM operaciones WHERE socio = '{nro_socio}'"
+    datos = mant.run_query(instruccion, fetch="all")
     
     for d in datos:
             i_d, soc, nic, fac, cob, tar, rut, ult, u_a, fec, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = d
@@ -1005,11 +966,8 @@ def obtener_datos_op_por_nro_socio(nro_socio: int) -> list:
 
     :rtype: list
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM operaciones WHERE socio = '{nro_socio}'"
-        cursor.execute(instruccion)
-        datos = cursor.fetchall()
+    instruccion = f"SELECT * FROM operaciones WHERE socio = '{nro_socio}'"
+    datos = mant.run_query(instruccion, fetch="all")
     return datos
 
 
@@ -1023,10 +981,6 @@ def buscar_nicho_por_op(id_operacion: int) -> str:
 
     :rtype: str
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT nicho FROM operaciones WHERE id = '{id_operacion}'"
-        cursor.execute(instruccion)
-        datos = cursor.fetchone()
-    nicho = datos[0]
-    return nicho
+    instruccion = f"SELECT nicho FROM operaciones WHERE id = '{id_operacion}'"
+    datos = mant.run_query(instruccion, fetch="one")
+    return datos[0]

@@ -386,10 +386,8 @@ def ingresar_cobro_auto(ope: int, c_f: int, u_r: str):
     :param ult_año: Año del período que se está emitiendo
     :type ult_año: str
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"UPDATE operaciones SET cuotas_favor = '{c_f}', ult_rec = '{u_r}' WHERE id = '{ope}'"
-        cursor.execute(instruccion)
+    instruccion = f"UPDATE operaciones SET cuotas_favor = '{c_f}', ult_rec = '{u_r}' WHERE id = '{ope}'"
+    mant.run_query(instruccion)
 
 
 def obtener_datos_op(ope: int) -> tuple:
@@ -401,11 +399,8 @@ def obtener_datos_op(ope: int) -> tuple:
 
     :rtype: tuple
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM operaciones WHERE id = {ope}"
-        cursor.execute(instruccion)
-        datos = cursor.fetchone()
+    instruccion = f"SELECT * FROM operaciones WHERE id = {ope}"
+    datos = mant.run_query(instruccion, fetch="one")
     
     i_d, soc, nic, fac, cob, tar, rut, ult, u_a, fec, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = datos
     return i_d, soc, nic, fac, cob, tar, rut, ult, u_a, fec, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt
@@ -529,10 +524,8 @@ def set_pago(ndr: int):
     :param ndr: Número de recibo
     :type ndr: int
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"UPDATE recibos SET pago = '1' WHERE nro_recibo = '{ndr}'"
-        cursor.execute(instruccion)
+    instruccion = f"UPDATE recibos SET pago = '1' WHERE nro_recibo = '{ndr}'"
+    mant.run_query(instruccion)
 
 
 def act_periodo(per: str, ope: int, año: str):
@@ -550,11 +543,9 @@ def act_periodo(per: str, ope: int, año: str):
     """
     mes = calcular_mes(per, 'str')
     fecha = f"{mes}/{año}"
-    
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"UPDATE operaciones SET ult_pago = '{per}', ult_año = '{año}', fecha_ult_pago = '{fecha}' WHERE id = '{ope}'"
-        cursor.execute(instruccion)
+
+    instruccion = f"UPDATE operaciones SET ult_pago = '{per}', ult_año = '{año}', fecha_ult_pago = '{fecha}' WHERE id = '{ope}'"
+    mant.run_query(instruccion)
 
 
 def obtener_datos_recibo(ndr: int) -> tuple:
@@ -564,11 +555,8 @@ def obtener_datos_recibo(ndr: int) -> tuple:
     :param ndr: Número de recibo
     :type ndr: int
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM recibos WHERE nro_recibo = '{ndr}'"
-        cursor.execute(instruccion)
-        datos = cursor.fetchone()
+    instruccion = f"SELECT * FROM recibos WHERE nro_recibo = '{ndr}'"
+    datos = mant.run_query(instruccion, fetch="one")
     
     nro, ope, per, año, pag = datos
     return nro, ope, per, año, pag
@@ -1267,11 +1255,9 @@ def registrar_comision_mant(cobrador: int, rendicion: int, recibo: int, cobro: f
     
     if cobrador not in cobradores:
         comision = float(cobro)*0.15
-    
-        with sql.connect(mant.DATABASE) as conn:
-            cursor = conn.cursor()
-            instruccion = f"INSERT INTO comisiones VALUES ('{cobrador}', '{rendicion}', '{recibo}', '{cobro}', '{comision}')"
-            cursor.execute(instruccion)
+
+        instruccion = f"INSERT INTO comisiones VALUES ('{cobrador}', '{rendicion}', '{recibo}', '{cobro}', '{comision}')"
+        mant.run_query(instruccion)
 
 
 def registrar_comision_doc(cobrador: int, rendicion: int, recibo: int, cobro: float | int):
@@ -1295,12 +1281,8 @@ def registrar_comision_doc(cobrador: int, rendicion: int, recibo: int, cobro: fl
     cobradores = [6, 7, 9, 13, 15]
     if cobrador not in cobradores:
         comision = float(cobro)*0.075
-        conn = sql.connect(mant.DATABASE)
-        cursor = conn.cursor()
         instruccion = f"INSERT INTO comisiones VALUES ('{cobrador}', '{rendicion}', '{recibo}', '{cobro}', '{comision}')"
-        cursor.execute(instruccion)
-        conn.commit()
-        conn.close()
+        mant.run_query(instruccion)
 
 
 def split_nro_tarjeta(tar: int) -> tuple:
@@ -1453,11 +1435,8 @@ def buscar_recibos(facturacion: str, id_cobrador: int) -> list:
 
     :rtype: list
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM operaciones WHERE facturacion = '{facturacion}' AND cobrador = '{id_cobrador}' AND paga = 1 ORDER BY ruta"
-        cursor.execute(instruccion)
-        recibos = cursor.fetchall()
+    instruccion = f"SELECT * FROM operaciones WHERE facturacion = '{facturacion}' AND cobrador = '{id_cobrador}' AND paga = 1 ORDER BY ruta"
+    recibos = mant.run_query(instruccion, fetch="all")
     return recibos
 
 
@@ -1470,10 +1449,8 @@ def obtener_ult_rec_de_op(id_op: int) -> int:
 
     :rtype: int
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        cursor.execute(f"SELECT nro_recibo FROM recibos WHERE operacion = {id_op} ORDER BY nro_recibo DESC LIMIT 1")
-        ult_rec = cursor.fetchone()
+    instruccion = f"SELECT nro_recibo FROM recibos WHERE operacion = {id_op} ORDER BY nro_recibo DESC LIMIT 1"
+    ult_rec = mant.run_query(instruccion, fetch="one")
     return ult_rec[0]
 
 
@@ -1714,11 +1691,8 @@ def obtener_datos_nicho(cod_nicho: str) -> tuple:
 
     :rtype: tuple
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM nichos WHERE codigo = '{cod_nicho}'"
-        cursor.execute(instruccion)
-        datos = cursor.fetchone()
+    instruccion = f"SELECT * FROM nichos WHERE codigo = '{cod_nicho}'"
+    datos = mant.run_query(instruccion, fetch="one")
 
     cod, pan, pis, fil, num, cat, ocu, fall = datos
     return cod, pan, pis, fil, num, cat, ocu, fall
@@ -1734,11 +1708,8 @@ def obtener_datos_socio(nro_socio: int) -> tuple:
 
     :rtype: tuple
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM socios WHERE nro_socio = '{nro_socio}'"
-        cursor.execute(instruccion)
-        datos = cursor.fetchone()
+    instruccion = f"SELECT * FROM socios WHERE nro_socio = '{nro_socio}'"
+    datos = mant.run_query(instruccion, fetch="one")
 
     nro, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = datos
     return nro, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act
@@ -1753,11 +1724,8 @@ def obtener_categoria(id_cat: int) -> tuple:
 
     :rtype: tuple
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM cat_nichos WHERE id = {id_cat}"
-        cursor.execute(instruccion)
-        datos = cursor.fetchone()
+    instruccion = f"SELECT * FROM cat_nichos WHERE id = {id_cat}"
+    datos = mant.run_query(instruccion, fetch="one")
 
     i_d, cat, val_mant_bic, val_mant_nob = datos
     return i_d, cat, val_mant_bic, val_mant_nob
@@ -1772,11 +1740,8 @@ def obtener_panteon(id_pant: int) -> str:
 
     :rtype: str
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT panteon FROM panteones WHERE id = {id_pant}"
-        cursor.execute(instruccion)
-        datos = cursor.fetchone()
+    instruccion = f"SELECT panteon FROM panteones WHERE id = {id_pant}"
+    datos = mant.run_query(instruccion, fetch="one")
 
     return datos[0]
 
@@ -1787,11 +1752,8 @@ def obtener_nro_recibo() -> int:
 
     :rtype: int
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT nro_recibo FROM recibos ORDER BY nro_recibo DESC LIMIT 1"
-        cursor.execute(instruccion)
-        datos = cursor.fetchone()
+    instruccion = f"SELECT nro_recibo FROM recibos ORDER BY nro_recibo DESC LIMIT 1"
+    datos = mant.run_query(instruccion, fetch="one")
 
     return datos[0]
 
@@ -1808,10 +1770,8 @@ def evitar_duplicado(mes: str, año2c: str, id_op: int):
     :param id_op: ID de operación
     :type id_op: int
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"UPDATE operaciones SET ult_rec = '{mes}-{año2c}' WHERE id = '{id_op}'"
-        cursor.execute(instruccion)
+    instruccion = f"UPDATE operaciones SET ult_rec = '{mes}-{año2c}' WHERE id = '{id_op}'"
+    mant.run_query(instruccion)
 
 
 def obtener_recibos_impagos_op(id_op: int) -> list:
@@ -1824,11 +1784,8 @@ def obtener_recibos_impagos_op(id_op: int) -> list:
 
     :rtype: list
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT * FROM recibos WHERE operacion = {id_op} AND pago = 0 ORDER BY nro_recibo ASC"
-        cursor.execute(instruccion)
-        datos = cursor.fetchall()
+    instruccion = f"SELECT * FROM recibos WHERE operacion = {id_op} AND pago = 0 ORDER BY nro_recibo ASC"
+    datos = mant.run_query(instruccion, fetch="all")
 
     return datos
 
@@ -1839,10 +1796,8 @@ def set_moroso(id_op: int):
     :param id_op: ID de operación
     :type id_op: int
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"UPDATE operaciones SET moroso = '{1}', cobrador = '{5}' WHERE id = {id_op}"
-        cursor.execute(instruccion)
+    instruccion = f"UPDATE operaciones SET moroso = '{1}', cobrador = '{5}' WHERE id = {id_op}"
+    mant.run_query(instruccion)
 
 
 def obtener_valor_doc(id_op: int) -> float | int:
@@ -1854,11 +1809,8 @@ def obtener_valor_doc(id_op: int) -> float | int:
 
     :rtype: float or int
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruccion = f"SELECT val_cuotas FROM documentos WHERE id_op = {id_op}"
-        cursor.execute(instruccion)
-        datos = cursor.fetchone()
+    instruccion = f"SELECT val_cuotas FROM documentos WHERE id_op = {id_op}"
+    datos = mant.run_query(instruccion, fetch="one")
         
     return datos[0]
 
@@ -1872,10 +1824,8 @@ def buscar_recibos_impagos(id_op: int) -> list:
 
     :rtype: list
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        cursor.execute(f"SELECT * FROM recibos WHERE operacion = {id_op} AND pago = 0 ORDER BY nro_recibo;")
-        datos = cursor.fetchall()
+    instruccion = f"SELECT * FROM recibos WHERE operacion = {id_op} AND pago = 0 ORDER BY nro_recibo;"
+    datos = mant.run_query(instruccion, fetch="all")
     return datos
 
 
@@ -1884,24 +1834,22 @@ def arreglar_inconsistencias_en_pagos():
     coincida con un recibo pago. Esto puede suceder cuando se dan errores de
     conexión durante el ingreso de un cobro.
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        instruction = """\
-            WITH cte_errors AS (
-                SELECT operacion, periodo, año
-                FROM recibos
-                GROUP BY operacion, periodo, año
-                HAVING COUNT(DISTINCT pago) > 1
-            )
-            UPDATE recibos
-            SET pago = 1
-            WHERE (operacion, periodo, año) IN (
-                SELECT operacion, periodo, año
-                FROM cte_errors
-            )
-            AND pago = 0
-            ;"""
-        cursor.execute(instruction)
+    instruccion = """\
+        WITH cte_errors AS (
+            SELECT operacion, periodo, año
+            FROM recibos
+            GROUP BY operacion, periodo, año
+            HAVING COUNT(DISTINCT pago) > 1
+        )
+        UPDATE recibos
+        SET pago = 1
+        WHERE (operacion, periodo, año) IN (
+            SELECT operacion, periodo, año
+            FROM cte_errors
+        )
+        AND pago = 0
+        ;"""
+    mant.run_query(instruccion)
 
 
 def contar_recibos_impagos_por_periodo_y_cobrador(cob: int, per: str, año: str) -> int:
@@ -1934,11 +1882,7 @@ def contar_recibos_impagos_por_periodo_y_cobrador(cob: int, per: str, año: str)
         AND r.periodo = '{per}'
         AND r.año = '{año}';
     """
-    with sql.connect(mant.DATABASE) as conn:
-        cursor = conn.cursor()
-        cursor.execute(query)
-        datos = cursor.fetchone()
-
+    datos = mant.run_query(query, fetch="one")
     return datos[0]
 
 
@@ -2050,10 +1994,7 @@ def reimprimir_rendicion():
                 """
 
             try:
-                with sql.connect(mant.DATABASE) as conn:
-                    cursor = conn.cursor()
-                    cursor.execute(instruccion)
-                    recibos = cursor.fetchall()
+                recibos = mant.run_query(instruccion, fetch="all")
 
             except Exception as e:
                     mant.manejar_excepcion_gral(e)
