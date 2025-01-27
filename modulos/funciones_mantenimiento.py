@@ -320,29 +320,33 @@ def reemplazar_comilla(cadena: str) -> str:
 def run_query(query: str, fetch:str = "", params:tuple =  ()):
     """Recibe una consulta SQL y la ejecuta en la base de datos.
     Si se pasa un valor válido en fetch, se traen los datos y se retornan,
-    siempre que la consulta sea de tipo SELECT.
+    siempre y cuando la consulta sea de tipo SELECT, INSERT, UPDATE o DELETE.
 
     Si se desea se pueden pasar parámetros en una tupla para incorparar en
     una consulta con comodines (%s, %d, %f, etc...)
 
-    :param query: Consulta SQL
+    :param query: Consulta SQL válida
     :type query: str
 
     :param fetch: Cantidad de datos a traer
     :type fetch: "" | "one" | "many" | "all"
 
-    :param params: Parámetros a pasar a la query
+    :param params: Parámetros a pasar a los comodines de la query
     :type params: tuple
 
     :returns: None | tuple
     """
     datos = None
+
+    if fetch and query.upper().startswith(("INSERT", "UPDATE", "DELETE")):
+        query += " RETURNING *"
+
+    elif not query.upper().startswith("SELECT"):
+        fetch = ""
+
     with sql.connect(DATABASE) as conn:
         with conn.cursor() as cursor:
             cursor.execute(query, params or None)
-
-            if not query.upper().startswith("SELECT"):
-                fetch = ""
 
             if fetch == "one":
                 datos = cursor.fetchone()
