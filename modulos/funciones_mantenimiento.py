@@ -337,6 +337,7 @@ def run_query(query: str, fetch:str = "", params:tuple =  ()):
     :returns: None | tuple
     """
     datos = None
+    query = query.strip()
 
     if fetch and query.upper().startswith(("INSERT", "UPDATE", "DELETE")):
         query += " RETURNING *"
