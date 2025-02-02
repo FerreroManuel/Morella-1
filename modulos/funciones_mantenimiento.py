@@ -3881,6 +3881,14 @@ def obtener_nro_comercio_fiserv() -> int:
     return datos[0]
 
 
+def obtener_ult_rec_str() -> str:
+    """Genera el valor para `operaciones.ult_rec` correspondiente
+    al mes actual y lo retorna
+    """
+    mes = datetime.now().strftime('%m')
+    año2c = datetime.now().strftime('%y')
+    return f"{mes}-{año2c}"
+
 # INICIO FUNCIONES OCULTAS
 
 def mant_restaurar_admin():
