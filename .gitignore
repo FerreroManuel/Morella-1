@@ -22,6 +22,8 @@ modulos/setup.py
 others/
 
 reports/**/*.pdf
+reports/**/*.tmp
+reports/**/*.json
 reports/**/*.txt
 reports/**/*.xlsx
 

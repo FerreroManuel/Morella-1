@@ -9,6 +9,7 @@ import correo as email
 from fpdf import FPDF
 from datetime import datetime, date
 import os
+import re
 import psycopg2 as sql
 import psycopg2.errors
 from openpyxl import Workbook
@@ -1441,36 +1442,96 @@ def report_caja_mensual_por_cob(mes: int, año: int):
 ################################################### RECIBOS #####################################################
 #################################################################################################################
 
-def recibos(facturacion: str, recibos: list):
-    """Genera un reporte en PDF que contiene todos los recibos correspondientes
-    a las operaciones recibidas como parámetro, luego lo guarda y lo abre con el
-    programa predeterminado.
+def recibos(cobrador: int, facturacion: str, periodo: str, año: str, reimpresion: bool = False):
+    """Genera un reporte en PDF que contiene todos los recibos correspondientes a un cobrador,
+    una facturación y un período específicos, luego lo guarda y lo abre con el programa 
+    predeterminado.
+    
+    Los recibos se generan con datos y valores actualizados.
 
-    Este proceso es el encargado de generar deuda a cada operación.
+    En caso que reciba el parámetro `reimpresion` como verdadero, se guarda como tal.
 
-    Si hubiera un error, no fatal, que impida la emisión de recibo de una o más
-    operaciones, se da aviso al usuario una vez finalizado el proceso.
+    :param cobrador: ID del cobrador.
+    :type cobrador: int
 
     :param facturacion: Tipo de facturación (bicon o nob).
     :type facturacion: str
 
-    :param recibos: Listado de operaciones a las que se emitirá recibo.
-    :type recibos: list
+    :param periodo: Período a imprimir.
+    :type periodo: str
+
+    :param año: Año del período a imprimir.
+    :type año: str
+
+    :param reimpresion: Indica si los recibos se imprimen durante emisión o reimpresión.
+    :type reimpresion: bool
     """
     ############ INICIO DE VARIABLES INDEPENDIENTES ############
-    periodo_actual = rend.obtener_periodo()
-    dia = datetime.now().strftime('%d')
-    mes = datetime.now().strftime('%m')
-    año = datetime.now().strftime('%Y')
-    año2c = datetime.now().strftime('%y')
     counter = 0
-    errores = {}
+    nco = ""
+    per = ""
+
+    instruccion = f"""\
+        SELECT
+            rec.nro_recibo,
+            rec.operacion,
+            rec.periodo,
+            rec.año,
+            ops.cobrador,
+            cob.cobrador,
+            ops.ruta,
+            ops.cuotas_favor,
+            ops.nombre_alt,
+            ops.domicilio_alt,
+            soc.nro_socio,
+            soc.nombre,
+            soc.domicilio,
+            soc.localidad,
+            soc.cod_postal,
+            nic.codigo,
+            pan.panteon,
+            nic.piso,
+            nic.fila,
+            nic.numero,
+            cat.categoria,
+            cat.valor_mant_bicon,
+            cat.valor_mant_nob
+        FROM
+            recibos rec
+            JOIN operaciones ops ON rec.operacion = ops.id
+            JOIN cobradores cob ON ops.cobrador = cob.id
+            JOIN socios soc ON ops.socio = soc.nro_socio
+            JOIN nichos nic ON ops.nicho = nic.codigo
+            JOIN panteones pan ON nic.panteon = pan.id
+            JOIN cat_nichos cat ON nic.categoria = cat.id
+        WHERE
+            ops.paga = 1
+            AND soc.activo = 1
+            AND rec.pago = 0
+            AND ops.cobrador = {cobrador}
+            AND ops.nicho IS NOT NULL
+            AND rec.periodo = '{periodo}'
+            AND rec.año = '{año}'
+        ORDER BY
+            ops.ruta,
+            ops.socio,
+            ops.id,
+            rec.nro_recibo
+        """
+
+    try:
+        recibos = mant.run_query(instruccion, fetch="all")
+
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
+        print()
+        return
 
     ############ FIN DE VARIABLES INDEPENDIENTES ############
 
-        
+
     ############ INICIO DE FUNCIONES ############
-    
+
 
     ############ FIN DE FUNCIONES ############
 
@@ -1478,10 +1539,10 @@ def recibos(facturacion: str, recibos: list):
     ############ INICIO DE VARIABLES DEPENDIENTES ############
 
     ########### FIN DE VARIABLES DEPENDIENTES ############
-    
+
 
     ############ INICIO DE REPORT ############
-    
+
     # Logo NOB
     class PDF(FPDF):
         """Clase dedicada únicamente a los recibos de operaciones
@@ -1502,333 +1563,279 @@ def recibos(facturacion: str, recibos: list):
             self.image(mant.re_path('docs/logo_nob.jpg'), 108, 152, 10)
             self.image(mant.re_path('docs/logo_nob.jpg'), 11, 226, 10)
             self.image(mant.re_path('docs/logo_nob.jpg'), 108, 226, 10)
-    
-    if facturacion == 'bicon':
-        pdf = FPDF()    # Clase base
-    
-    elif facturacion == 'nob':
-        pdf = PDF()     # Clase modificada
+
+    pdf = PDF() if facturacion == 'nob' else FPDF()
     
     pdf.set_margins(10, 0, 10)
     pdf.set_auto_page_break(True, 0)
     pdf.alias_nb_pages()
     pdf.add_page()
-    
-    for rec in recibos:
-        # Variables individuales
-        id_o, soc, nic, fac, cob, tar, rut, ult, u_a, fup, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = rec
-        nro, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = rend.obtener_datos_socio(soc)
-    
-        if act == 1:
-            try:
-                cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
-    
-            # Guardar en errores de operación si no tiene nicho asignado
-            except TypeError:
-                if 'Operaciones sin nicho' not in errores:
-                    errores['Operaciones sin nicho'] = [str(id_o).rjust(7, '0')]
-    
-                else:
-                    errores['Operaciones sin nicho'].append(str(id_o).rjust(7, '0'))
-    
-                continue
-    
-            id_c, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
-            pant = rend.obtener_panteon(pan)
-            nco = caja.obtener_nom_cobrador(cob)
-            val_mant = 0
-            ultimo_pago = f'{ult}{u_a}'
-            
-            if nom_alt != None:
-                nom = f"[{nom_alt}]"
-            
-            if dom_alt != None:
-                dom = f"[{dom_alt}]"
-            
-            if fac == 'bicon':
-                val_mant = val_mant_bic
-            
-            elif fac == 'nob':
-                val_mant = val_mant_nob
-            
-            if c_f > 0 and u_r != f"{mes}-{año2c}":
 
-                c_f -= 1
-                rend.ingresar_cobro_auto(id_o, c_f, f"{mes}-{año2c}")
+    for recibo in recibos:
+        ( ndr, id_o, per, año, cob, nco, rut, c_f, nom_alt, dom_alt, nro, nom,
+        dom, loc, c_p, cod, pant, pis, fil, num, cat, val_mant_bic, val_mant_nob ) = recibo
+
+        nombre = nom_alt or nom if len(nom_alt or nom) < 42 else (nom_alt or nom)[:39] + '...'
+        domicilio = dom_alt or dom if len(dom_alt or dom) < 53 else (dom_alt or dom)[:50] + '...'
+
+        val_mant = val_mant_bic if facturacion == 'bicon' else val_mant_nob
+
+        # Header
+        if facturacion == 'bicon':
+            # Línea 1
+            pdf.set_font('Arial', 'I', 7)
+            pdf.cell(190, 3.1, '', 0, 1, 'L')
+            pdf.cell(71, 3, '', 0, 0, 'L')
+            pdf.cell(25, 3, 'Talón para control', 0, 0, 'L')
+            pdf.cell(61, 3, '', 0, 0, 'L')
+            pdf.cell(31, 3, 'Talón para el contribuyente', 0, 1, 'L')
+            pdf.ln(1)
             
-            elif ultimo_pago != f'{periodo_actual}{año}' and c_f <= 0 and u_r != f"{mes}-{año2c}":
-                # Ingresando recibo en la base de datos
-                añovar = 0
+            # Línea 2
+            pdf.set_font('Arial', 'B', 8)
+            pdf.cell(7, 3, '', 0, 0, 'L')
+            pdf.cell(87, 3, 'ADMINISTRACIÓN de PANTEONES SOCIALES', 0, 0, 'L')
+            pdf.cell(7, 3, '', 0, 0, 'L')
+            pdf.cell(87, 3, 'ADMINISTRACIÓN de PANTEONES SOCIALES', 0, 1, 'L')
             
-                if periodo_actual == "Enero - Febrero":
-                    añovar = f"{int(datetime.now().strftime('%Y'))+1}"
+            # Línea 3
+            pdf.cell(22, 3, '', 0, 0, 'L')
+            pdf.cell(76, 3, 'Tel.: 430 9999 / 430 8800', 0, 0, 'L')
+            pdf.cell(18, 3, '', 0, 0, 'L')
+            pdf.cell(76, 3, 'Tel.: 430 9999 / 430 8800', 0, 1, 'L')
             
-                else:
-                    añovar = datetime.now().strftime('%Y')
+            # Línea 4
+            pdf.cell(19, 3, '', 0, 0, 'L')
+            pdf.cell(45, 3, 'CORDOBA 2915 - ROSARIO', 0, 0, 'L')
+            pdf.cell(17, 3, 'Recibo nro.', 'LTB', 0, 'L')
+            pdf.cell(12, 3, f'{ndr}'.rjust(7, '0'), 'RTB', 0, 'R')
+            pdf.cell(13, 3, '', 0, 0, 'L')
+            pdf.cell(55, 3, 'CORDOBA 2915 - ROSARIO', 0, 0, 'L')
+            pdf.cell(17, 3, 'Recibo nro.', 'LTB', 0, 'L')
+            pdf.cell(12, 3, f'{ndr}'.rjust(7, '0'), 'RTB', 1, 'R')
+            pdf.ln(1)
+
+        elif facturacion == 'nob':
+            # Línea 1
+            pdf.set_font('Arial', 'I', 7)
+            pdf.cell(190, 3.1, '', 0, 1, 'L')
+            pdf.ln(1)
+            pdf.set_font('Arial', 'B', 8)
+            pdf.cell(12, 3, '', 0, 0, 'L')
+            pdf.cell(60, 3, "Club Atlético Newell's Old Boys", 0, 0, 'L')
+            pdf.set_font('Arial', 'I', 7)
+            pdf.cell(14, 3, 'Talón para control', 0, 0, 'L')
+            pdf.set_font('Arial', 'B', 8)
+            pdf.cell(24, 3, '', 0, 0, 'L')
+            pdf.cell(49, 3, "Club Atlético Newell's Old Boys", 0, 0, 'L')
+            pdf.set_font('Arial', 'I', 7)
+            pdf.cell(14, 3, 'Talón para el contribuyente', 0, 1, 'L')
             
-                parameters = str((id_o, periodo_actual, añovar, 0))
-                query = f"INSERT INTO recibos (operacion, periodo, año, pago) VALUES {parameters}"
+            # Línea 2
+            pdf.set_font('Arial', 'B', 6)
+            pdf.cell(12, 3, '', 0, 0, 'L')
+            pdf.cell(16, 3, 'Panteón Social', 0, 0, 'L')
+            pdf.set_font('Arial', 'I', 6)
+            pdf.cell(48, 3, '(Cementerio "El Salvador")', 0, 0, 'L')
+            pdf.cell(15, 3, '', 0, 0, 'L')
+            pdf.set_font('Arial', 'B', 6)
+            pdf.cell(19, 3, '', 0, 0, 'L')
+            pdf.cell(16, 3, 'Panteón Social', 0, 0, 'L')
+            pdf.set_font('Arial', 'I', 6)
+            pdf.cell(47, 3, '(Cementerio "El Salvador")', 0, 0, 'L')
+            pdf.cell(15, 3, '', 0, 1, 'L')
             
-                mant.run_query(query)
+            # Línea 3
+            pdf.set_font('Arial', 'B', 6)
+            pdf.cell(12, 3, '', 0, 0, 'L')
+            pdf.cell(60, 3, 'ADMINISTRACIÓN PANTEÓN SOCIAL', 0, 0, 'L')
+            pdf.cell(38, 3, '', 0, 0, 'L')
+            pdf.cell(49, 3, 'ADMINISTRACIÓN PANTEÓN SOCIAL', 0, 1, 'L')
             
-                ndr = rend.obtener_nro_recibo()
-            
-                # Header
-                if fac == 'bicon':
-                    # Línea 1
-                    pdf.set_font('Arial', 'I', 7)
-                    pdf.cell(190, 3.1, '', 0, 1, 'L')
-                    pdf.cell(71, 3, '', 0, 0, 'L')
-                    pdf.cell(25, 3, 'Talón para control', 0, 0, 'L')
-                    pdf.cell(61, 3, '', 0, 0, 'L')
-                    pdf.cell(31, 3, 'Talón para el contribuyente', 0, 1, 'L')
-                    pdf.ln(1)
-                    
-                    # Línea 2
-                    pdf.set_font('Arial', 'B', 8)
-                    pdf.cell(7, 3, '', 0, 0, 'L')
-                    pdf.cell(87, 3, 'ADMINISTRACIÓN de PANTEONES SOCIALES', 0, 0, 'L')
-                    pdf.cell(7, 3, '', 0, 0, 'L')
-                    pdf.cell(87, 3, 'ADMINISTRACIÓN de PANTEONES SOCIALES', 0, 1, 'L')
-                    
-                    # Línea 3
-                    pdf.cell(22, 3, '', 0, 0, 'L')
-                    pdf.cell(76, 3, 'Tel.: 430 9999 / 430 8800', 0, 0, 'L')
-                    pdf.cell(18, 3, '', 0, 0, 'L')
-                    pdf.cell(76, 3, 'Tel.: 430 9999 / 430 8800', 0, 1, 'L')
-                    
-                    # Línea 4
-                    pdf.cell(19, 3, '', 0, 0, 'L')
-                    pdf.cell(45, 3, 'CORDOBA 2915 - ROSARIO', 0, 0, 'L')
-                    pdf.cell(17, 3, 'Recibo nro.', 'LTB', 0, 'L')
-                    pdf.cell(12, 3, f'{ndr}'.rjust(7, '0'), 'RTB', 0, 'R')
-                    pdf.cell(13, 3, '', 0, 0, 'L')
-                    pdf.cell(55, 3, 'CORDOBA 2915 - ROSARIO', 0, 0, 'L')
-                    pdf.cell(17, 3, 'Recibo nro.', 'LTB', 0, 'L')
-                    pdf.cell(12, 3, f'{ndr}'.rjust(7, '0'), 'RTB', 1, 'R')
-                    pdf.ln(1)
-                
-                elif fac == 'nob':
-                    # Línea 1
-                    pdf.set_font('Arial', 'I', 7)
-                    pdf.cell(190, 3.1, '', 0, 1, 'L')
-                    pdf.ln(1)
-                    pdf.set_font('Arial', 'B', 8)
-                    pdf.cell(12, 3, '', 0, 0, 'L')
-                    pdf.cell(60, 3, "Club Atlético Newell's Old Boys", 0, 0, 'L')
-                    pdf.set_font('Arial', 'I', 7)
-                    pdf.cell(14, 3, 'Talón para control', 0, 0, 'L')
-                    pdf.set_font('Arial', 'B', 8)
-                    pdf.cell(24, 3, '', 0, 0, 'L')
-                    pdf.cell(49, 3, "Club Atlético Newell's Old Boys", 0, 0, 'L')
-                    pdf.set_font('Arial', 'I', 7)
-                    pdf.cell(14, 3, 'Talón para el contribuyente', 0, 1, 'L')
-                    
-                    # Línea 2
-                    pdf.set_font('Arial', 'B', 6)
-                    pdf.cell(12, 3, '', 0, 0, 'L')
-                    pdf.cell(16, 3, 'Panteón Social', 0, 0, 'L')
-                    pdf.set_font('Arial', 'I', 6)
-                    pdf.cell(48, 3, '(Cementerio "El Salvador")', 0, 0, 'L')
-                    pdf.cell(15, 3, '', 0, 0, 'L')
-                    pdf.set_font('Arial', 'B', 6)
-                    pdf.cell(19, 3, '', 0, 0, 'L')
-                    pdf.cell(16, 3, 'Panteón Social', 0, 0, 'L')
-                    pdf.set_font('Arial', 'I', 6)
-                    pdf.cell(47, 3, '(Cementerio "El Salvador")', 0, 0, 'L')
-                    pdf.cell(15, 3, '', 0, 1, 'L')
-                    
-                    # Línea 3
-                    pdf.set_font('Arial', 'B', 6)
-                    pdf.cell(12, 3, '', 0, 0, 'L')
-                    pdf.cell(60, 3, 'ADMINISTRACIÓN PANTEÓN SOCIAL', 0, 0, 'L')
-                    pdf.cell(38, 3, '', 0, 0, 'L')
-                    pdf.cell(49, 3, 'ADMINISTRACIÓN PANTEÓN SOCIAL', 0, 1, 'L')
-                    
-                    # Línea 4
-                    pdf.set_font('Arial', '', 6)
-                    pdf.cell(12, 3, '', 0, 0, 'L')
-                    pdf.cell(52, 3, 'Córdoba 2915 - Tel. 430 9999 / 8800', 0, 0, 'L')
-                    pdf.set_font('Arial', 'B', 8)
-                    pdf.cell(17, 3, 'Recibo nro.', 'LTB', 0, 'L')
-                    pdf.cell(12, 3, f'{ndr}'.rjust(7, '0'), 'RTB', 0, 'R')
-                    pdf.set_font('Arial', '', 6)
-                    pdf.cell(17, 3, '', 0, 0, 'L')
-                    pdf.cell(51, 3, 'Córdoba 2915 - Tel. 430 9999 / 8800', 0, 0, 'L')
-                    pdf.set_font('Arial', 'B', 8)
-                    pdf.set_font('Arial', 'B', 8)
-                    pdf.cell(17, 3, 'Recibo nro.', 'LTB', 0, 'L')
-                    pdf.cell(12, 3, f'{ndr}'.rjust(7, '0'), 'RTB', 1, 'R')
-                    pdf.ln(1)
-                
-                # Línea 1
-                pdf.set_font('Arial', 'B', 9)
-                pdf.cell(13, 4, 'Socio/a: ', 'LTB', 0, 'L')
-                pdf.set_font('Arial', '', 9)
-                pdf.cell(12, 4, f'{nro}'.rjust(6, '0'), 'TB', 0, 'L')
-                pdf.cell(68, 4, f'{nom}', 'TRB', 0, 'L')
-                pdf.cell(4, 4, '', 0, 0, 'L')
-                pdf.set_font('Arial', 'B', 9)
-                pdf.cell(13, 4, 'Socio/a: ', 'LT', 0, 'L')
-                pdf.set_font('Arial', '', 9)
-                pdf.cell(12, 4, f'{nro}'.rjust(6, '0'), 'T', 0, 'L')
-                pdf.cell(68, 4, f'{nom}', 'TR', 1, 'L')
-                
-                # Línea 2
-                pdf.set_font('Arial', 'B', 9)
-                pdf.cell(95, 1, '', 0, 0, 'L')
-                pdf.cell(2, 1, '', 0, 0, 'L')
-                pdf.cell(93, 1, '', 'LR', 1, 'L')
-                pdf.cell(19, 5, 'Cobrador/a: ', 'LT', 0, 'L')
-                pdf.set_font('Arial', '', 9)
-                pdf.cell(5, 5, f'{cob}'.rjust(2, '0'), 'T', 0, 'L')
-                pdf.cell(39, 5, f'{nco}', 'T', 0, 'L')
-                pdf.set_font('Arial', 'B', 9)
-                pdf.cell(9, 5, 'Ruta:', 'T', 0, 'L')
-                pdf.set_font('Arial', '', 9)
-                pdf.cell(21, 5, f'{rut}'.rjust(3, '0'), 'RT', 0, 'L')
-                pdf.cell(4, 5, '', 0, 0, 'L')
-                pdf.set_font('Arial', 'B', 9)
-                pdf.cell(17, 5, 'Domicilio: ', 'L', 0, 'L')
-                pdf.set_font('Arial', '', 9)
-                pdf.cell(76, 5, f'{dom}', 'R', 1, 'L')
-               
-                # Línea 3
-                pdf.set_font('Arial', 'B', 9)
-                pdf.cell(17, 4, 'Categoría: ', 'LB', 0, 'L')
-                pdf.set_font('Arial', '', 9)
-                pdf.cell(76, 4, f'{cat}', 'RB', 0, 'L')
-                pdf.cell(4, 4, '', 0, 0, 'L')
-                pdf.set_font('Arial', 'B', 9)
-                pdf.cell(17, 4, 'Localidad:', 'LB', 0, 'L')
-                pdf.set_font('Arial', '', 9)
-                pdf.cell(76, 4, f'{loc} - {c_p}', 'BR', 1, 'L')
-                pdf.ln(1)
-                
-                # Línea 4
-                pdf.set_font('Arial', 'B', 9)
-                pdf.cell(19, 5, 'Cod. Nicho:', 'LTB', 0, 'L')
-                pdf.set_font('Arial', '', 9)
-                pdf.cell(44, 5, f'{cod}'.rjust(10, '0'), 'TB', 0, 'L')
-                pdf.set_font('Arial', 'B', 9)
-                pdf.cell(7, 5, f'Op:', 'TB', 0, 'L')
-                pdf.set_font('Arial', '', 9)
-                pdf.cell(23, 5, f'{id_o}'.rjust(7, "0"), 'RTB', 0, 'L')
-                pdf.cell(4, 5, '', 0, 0, 'L')
-                pdf.set_font('Arial', 'B', 9)
-                pdf.cell(16, 5, 'Cobrador:', 'LTB', 0, 'L')
-                pdf.set_font('Arial', '', 9)
-                pdf.cell(5, 5, f'{cob}'.rjust(2, '0'), 'TB', 0, 'L')
-                pdf.cell(72, 5, f'{nco}', 'RTB', 1, 'L')
-                pdf.ln(1)
-                
-                # Línea 5
-                pdf.set_font('Arial', 'B', 9)
-                pdf.cell(44, 4, 'Panteón', 'LTR', 0, 'C')
-                pdf.cell(16, 4, 'Piso', 'LTR', 0, 'C')
-                pdf.cell(16, 4, 'Fila', 'LTR', 0, 'C')
-                pdf.cell(17, 4, 'Nicho', 'LTR', 0, 'C')
-                pdf.cell(4, 4, '', 0, 0, 'C')
-                pdf.cell(29, 4, 'Categoría', 'LTR', 0, 'C')
-                pdf.cell(34, 4, 'Panteón', 'LTR', 0, 'C')
-                pdf.cell(9, 4, 'Piso', 'LTR', 0, 'C')
-                pdf.cell(9, 4, 'Fila', 'LTR', 0, 'C')
-                pdf.cell(12, 4, 'Nicho', 'LTR', 1, 'C')
-                
-                # Línea 6
-                pdf.set_font('Arial', '', 9)
-                pdf.cell(44, 5, f'{pant}', 'LBR', 0, 'C')
-                pdf.cell(16, 5, f'{pis}'.rjust(2, '0'), 'LBR', 0, 'C')
-                pdf.cell(16, 5, f'{fil}'.rjust(2, '0'), 'LBR', 0, 'C')
-                pdf.cell(17, 5, f'{num}'.rjust(3, '0'), 'LBR', 0, 'C')
-                pdf.cell(4, 5, '', 0, 0, 'C')
-                pdf.cell(29, 5, f'{cat}', 'LBR', 0, 'C')
-                pdf.cell(34, 5, f'{pant}', 'LBR', 0, 'C')
-                pdf.cell(9, 5, f'{pis}'.rjust(2, '0'), 'LBR', 0, 'C')
-                pdf.cell(9, 5, f'{fil}'.rjust(2, '0'), 'LBR', 0, 'C')
-                pdf.cell(12, 5, f'{num}'.rjust(3, '0'), 'LBR', 1, 'C')
-                pdf.ln(3)
-                
-                # Línea 7
-                if periodo_actual == "Enero - Febrero":
-                    pdf.set_font('Arial', 'B', 9)
-                    pdf.cell(14, 5, 'Período: ', 'LTB', 0, 'L')
-                    pdf.set_font('Arial', '', 9)
-                    pdf.cell(44, 5, f'{periodo_actual} - {int(año)+1}', 'RTB', 0, 'L')
-                    pdf.set_font('Arial', 'B', 9)
-                    pdf.cell(14, 5, 'Importe:', 'LTB', 0, 'L')
-                    pdf.set_font('Arial', '', 9)
-                    pdf.cell(21, 5, f'$ {val_mant:.2f}', 'RTB', 0, 'R')
-                    pdf.cell(4, 5, '', 0, 0, 'C')
-                    pdf.set_font('Arial', 'B', 9)
-                    pdf.cell(14, 5, 'Período: ', 'LTB', 0, 'L')
-                    pdf.set_font('Arial', '', 9)
-                    pdf.cell(44, 5, f'{periodo_actual} - {int(año)+1}', 'RTB', 0, 'L')
-                    pdf.set_font('Arial', 'B', 9)
-                    pdf.cell(14, 5, 'Importe:', 'LTB', 0, 'L')
-                    pdf.set_font('Arial', '', 9)
-                    pdf.cell(21, 5, f'$ {val_mant:.2f}', 'RTB', 1, 'R')
-                    pdf.ln(2)
-                
-                elif periodo_actual == "Diciembre - Enero":
-                    pdf.set_font('Arial', 'B', 9)
-                    pdf.cell(14, 5, 'Período: ', 'LTB', 0, 'L')
-                    pdf.set_font('Arial', '', 9)
-                    pdf.cell(44, 5, f'{periodo_actual} - {año}/{int(año2c)+1}', 'RTB', 0, 'L')
-                    pdf.set_font('Arial', 'B', 9)
-                    pdf.cell(14, 5, 'Importe:', 'LTB', 0, 'L')
-                    pdf.set_font('Arial', '', 9)
-                    pdf.cell(21, 5, f'$ {val_mant:.2f}', 'RTB', 0, 'R')
-                    pdf.cell(4, 5, '', 0, 0, 'C')
-                    pdf.set_font('Arial', 'B', 9)
-                    pdf.cell(14, 5, 'Período: ', 'LTB', 0, 'L')
-                    pdf.set_font('Arial', '', 9)
-                    pdf.cell(44, 5, f'{periodo_actual} - {año}/{int(año2c)+1}', 'RTB', 0, 'L')
-                    pdf.set_font('Arial', 'B', 9)
-                    pdf.cell(14, 5, 'Importe:', 'LTB', 0, 'L')
-                    pdf.set_font('Arial', '', 9)
-                    pdf.cell(21, 5, f'$ {val_mant:.2f}', 'RTB', 1, 'R')
-                    pdf.ln(2)
-                
-                else:
-                    pdf.set_font('Arial', 'B', 9)
-                    pdf.cell(14, 5, 'Período: ', 'LTB', 0, 'L')
-                    pdf.set_font('Arial', '', 9)
-                    pdf.cell(44, 5, f'{periodo_actual} - {año}', 'RTB', 0, 'L')
-                    pdf.set_font('Arial', 'B', 9)
-                    pdf.cell(14, 5, 'Importe:', 'LTB', 0, 'L')
-                    pdf.set_font('Arial', '', 9)
-                    pdf.cell(21, 5, f'$ {val_mant:.2f}', 'RTB', 0, 'R')
-                    pdf.cell(4, 5, '', 0, 0, 'C')
-                    pdf.set_font('Arial', 'B', 9)
-                    pdf.cell(14, 5, 'Período: ', 'LTB', 0, 'L')
-                    pdf.set_font('Arial', '', 9)
-                    pdf.cell(44, 5, f'{periodo_actual} - {año}', 'RTB', 0, 'L')
-                    pdf.set_font('Arial', 'B', 9)
-                    pdf.cell(14, 5, 'Importe:', 'LTB', 0, 'L')
-                    pdf.set_font('Arial', '', 9)
-                    pdf.cell(21, 5, f'$ {val_mant:.2f}', 'RTB', 1, 'R')
-                    pdf.ln(2)
-                
-                # Línea 8
-                q_rec_impagos = len(rend.obtener_recibos_impagos_op(id_o))
-                debe = 0
-                
-                if c_f < 0:
-                    debe += abs(c_f)
-                debe += q_rec_impagos - 1
-                
-                if debe:
-                    pdf.cell(93, 4, f'----------- ATENCIÓN: El asociado adeuda {debe} cuotas. ----------', 1, 1, 'C')
-                    # Margen
-                    pdf.cell(190, 13, ' ', 0, 1, 'L')
-                
-                else:
-                    pdf.cell(190, 17, ' ', 0, 1, 'L')
-        
+            # Línea 4
+            pdf.set_font('Arial', '', 6)
+            pdf.cell(12, 3, '', 0, 0, 'L')
+            pdf.cell(52, 3, 'Córdoba 2915 - Tel. 430 9999 / 8800', 0, 0, 'L')
+            pdf.set_font('Arial', 'B', 8)
+            pdf.cell(17, 3, 'Recibo nro.', 'LTB', 0, 'L')
+            pdf.cell(12, 3, f'{ndr}'.rjust(7, '0'), 'RTB', 0, 'R')
+            pdf.set_font('Arial', '', 6)
+            pdf.cell(17, 3, '', 0, 0, 'L')
+            pdf.cell(51, 3, 'Córdoba 2915 - Tel. 430 9999 / 8800', 0, 0, 'L')
+            pdf.set_font('Arial', 'B', 8)
+            pdf.set_font('Arial', 'B', 8)
+            pdf.cell(17, 3, 'Recibo nro.', 'LTB', 0, 'L')
+            pdf.cell(12, 3, f'{ndr}'.rjust(7, '0'), 'RTB', 1, 'R')
+            pdf.ln(1)
+
+        # Línea 1
+        pdf.set_font('Arial', 'B', 9)
+        pdf.cell(13, 4, 'Socio/a: ', 'LTB', 0, 'L')
+        pdf.set_font('Arial', '', 9)
+        pdf.cell(12, 4, f'{nro}'.rjust(6, '0'), 'TB', 0, 'L')
+        pdf.cell(68, 4, f'{nombre}', 'TRB', 0, 'L')
+        pdf.cell(4, 4, '', 0, 0, 'L')
+        pdf.set_font('Arial', 'B', 9)
+        pdf.cell(13, 4, 'Socio/a: ', 'LT', 0, 'L')
+        pdf.set_font('Arial', '', 9)
+        pdf.cell(12, 4, f'{nro}'.rjust(6, '0'), 'T', 0, 'L')
+        pdf.cell(68, 4, f'{nombre}', 'TR', 1, 'L')
+
+        # Línea 2
+        pdf.set_font('Arial', 'B', 9)
+        pdf.cell(95, 1, '', 0, 0, 'L')
+        pdf.cell(2, 1, '', 0, 0, 'L')
+        pdf.cell(93, 1, '', 'LR', 1, 'L')
+        pdf.cell(19, 5, 'Cobrador/a: ', 'LT', 0, 'L')
+        pdf.set_font('Arial', '', 9)
+        pdf.cell(5, 5, f'{cob}'.rjust(2, '0'), 'T', 0, 'L')
+        pdf.cell(39, 5, f'{nco}', 'T', 0, 'L')
+        pdf.set_font('Arial', 'B', 9)
+        pdf.cell(9, 5, 'Ruta:', 'T', 0, 'L')
+        pdf.set_font('Arial', '', 9)
+        pdf.cell(21, 5, f'{rut}'.rjust(3, '0'), 'RT', 0, 'L')
+        pdf.cell(4, 5, '', 0, 0, 'L')
+        pdf.set_font('Arial', 'B', 9)
+        pdf.cell(17, 5, 'Domicilio: ', 'L', 0, 'L')
+        pdf.set_font('Arial', '', 9)
+        pdf.cell(76, 5, f'{domicilio}', 'R', 1, 'L')
+
+        # Línea 3
+        pdf.set_font('Arial', 'B', 9)
+        pdf.cell(17, 4, 'Categoría: ', 'LB', 0, 'L')
+        pdf.set_font('Arial', '', 9)
+        pdf.cell(76, 4, f'{cat}', 'RB', 0, 'L')
+        pdf.cell(4, 4, '', 0, 0, 'L')
+        pdf.set_font('Arial', 'B', 9)
+        pdf.cell(17, 4, 'Localidad:', 'LB', 0, 'L')
+        pdf.set_font('Arial', '', 9)
+        pdf.cell(76, 4, f'{loc} - {c_p}', 'BR', 1, 'L')
+        pdf.ln(1)
+
+        # Línea 4
+        pdf.set_font('Arial', 'B', 9)
+        pdf.cell(19, 5, 'Cod. Nicho:', 'LTB', 0, 'L')
+        pdf.set_font('Arial', '', 9)
+        pdf.cell(44, 5, f'{cod}'.rjust(10, '0'), 'TB', 0, 'L')
+        pdf.set_font('Arial', 'B', 9)
+        pdf.cell(7, 5, f'Op:', 'TB', 0, 'L')
+        pdf.set_font('Arial', '', 9)
+        pdf.cell(23, 5, f'{id_o}'.rjust(7, "0"), 'RTB', 0, 'L')
+        pdf.cell(4, 5, '', 0, 0, 'L')
+        pdf.set_font('Arial', 'B', 9)
+        pdf.cell(16, 5, 'Cobrador:', 'LTB', 0, 'L')
+        pdf.set_font('Arial', '', 9)
+        pdf.cell(5, 5, f'{cob}'.rjust(2, '0'), 'TB', 0, 'L')
+        pdf.cell(72, 5, f'{nco}', 'RTB', 1, 'L')
+        pdf.ln(1)
+
+        # Línea 5
+        pdf.set_font('Arial', 'B', 9)
+        pdf.cell(44, 4, 'Panteón', 'LTR', 0, 'C')
+        pdf.cell(16, 4, 'Piso', 'LTR', 0, 'C')
+        pdf.cell(16, 4, 'Fila', 'LTR', 0, 'C')
+        pdf.cell(17, 4, 'Nicho', 'LTR', 0, 'C')
+        pdf.cell(4, 4, '', 0, 0, 'C')
+        pdf.cell(29, 4, 'Categoría', 'LTR', 0, 'C')
+        pdf.cell(34, 4, 'Panteón', 'LTR', 0, 'C')
+        pdf.cell(9, 4, 'Piso', 'LTR', 0, 'C')
+        pdf.cell(9, 4, 'Fila', 'LTR', 0, 'C')
+        pdf.cell(12, 4, 'Nicho', 'LTR', 1, 'C')
+
+        # Línea 6
+        pdf.set_font('Arial', '', 9)
+        pdf.cell(44, 5, f'{pant}', 'LBR', 0, 'C')
+        pdf.cell(16, 5, f'{pis}'.rjust(2, '0'), 'LBR', 0, 'C')
+        pdf.cell(16, 5, f'{fil}'.rjust(2, '0'), 'LBR', 0, 'C')
+        pdf.cell(17, 5, f'{num}'.rjust(3, '0'), 'LBR', 0, 'C')
+        pdf.cell(4, 5, '', 0, 0, 'C')
+        pdf.cell(29, 5, f'{cat}', 'LBR', 0, 'C')
+        pdf.cell(34, 5, f'{pant}', 'LBR', 0, 'C')
+        pdf.cell(9, 5, f'{pis}'.rjust(2, '0'), 'LBR', 0, 'C')
+        pdf.cell(9, 5, f'{fil}'.rjust(2, '0'), 'LBR', 0, 'C')
+        pdf.cell(12, 5, f'{num}'.rjust(3, '0'), 'LBR', 1, 'C')
+        pdf.ln(3)
+
+        # Línea 7
+        if per == "Enero - Febrero":
+            pdf.set_font('Arial', 'B', 9)
+            pdf.cell(14, 5, 'Período: ', 'LTB', 0, 'L')
+            pdf.set_font('Arial', '', 9)
+            pdf.cell(44, 5, f'{per} - {int(año)+1}', 'RTB', 0, 'L')
+            pdf.set_font('Arial', 'B', 9)
+            pdf.cell(14, 5, 'Importe:', 'LTB', 0, 'L')
+            pdf.set_font('Arial', '', 9)
+            pdf.cell(21, 5, f'$ {val_mant:.2f}', 'RTB', 0, 'R')
+            pdf.cell(4, 5, '', 0, 0, 'C')
+            pdf.set_font('Arial', 'B', 9)
+            pdf.cell(14, 5, 'Período: ', 'LTB', 0, 'L')
+            pdf.set_font('Arial', '', 9)
+            pdf.cell(44, 5, f'{per} - {int(año)+1}', 'RTB', 0, 'L')
+            pdf.set_font('Arial', 'B', 9)
+            pdf.cell(14, 5, 'Importe:', 'LTB', 0, 'L')
+            pdf.set_font('Arial', '', 9)
+            pdf.cell(21, 5, f'$ {val_mant:.2f}', 'RTB', 1, 'R')
+            pdf.ln(2)
+
+        elif per == "Diciembre - Enero":
+            pdf.set_font('Arial', 'B', 9)
+            pdf.cell(14, 5, 'Período: ', 'LTB', 0, 'L')
+            pdf.set_font('Arial', '', 9)
+            pdf.cell(44, 5, f'{per} - {año}/{int(año[:2])+1}', 'RTB', 0, 'L')
+            pdf.set_font('Arial', 'B', 9)
+            pdf.cell(14, 5, 'Importe:', 'LTB', 0, 'L')
+            pdf.set_font('Arial', '', 9)
+            pdf.cell(21, 5, f'$ {val_mant:.2f}', 'RTB', 0, 'R')
+            pdf.cell(4, 5, '', 0, 0, 'C')
+            pdf.set_font('Arial', 'B', 9)
+            pdf.cell(14, 5, 'Período: ', 'LTB', 0, 'L')
+            pdf.set_font('Arial', '', 9)
+            pdf.cell(44, 5, f'{per} - {año}/{int(año[:2])+1}', 'RTB', 0, 'L')
+            pdf.set_font('Arial', 'B', 9)
+            pdf.cell(14, 5, 'Importe:', 'LTB', 0, 'L')
+            pdf.set_font('Arial', '', 9)
+            pdf.cell(21, 5, f'$ {val_mant:.2f}', 'RTB', 1, 'R')
+            pdf.ln(2)
+
+        else:
+            pdf.set_font('Arial', 'B', 9)
+            pdf.cell(14, 5, 'Período: ', 'LTB', 0, 'L')
+            pdf.set_font('Arial', '', 9)
+            pdf.cell(44, 5, f'{per} - {año}', 'RTB', 0, 'L')
+            pdf.set_font('Arial', 'B', 9)
+            pdf.cell(14, 5, 'Importe:', 'LTB', 0, 'L')
+            pdf.set_font('Arial', '', 9)
+            pdf.cell(21, 5, f'$ {val_mant:.2f}', 'RTB', 0, 'R')
+            pdf.cell(4, 5, '', 0, 0, 'C')
+            pdf.set_font('Arial', 'B', 9)
+            pdf.cell(14, 5, 'Período: ', 'LTB', 0, 'L')
+            pdf.set_font('Arial', '', 9)
+            pdf.cell(44, 5, f'{per} - {año}', 'RTB', 0, 'L')
+            pdf.set_font('Arial', 'B', 9)
+            pdf.cell(14, 5, 'Importe:', 'LTB', 0, 'L')
+            pdf.set_font('Arial', '', 9)
+            pdf.cell(21, 5, f'$ {val_mant:.2f}', 'RTB', 1, 'R')
+            pdf.ln(2)
+
+        # Línea 8
+        q_rec_impagos = len(rend.obtener_recibos_impagos_op(id_o))
+        debe = 0
+
+        if c_f < 0:
+            debe += abs(c_f)
+        debe += q_rec_impagos - 1
+
+        if debe:
+            pdf.cell(93, 4, f'----------- ATENCIÓN: El asociado adeuda {debe} cuotas. ----------', 1, 1, 'C')
+            # Margen
+            pdf.cell(190, 13, ' ', 0, 1, 'L')
+
+        else:
+            pdf.cell(190, 17, ' ', 0, 1, 'L')
+
         counter += 1
-        mant.barra_progreso(counter, len(recibos), titulo=f'Morella v{mant.VERSION} - MF! Soluciones informáticas', solo_titulo=True)
-    
+        mant.barra_progreso(counter, len(recibos), titulo=f'Morella v{mant.VERSION} - MF! Soluciones informáticas')
+
     os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
 
     try:
@@ -1838,37 +1845,27 @@ def recibos(facturacion: str, recibos: list):
 
         # Evita sobreescribir un archivo existente
         output_counter = 0
-        output_name = f"recibos_{año}-{mes}-{dia}.pdf"
-    
+        prefix = "reimpresion_" if reimpresion else ""
+        periodo = f"{per}_{año}".replace(' ', '')
+
+        output_name = f"{prefix}recibos_{periodo}.pdf"
+
         while os.path.isfile(mant.re_path(f'reports/recibos/{nco}/{output_name}')):
             output_counter += 1
-            output_name = f"recibos_{año}-{mes}-{dia}_({output_counter}).pdf"
-    
+            output_name = f"{prefix}recibos_{periodo}_({output_counter}).pdf"
+
         pdf.output(mant.re_path(f'reports/recibos/{nco}/{output_name}'), 'F')
 
         ############ ABRIR REPORT ############
 
-        if errores:
-            print('\n\n\n\n')
-            print('     ATENCIÓN! Durante la emisión de los recibos se produjeron los siguientes errores:')
-            print()
-            pprint(errores)
-            print('\n\n\n\n')
-
-        print("Abriendo recibos...")
-    
         ruta = mant.re_path(f'reports/recibos/{nco}/')
         arch = output_name.replace('(', '^(')
         os.chdir(ruta)
         os.system(arch)
-    
+
         ruta = mant.MODULES_DIR
         os.chdir(ruta)
-    
-    except UnboundLocalError:
-        print()
-        print("No se encontraron recibos impagos.")
-        print()
+
     except Exception as e:
         mant.manejar_excepcion_gral(e)
         print("")
@@ -1884,47 +1881,90 @@ def recibos(facturacion: str, recibos: list):
 ############################################## LISTADO DE RECIBOS ###############################################
 #################################################################################################################
 
-def listado_recibos(id_cobrador: int, recibos: list, ops_arregladas: list):
+def listado_recibos(cobrador: int, facturacion: str, periodo: str, año: str, ops_arregladas: list, reimpresion: bool = False):
     """Genera un reporte en PDF que contiene un listado con la información de todos
-    los recibos correspondientes a las operaciones recibidas como parámetro, luego
-    lo guarda y lo abre con el programa predeterminado.
+    los recibos correspondientes a un cobrador, una facturación y un período específicos,
+    luego lo guarda y lo abre con el programa predeterminado.
 
-    :param id_cobrador: ID de cobrador.
-    :type id_cobrador: int
+    El listado se reimprime con datos y valores actualizados.
 
-    :param recibos: Listado de operaciones a las que se emitirá recibo.
-    :type recibos: list
+    En caso que reciba el parámetro `reimpresion` como verdadero, se indica en el título
+    y se guarda como tal.
+
+    :param cobrador: ID del cobrador.
+    :type cobrador: int
+
+    :param facturacion: Tipo de facturación (bicon o nob).
+    :type facturacion: str
+
+    :param periodo: Período a imprimir.
+    :type periodo: str
+
+    :param año: Año del período a imprimir.
+    :type año: str
+
+    :param ops_arregladas: Operaciones que se les necesitó arreglar sus cuotas a favor.
+    :type ops_arregladas: int
+
+    :param reimpresion: Indica si los recibos se imprimen durante emisión o reimpresión.
+    :type reimpresion: bool
     """
     ############ INICIO DE VARIABLES INDEPENDIENTES ############
 
     fecha = caja.obtener_fecha()
     hora = datetime.now().strftime('%H:%M')
-    periodo_actual = rend.obtener_periodo()
-    dia = datetime.now().strftime('%d')
-    mes = datetime.now().strftime('%m')
-    año = datetime.now().strftime('%Y')
-    año2c = datetime.now().strftime('%y')
     imp_acu = float(0)
-    nco = caja.obtener_nom_cobrador(id_cobrador)
-    counter = 0
-    errores = {}
+    nco = caja.obtener_nom_cobrador(cobrador)
+    per = ""
+    title = "LISTADO DE RECIBOS EMITIDOS" + (" (REIMPRESIÓN)" if reimpresion else "")
+
+    instruccion = f"""\
+        SELECT
+            rec.operacion,
+            rec.periodo,
+            rec.año,
+            ops.ruta,
+            ops.cuotas_favor,
+            ops.nombre_alt,
+            ops.domicilio_alt,
+            soc.nro_socio,
+            soc.nombre,
+            soc.domicilio,
+            cat.valor_mant_bicon,
+            cat.valor_mant_nob
+        FROM
+            recibos rec
+            JOIN operaciones ops ON rec.operacion = ops.id
+            JOIN socios soc ON ops.socio = soc.nro_socio
+            JOIN nichos nic ON ops.nicho = nic.codigo
+            JOIN cat_nichos cat ON nic.categoria = cat.id
+        WHERE
+            ops.paga = 1
+            AND soc.activo = 1
+            AND rec.pago = 0
+            AND ops.cobrador = {cobrador}
+            AND ops.nicho IS NOT NULL
+            AND rec.periodo = '{periodo}'
+            AND rec.año = '{año}'
+        ORDER BY
+            ops.ruta,
+            ops.socio,
+            ops.id,
+            rec.nro_recibo
+        """
+
+    try:
+        recibos = mant.run_query(instruccion, fetch="all")
+
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
+        print()
+        return
 
     ############ FIN DE VARIABLES INDEPENDIENTES ############
 
-        
+
     ############ INICIO DE FUNCIONES ############
-    def days_between_abs(d1: date, d2: date) -> int:
-        """Recibe dos fechas y retorna la diferencia absoluta en días entre ellas.
-
-        :param d1: Fecha 1
-        :type d1: datetime.date
-
-        :param d2: Fecha 2
-        :type d2: datetime.date
-
-        :rtype: int
-        """
-        return abs(d2-d1).days
 
     ############ FIN DE FUNCIONES ############
 
@@ -1932,7 +1972,7 @@ def listado_recibos(id_cobrador: int, recibos: list, ops_arregladas: list):
     ############ INICIO DE VARIABLES DEPENDIENTES ############
 
     ########### FIN DE VARIABLES DEPENDIENTES ############
-    
+
 
     ############ INICIO DE REPORT ############
     class PDF(FPDF):
@@ -1957,7 +1997,7 @@ def listado_recibos(id_cobrador: int, recibos: list, ops_arregladas: list):
             # Arial bold 15
             self.set_font('Arial', 'B', 15)
             # Title
-            self.cell(0, 20, 'LISTADO DE RECIBOS EMITIDOS', 1, 0, 'C')
+            self.cell(0, 20, title, 1, 0, 'C')
             # Arial 10
             self.set_font('Arial', '', 10)
             # Fecha
@@ -2006,117 +2046,46 @@ def listado_recibos(id_cobrador: int, recibos: list, ops_arregladas: list):
     pdf.alias_nb_pages()
     pdf.add_page()
 
-    for rec in recibos:
-        id_o, soc, nic, fac, cob, tar, rut, ult, u_a, fup, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = rec
-        nro, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = rend.obtener_datos_socio(soc)
-    
-        if act == 1:
-            try:
-                cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
-    
-            except TypeError:
-                continue
-    
-            id_c, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
-            fup_sep = str(fup).split("/")
-            fup_date = date(year = int(fup_sep[1]), month = int(fup_sep[0]), day = 1)
-            hoy = datetime.now().date()
-            cuenta = int(days_between_abs(hoy, fup_date)/730)
-            ultimo_pago = f'{ult}{u_a}'
-            val_mant = 0
-    
-            if nom_alt != None:
-                nom = f"[{nom_alt}]"
-    
-            if dom_alt != None:
-                dom = f"[{dom_alt}]"
-    
-            if fac == 'bicon':
-                val_mant = val_mant_bic
-    
-            elif fac == 'nob':
-                val_mant = val_mant_nob
-    
-            if ultimo_pago != f'{periodo_actual}{año}' and c_f <= 0 and u_r != f"{mes}-{año2c}":
-                counter = counter + 1
-                q_rec_impagos = len(rend.obtener_recibos_impagos_op(id_o))
-                debe = 0
-    
-                if c_f < 0:
-                    debe += abs(c_f)
-                debe += q_rec_impagos
-    
-                if q_rec_impagos:
-                    if rend.obtener_recibos_impagos_op(id_o)[-1][2] == periodo_actual:
-                        debe -= 1
+    for recibo in recibos:
+        id_o, per, año, rut, c_f, nom_alt, dom_alt, nro, nom, dom, val_mant_bic, val_mant_nob = recibo
 
-                pdf.set_font('Arial', '', 10)
+        nombre = nom_alt or nom if len(nom_alt or nom) < 36 else (nom_alt or nom)[:33] + '...'
+        domicilio = dom_alt or dom if len(dom_alt or dom) < 36 else (dom_alt or dom)[:33] + '...'
 
-                # Poniendo en negrita las operaciones con arreglo de cuotas a favor
-                if id_o in ops_arregladas: pdf.set_font('Arial', 'B', 10)
+        val_mant = val_mant_bic if facturacion == 'bicon' else val_mant_nob
 
-                if debe > 0:
-                    pdf.cell(14, 5, f'{nro}'.rjust(6, '0'), 0, 0, 'L ')
-                    pdf.cell(65,5, f'{nom}*', 0, 0, 'L')
-                    pdf.cell(1, 5, '', 0, 0, 'L')
-                    pdf.cell(79, 5, f'{dom}', 0, 0, 'L')
-                    pdf.cell(1, 5, '', 0, 0, 'L')
-                    pdf.cell(10, 5, f'{rut}'.rjust(3, '0'), 0, 0, 'L')
-                    pdf.cell(20, 5, f'{val_mant:.2f}', 0, 1, 'R')
-                    imp_acu = imp_acu + float(val_mant)
-                
-                else:
-                    pdf.cell(14, 5, f'{nro}'.rjust(6, '0'), 0, 0, 'L ')
-                    pdf.cell(65,5, f'{nom}', 0, 0, 'L')
-                    pdf.cell(1, 5, '', 0, 0, 'L')
-                    pdf.cell(79, 5, f'{dom}', 0, 0, 'L')
-                    pdf.cell(1, 5, '', 0, 0, 'L')
-                    pdf.cell(10, 5, f'{rut}'.rjust(3, '0'), 0, 0, 'L')
-                    pdf.cell(20, 5, f'{val_mant:.2f}', 0, 1, 'R')
-                    imp_acu = imp_acu + float(val_mant)
-                
-                # Evitar duplicado de recibos
-                rend.evitar_duplicado(mes, año2c, id_o)
-                
-                # Envío de recordatorio vía mail     <---------------------------------- Buscar alternativa, demora mucho.
-                if False:
-                    if mail != None and cob != 6 and mor == 0:
-                        try:
-                            email.recordatorio_cobrador(nro, periodo_actual, cod, pan, nco)
-                        except SMTPAuthenticationError:
-                            pass
-                        except gaierror:
-                            pass
-                        except Exception as e:
-                            mant.manejar_excepcion_gral(e)
-                            print()
-                            return
-                
-                # Revisión estado de mora
-                if cuenta > 0:
-                    rend.set_moroso(id_o)
-                    
-                    if False:                      # <---------------------------------- Buscar alternativa, demora mucho.
-                        # Generar reporte de estado de cuenta
-                        report_estado_cta_mail(nro, nom, dni, fac, dom, te_1, te_2, mail, c_p, loc, act)
-                        # Envío de aviso de mora vía mail
-                        try:
-                            email.aviso_de_mora(id_o)
-                        except SMTPAuthenticationError:
-                            mant.log_error()
-                            pass
-                        except gaierror:
-                            mant.log_error()
-                            pass
-                        except Exception as e:
-                            mant.manejar_excepcion_gral(e)
-                            print()
-                            return
-    
+        rec_impagos = rend.obtener_recibos_impagos_op(id_o)
+        q_rec_impagos = len(rec_impagos)
+        debe = 0
+
+        if c_f < 0:
+            debe += abs(c_f)
+        debe += q_rec_impagos
+
+        if q_rec_impagos:
+            if rec_impagos[-1][2] == per:
+                debe -= 1
+
+        marca_debe = "*" if debe > 0 else ""
+
+        pdf.set_font('Arial', '', 10)
+        
+        # Poniendo en negrita las operaciones con arreglo de cuotas a favor
+        if id_o in ops_arregladas: pdf.set_font('Arial', 'B', 10)
+
+        pdf.cell(14, 5, f'{nro}'.rjust(6, '0'), 0, 0, 'L ')
+        pdf.cell(65,5, f'{nombre}{marca_debe}', 0, 0, 'L')
+        pdf.cell(1, 5, '', 0, 0, 'L')
+        pdf.cell(79, 5, f'{domicilio}', 0, 0, 'L')
+        pdf.cell(1, 5, '', 0, 0, 'L')
+        pdf.cell(10, 5, f'{rut}'.rjust(3, '0'), 0, 0, 'L')
+        pdf.cell(20, 5, f'{val_mant:.2f}', 0, 1, 'R')
+        imp_acu = imp_acu + float(val_mant)
+
     pdf.ln(2)
     pdf.cell(91, 5, '', 0, 0, 'L')
     pdf.cell(33, 5, 'Cantidad de recibos:', 'LTB', 0, 'L')
-    pdf.cell(8, 5, f'{counter}', 'RTB', 0, 'R')
+    pdf.cell(8, 5, f'{len(recibos)}', 'RTB', 0, 'R')
     pdf.cell(2, 5, '', 0, 0, 'L')
     pdf.cell(33, 5, 'Importe acumulado:', 'LTB', 0, 'L')
     pdf.cell(23, 5, f'$ {imp_acu:.2f}', 'RTB', 0, 'R')
@@ -2128,24 +2097,19 @@ def listado_recibos(id_cobrador: int, recibos: list, ops_arregladas: list):
     
         # Evita sobreescribir un archivo existente
         output_counter = 0
-        output_name = f"listado_recibos_{año}-{mes}-{dia}.pdf"
+        prefix = "reimpresion_" if reimpresion else ""
+        periodo = f"{per}_{año}".replace(' ', '')
+
+        output_name = f"{prefix}listado_{periodo}.pdf"
     
         while os.path.isfile(mant.re_path(f'reports/recibos/{nco}/{output_name}')):
             output_counter += 1
-            output_name = f'listado_recibos_{año}-{mes}-{dia}_({output_counter}).pdf'
+            output_name = f'{prefix}listado_{periodo}_({output_counter}).pdf'
         
         pdf.output(mant.re_path(f'reports/recibos/{nco}/{output_name}'), 'F')
 
     ############ ABRIR REPORT ############
 
-        if errores:
-            print('\n\n\n\n')
-            print('     ATENCIÓN! Durante la emisión del listado se produjeron los siguientes errores:')
-            print()
-            pprint(errores)
-            print('\n\n\n\n')
-            
-        print("Abriendo Listado...")
         
         ruta = mant.re_path(f'reports/recibos/{nco}/')
         arch = output_name.replace('(', '^(')
@@ -2154,16 +2118,12 @@ def listado_recibos(id_cobrador: int, recibos: list, ops_arregladas: list):
         
         ruta = mant.MODULES_DIR
         os.chdir(ruta)
-    
-    except UnboundLocalError:
-        print()
-        print("No se encontraron recibos impagos.")
-        print()
+
     except Exception as e:
         mant.manejar_excepcion_gral(e)
         print()
         return
-
+          
 ############################################### FIN DE REPORT ###################################################
 
 
@@ -2173,26 +2133,67 @@ def listado_recibos(id_cobrador: int, recibos: list, ops_arregladas: list):
 ############################################## RECIBOS DEB. AUT. ################################################
 #################################################################################################################
 
-def recibos_deb_aut(recibos: list):
-    """Genera un reporte en PDF para cada uno de los recibos correspondientes
-    a las operaciones recibidas como parámetro y luego lo guarda.
+def recibos_deb_aut(facturacion: str, periodo: str, año: str):
+    """Genera un reporte en PDF para cada uno de los recibos correspondientes a operaciones
+    con débito automático de una facturación y un período específicos y luego los guarda.
 
-    Este proceso es el encargado de generar deuda a cada operación con débito
-    automático.
+    :param facturacion: Tipo de facturación (bicon o nob).
+    :type facturacion: str
 
-    Si hubiera un error, no fatal, que impida la emisión de recibo de una o más
-    operaciones, se da aviso al usuario una vez finalizado el proceso.
+    :param periodo: Período a imprimir.
+    :type periodo: str
 
-    :param recibos: Listado de operaciones a las que se emitirá recibo.
-    :type recibos: list
+    :param año: Año del período a imprimir.
+    :type año: str
     """
     ############ INICIO DE VARIABLES INDEPENDIENTES ############
-    periodo_actual = rend.obtener_periodo()
-    mes = datetime.now().strftime('%m')
-    año = datetime.now().strftime('%Y')
-    año2c = datetime.now().strftime('%y')
     counter = 0
-    errores = {}
+
+    instruccion = f"""\
+        SELECT
+            rec.nro_recibo,
+            ops.tarjeta,
+            ops.nombre_alt,
+            soc.nro_socio,
+            soc.nombre,
+            soc.cod_postal,
+            pan.panteon,
+            nic.piso,
+            nic.fila,
+            nic.numero,
+            cat.categoria,
+            cat.valor_mant_bicon,
+            cat.valor_mant_nob
+        FROM
+            recibos rec
+            JOIN operaciones ops ON rec.operacion = ops.id
+            JOIN socios soc ON ops.socio = soc.nro_socio
+            JOIN nichos nic ON ops.nicho = nic.codigo
+            JOIN panteones pan ON nic.panteon = pan.id
+            JOIN cat_nichos cat ON nic.categoria = cat.id
+        WHERE
+            ops.paga = 1
+            AND soc.activo = 1
+            AND rec.pago = 0
+            AND ops.cobrador = 6
+            AND ops.nicho IS NOT NULL
+            AND ops.tarjeta IS NOT NULL
+            AND rec.periodo = '{periodo}'
+            AND rec.año = '{año}'
+        ORDER BY
+            ops.ruta,
+            ops.socio,
+            ops.id,
+            rec.nro_recibo
+        """
+
+    try:
+        recibos = mant.run_query(instruccion, fetch="all")
+
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
+        print()
+        return
 
     ############ FIN DE VARIABLES INDEPENDIENTES ############
 
@@ -2208,239 +2209,179 @@ def recibos_deb_aut(recibos: list):
     
 
     ############ INICIO DE REPORT ############
-    for rec in recibos:
+    for recibo in recibos:
         pdf = FPDF()
     
         pdf.alias_nb_pages()
         pdf.add_page()
-    
-        # Variables individuales
-        id_o, soc, nic, fac, cob, tar, rut, ult, u_a, fup, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = rec
-    
-        try:
-            cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
-    
-        except TypeError:
-            if 'Operaciones sin nicho' not in errores:
-                errores['Operaciones sin nicho'] = [str(id_o).rjust(7, '0')]
-    
-            else:
-                errores['Operaciones sin nicho'].append(str(id_o).rjust(7, '0'))
-    
-            continue
-    
-        nro, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = rend.obtener_datos_socio(soc)
-        id_c, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
-        t01, t02, t03, t04 = rend.split_nro_tarjeta(tar)
-        panteon = rend.obtener_panteon(pan)
-        nco = caja.obtener_nom_cobrador(cob)
-        val_mant = 0
-    
-        if nom_alt != None:
-            nom = f"[{nom_alt}]"
-    
-        if dom_alt != None:
-            dom = f"[{dom_alt}]"
-    
-        if fac == 'bicon':
-            val_mant = val_mant_bic
-    
-        elif fac == 'nob':
-            val_mant = val_mant_nob
-    
-        if act == 1:
-            if not ult == periodo_actual and u_a == año and c_f > 0:
-                añovar = 0
-    
-                if periodo_actual == "Enero - Febrero":
-                    añovar = f"{int(datetime.now().strftime('%Y'))+1}"
-    
-                else:
-                    añovar = datetime.now().strftime('%Y')
-                c_f -= 1
-    
-                rend.ingresar_cobro_auto(id_o, c_f, f"{mes}-{año2c}", periodo_actual, añovar)
-    
-            elif not ult == periodo_actual and u_a == año and c_f == 0 and u_r != f"{mes}-{año2c}":
-                # Ingresando recibo en la base de datos
-                añovar = 0
-    
-                if periodo_actual == "Enero - Febrero":
-                    añovar = f"{int(datetime.now().strftime('%Y'))+1}"
-    
-                else:
-                    añovar = datetime.now().strftime('%Y')
-    
-                parameters = str((id_o, periodo_actual, añovar, 0))
-                query = f"INSERT INTO recibos (operacion, periodo, año, pago) VALUES {parameters}"
-    
-                mant.run_query(query)
-    
-                ndr = rend.obtener_nro_recibo()
-    
-                # Header Bicon
-                if fac == 'bicon':
-                    # Línea 1
-                    pdf.set_font('Arial', 'B', 11)
-                    pdf.cell(85, 5, 'ADMINISTRACIÓN de PANTEONES SOCIALES', 0, 1, 'C')
-                    
-                    # Línea 2
-                    pdf.cell(85, 5, 'Tel.: 430 9999 / 430 8800', 0, 1, 'C')
-                    
-                    # Línea 3
-                    pdf.cell(85, 5, 'CORDOBA 2915 - ROSARIO', 0, 1, 'C')
-                    
-                    # Línea 4
-                    pdf.set_font('Arial', 'B', 10)
-                    pdf.cell(49, 5, '', 0, 0, 'L')
-                    pdf.cell(20, 5, 'Recibo nro.', 'LTB', 0, 'L')
-                    pdf.cell(16, 5, f'{ndr}'.rjust(7, '0'), 'RTB', 1, 'R')
-                    pdf.ln(1)
-                
-                # Header NOB
-                elif fac == 'nob':
-                    # Logo
-                    pdf.image(mant.re_path('docs/logo_nob.jpg'), 11, 14, 10)
-                    pdf.set_font('Arial', 'I', 7)
-                    pdf.cell(190, 3.1, '', 0, 1, 'L')
-                    pdf.ln(1)
-                    
-                    # Línea 1
-                    pdf.set_font('Arial', 'B', 8)
-                    pdf.cell(12, 3, '', 0, 0, 'L')
-                    pdf.cell(60, 3, "Club Atlético Newell's Old Boys", 0, 1, 'L')
-                    
-                    # Línea 2
-                    pdf.set_font('Arial', 'B', 6)
-                    pdf.cell(12, 3, '', 0, 0, 'L')
-                    pdf.cell(16, 3, 'Panteón Social', 0, 0, 'L')
-                    pdf.set_font('Arial', 'I', 6)
-                    pdf.cell(48, 3, '(Cementerio "El Salvador")', 0, 0, 'L')
-                    pdf.cell(15, 3, '', 0, 1, 'L')
-                    
-                    # Línea 3
-                    pdf.set_font('Arial', 'B', 6)
-                    pdf.cell(12, 3, '', 0, 0, 'L')
-                    pdf.cell(60, 3, 'ADMINISTRACIÓN PANTEÓN SOCIAL', 0, 1, 'L')
-                    
-                    # Línea 4
-                    pdf.set_font('Arial', '', 6)
-                    pdf.cell(12, 3, '', 0, 0, 'L')
-                    pdf.cell(44, 3, 'Córdoba 2915 - Tel. 430 9999 / 8800', 0, 0, 'L')
-                    pdf.set_font('Arial', 'B', 8)
-                    pdf.cell(17, 3, 'Recibo nro.', 'LTB', 0, 'L')
-                    pdf.cell(12, 3, f'{ndr}'.rjust(7, '0'), 'RTB', 1, 'R')
-                    pdf.ln(1)
-                
-                # Línea 1
-                pdf.set_font('Arial', 'B', 9)
-                pdf.cell(13, 4, 'Socio/a: ', 'LTB', 0, 'L')
-                pdf.set_font('Arial', '', 9)
-                pdf.cell(12, 4, f'{nro}'.rjust(6, '0'), 'TB', 0, 'L')
-                pdf.cell(60, 4, f'{nom}', 'TRB', 1, 'L')
-                
-                # Línea 2
-                pdf.set_font('Arial', 'B', 9)
-                pdf.cell(85, 1, '', 0, 1, 'L')
-                pdf.cell(19, 5, 'Cobrador/a: ', 'LT', 0, 'L')
-                pdf.set_font('Arial', '', 9)
-                pdf.cell(5, 5, f'{cob}'.rjust(2, '0'), 'T', 0, 'L')
-                pdf.cell(41, 5, f'{nco}', 'T', 0, 'L')
-                pdf.set_font('Arial', 'B', 9)
-                pdf.cell(10, 5, 'Tarjeta: ', 'T', 0, 'R')
-                pdf.set_font('Arial', '', 9)
-                pdf.cell(10, 5, f'{t04}', 'TR', 1, 'L')
-                
-                # Línea 3
-                pdf.set_font('Arial', 'B', 9)
-                pdf.cell(17, 4, 'Categoría: ', 'LB', 0, 'L')
-                pdf.set_font('Arial', '', 9)
-                pdf.cell(68, 4, f'{cat}', 'BR', 1, 'L')
-                pdf.ln(1)
-                
-                # Línea 4
-                pdf.set_font('Arial', 'B', 9)
-                pdf.cell(19, 5, 'Cod. Nicho:', 'LTB', 0, 'L')
-                pdf.set_font('Arial', '', 9)
-                pdf.cell(66, 5, f'{cod}'.rjust(10, '0'), 'RTB', 1, 'L')
-                pdf.ln(1)
-                
-                # Línea 5
-                pdf.set_font('Arial', 'B', 9)
-                pdf.cell(44, 4, 'Panteón', 'LTR', 0, 'C')
-                pdf.cell(13, 4, 'Piso', 'LTR', 0, 'C')
-                pdf.cell(13, 4, 'Fila', 'LTR', 0, 'C')
-                pdf.cell(15, 4, 'Nicho', 'LTR', 1, 'C')
-                
-                # Línea 6
-                pdf.set_font('Arial', '', 9)
-                pdf.cell(44, 5, f'{panteon}', 'LBR', 0, 'C')
-                pdf.cell(13, 5, f'{pis}'.rjust(2, '0'), 'LBR', 0, 'C')
-                pdf.cell(13, 5, f'{fil}'.rjust(2, '0'), 'LBR', 0, 'C')
-                pdf.cell(15, 5, f'{num}'.rjust(3, '0'), 'LBR', 1, 'C')
-                pdf.ln(3)
-                
-                # Línea 7
-                if periodo_actual == "Enero - Febrero":
-                    pdf.set_font('Arial', 'B', 9)
-                    pdf.cell(14, 5, 'Período: ', 'LTB', 0, 'L')
-                    pdf.set_font('Arial', '', 9)
-                    pdf.cell(54, 5, f'{periodo_actual} - {int(año)+1}', 'RTB', 0, 'L')
-                    pdf.set_font('Arial', '', 9)
-                    pdf.cell(17, 5, f'$ {val_mant:.2f}', 'RTB', 1, 'C')
-                    pdf.ln(2)
-                
-                elif periodo_actual == "Diciembre - Enero":
-                    pdf.set_font('Arial', 'B', 9)
-                    pdf.cell(14, 5, 'Período: ', 'LTB', 0, 'L')
-                    pdf.set_font('Arial', '', 9)
-                    pdf.cell(54, 5, f'{periodo_actual} - {año}/{int(año2c)+1}', 'RTB', 0, 'L')
-                    pdf.set_font('Arial', '', 9)
-                    pdf.cell(17, 5, f'$ {val_mant:.2f}', 'RTB', 1, 'C')
-                    pdf.ln(2)
-                
-                else:
-                    pdf.set_font('Arial', 'B', 9)
-                    pdf.cell(14, 5, 'Período: ', 'LTB', 0, 'L')
-                    pdf.set_font('Arial', '', 9)
-                    pdf.cell(54, 5, f'{periodo_actual} - {año}', 'RTB', 0, 'L')
-                    pdf.set_font('Arial', '', 9)
-                    pdf.cell(17, 5, f'$ {val_mant:.2f}', 'RTB', 1, 'C')
-                    pdf.ln(2)
-        
-        try:
-            if errores:
-                print('\n\n\n\n')
-                print('     ATENCIÓN! Durante la emisión de los recibos se produjeron los siguientes errores:')
-                print()
-                pprint(errores)
-                print('\n\n\n\n')
 
+        ndr, tar, nom_alt, nro, nom, cod, pant, pis, fil, num, cat, val_mant_bic, val_mant_nob = recibo
+
+        nombre = nom_alt or nom if len(nom_alt or nom) < 42 else (nom_alt or nom)[:39] + '...'
+
+        val_mant = val_mant_bic if facturacion == 'bicon' else val_mant_nob
+
+        _, _, _, t04 = rend.split_nro_tarjeta(tar)
+
+        # Header NOB
+        if facturacion == 'nob':
+            # Logo
+            pdf.image(mant.re_path('docs/logo_nob.jpg'), 11, 14, 10)
+            pdf.set_font('Arial', 'I', 7)
+            pdf.cell(190, 3.1, '', 0, 1, 'L')
+            pdf.ln(1)
+            
+            # Línea 1
+            pdf.set_font('Arial', 'B', 8)
+            pdf.cell(12, 3, '', 0, 0, 'L')
+            pdf.cell(60, 3, "Club Atlético Newell's Old Boys", 0, 1, 'L')
+            
+            # Línea 2
+            pdf.set_font('Arial', 'B', 6)
+            pdf.cell(12, 3, '', 0, 0, 'L')
+            pdf.cell(16, 3, 'Panteón Social', 0, 0, 'L')
+            pdf.set_font('Arial', 'I', 6)
+            pdf.cell(48, 3, '(Cementerio "El Salvador")', 0, 0, 'L')
+            pdf.cell(15, 3, '', 0, 1, 'L')
+            
+            # Línea 3
+            pdf.set_font('Arial', 'B', 6)
+            pdf.cell(12, 3, '', 0, 0, 'L')
+            pdf.cell(60, 3, 'ADMINISTRACIÓN PANTEÓN SOCIAL', 0, 1, 'L')
+            
+            # Línea 4
+            pdf.set_font('Arial', '', 6)
+            pdf.cell(12, 3, '', 0, 0, 'L')
+            pdf.cell(44, 3, 'Córdoba 2915 - Tel. 430 9999 / 8800', 0, 0, 'L')
+            pdf.set_font('Arial', 'B', 8)
+            pdf.cell(17, 3, 'Recibo nro.', 'LTB', 0, 'L')
+            pdf.cell(12, 3, f'{ndr}'.rjust(7, '0'), 'RTB', 1, 'R')
+            pdf.ln(1)
+        
+        # Header Bicon
+        else:
+            # Línea 1
+            pdf.set_font('Arial', 'B', 11)
+            pdf.cell(85, 5, 'ADMINISTRACIÓN de PANTEONES SOCIALES', 0, 1, 'C')
+            
+            # Línea 2
+            pdf.cell(85, 5, 'Tel.: 430 9999 / 430 8800', 0, 1, 'C')
+            
+            # Línea 3
+            pdf.cell(85, 5, 'CORDOBA 2915 - ROSARIO', 0, 1, 'C')
+            
+            # Línea 4
+            pdf.set_font('Arial', 'B', 10)
+            pdf.cell(49, 5, '', 0, 0, 'L')
+            pdf.cell(20, 5, 'Recibo nro.', 'LTB', 0, 'L')
+            pdf.cell(16, 5, f'{ndr}'.rjust(7, '0'), 'RTB', 1, 'R')
+            pdf.ln(1)
+
+        # Línea 1
+        pdf.set_font('Arial', 'B', 9)
+        pdf.cell(13, 4, 'Socio/a: ', 'LTB', 0, 'L')
+        pdf.set_font('Arial', '', 9)
+        pdf.cell(12, 4, f'{nro}'.rjust(6, '0'), 'TB', 0, 'L')
+        pdf.cell(60, 4, f'{nombre}', 'TRB', 1, 'L')
+        
+        # Línea 2
+        pdf.set_font('Arial', 'B', 9)
+        pdf.cell(85, 1, '', 0, 1, 'L')
+        pdf.cell(19, 5, 'Cobrador/a: ', 'LT', 0, 'L')
+        pdf.set_font('Arial', '', 9)
+        pdf.cell(5, 5, f'6'.rjust(2, '0'), 'T', 0, 'L')
+        pdf.cell(41, 5, f'Débito Automático', 'T', 0, 'L')
+        pdf.set_font('Arial', 'B', 9)
+        pdf.cell(10, 5, 'Tarjeta: ', 'T', 0, 'R')
+        pdf.set_font('Arial', '', 9)
+        pdf.cell(10, 5, f'{t04}', 'TR', 1, 'L')
+        
+        # Línea 3
+        pdf.set_font('Arial', 'B', 9)
+        pdf.cell(17, 4, 'Categoría: ', 'LB', 0, 'L')
+        pdf.set_font('Arial', '', 9)
+        pdf.cell(68, 4, f'{cat}', 'BR', 1, 'L')
+        pdf.ln(1)
+        
+        # Línea 4
+        pdf.set_font('Arial', 'B', 9)
+        pdf.cell(19, 5, 'Cod. Nicho:', 'LTB', 0, 'L')
+        pdf.set_font('Arial', '', 9)
+        pdf.cell(66, 5, f'{cod}'.rjust(10, '0'), 'RTB', 1, 'L')
+        pdf.ln(1)
+        
+        # Línea 5
+        pdf.set_font('Arial', 'B', 9)
+        pdf.cell(44, 4, 'Panteón', 'LTR', 0, 'C')
+        pdf.cell(13, 4, 'Piso', 'LTR', 0, 'C')
+        pdf.cell(13, 4, 'Fila', 'LTR', 0, 'C')
+        pdf.cell(15, 4, 'Nicho', 'LTR', 1, 'C')
+        
+        # Línea 6
+        pdf.set_font('Arial', '', 9)
+        pdf.cell(44, 5, f'{pant}', 'LBR', 0, 'C')
+        pdf.cell(13, 5, f'{pis}'.rjust(2, '0'), 'LBR', 0, 'C')
+        pdf.cell(13, 5, f'{fil}'.rjust(2, '0'), 'LBR', 0, 'C')
+        pdf.cell(15, 5, f'{num}'.rjust(3, '0'), 'LBR', 1, 'C')
+        pdf.ln(3)
+        
+        # Línea 7
+        if periodo == "Enero - Febrero":
+            pdf.set_font('Arial', 'B', 9)
+            pdf.cell(14, 5, 'Período: ', 'LTB', 0, 'L')
+            pdf.set_font('Arial', '', 9)
+            pdf.cell(54, 5, f'{periodo} - {int(año)+1}', 'RTB', 0, 'L')
+            pdf.set_font('Arial', '', 9)
+            pdf.cell(17, 5, f'$ {val_mant:.2f}', 'RTB', 1, 'C')
+            pdf.ln(2)
+        
+        elif periodo == "Diciembre - Enero":
+            pdf.set_font('Arial', 'B', 9)
+            pdf.cell(14, 5, 'Período: ', 'LTB', 0, 'L')
+            pdf.set_font('Arial', '', 9)
+            pdf.cell(54, 5, f'{periodo} - {año}/{int(año[:2])+1}', 'RTB', 0, 'L')
+            pdf.set_font('Arial', '', 9)
+            pdf.cell(17, 5, f'$ {val_mant:.2f}', 'RTB', 1, 'C')
+            pdf.ln(2)
+        
+        else:
+            pdf.set_font('Arial', 'B', 9)
+            pdf.cell(14, 5, 'Período: ', 'LTB', 0, 'L')
+            pdf.set_font('Arial', '', 9)
+            pdf.cell(54, 5, f'{periodo} - {año}', 'RTB', 0, 'L')
+            pdf.set_font('Arial', '', 9)
+            pdf.cell(17, 5, f'$ {val_mant:.2f}', 'RTB', 1, 'C')
+            pdf.ln(2)
+
+        try:
             num_soc = f'{nro}'.rjust(6, '0')
             num_rec = f'{ndr}'.rjust(7, '0')
             
             # Crea la carpeta si no existe
-            if not os.path.isdir(mant.re_path(f'reports/recibos/{nco}')):
-                os.mkdir(mant.re_path(f'reports/recibos/{nco}'))
-            if not os.path.isdir(mant.re_path(f'reports/recibos/{nco}/{num_soc}-{nom}')):
-                os.mkdir(mant.re_path(f'reports/recibos/{nco}/{num_soc}-{nom}'))
+            deb_aut_path = mant.re_path("reports/recibos/Débito automático")
+            nombre_parseado = re.sub(r'[\\/:*?"<>|]', '_', nom)
+            soc_path = f'{deb_aut_path}/{num_soc}-{nombre_parseado}'
             
-            pdf.output(mant.re_path(f'reports/recibos/{nco}/{num_soc}-{nom}/recibo-{num_rec}.pdf'), 'F')
+            if not os.path.isdir(deb_aut_path):
+                os.mkdir(deb_aut_path)
 
-        except UnboundLocalError:
-            print()
-            print("No se encontraron recibos impagos.")
-            print()
+            if not os.path.isdir(f'{soc_path}'):
+                os.mkdir(f'{soc_path}')
+            
+            pdf.output(f'{soc_path}/recibo-{num_rec}.pdf', 'F')
+
         except Exception as e:
             mant.manejar_excepcion_gral(e)
             print()
             return
 
         counter += 1
-        mant.barra_progreso(counter, len(recibos), titulo=f'Morella v{mant.VERSION} - MF! Soluciones informáticas', solo_titulo=True)
+        mant.barra_progreso(counter, len(recibos), titulo=f'Morella v{mant.VERSION} - MF! Soluciones informáticas')
 
     os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
     print("\n")
+    print("Abriendo listado...")
+    print()
 
 ############################################### FIN DE REPORT ###################################################
 
@@ -2450,38 +2391,79 @@ def recibos_deb_aut(recibos: list):
 #################################################################################################################
 ######################################## LISTADO DE RECIBOS DEB. AUT. ###########################################
 #################################################################################################################
-
-def listado_recibos_deb_aut(recibos: list):
+def listado_recibos_deb_aut(facturacion: str, periodo: str, año: str, ops_arregladas: list):
     """Genera un reporte en PDF que contiene un listado con la información de todos
-    los recibos correspondientes a las operaciones recibidas como parámetro, luego
-    lo guarda y lo abre con el programa predeterminado.
+    los recibos correspondientes a operaciones con débito automático de una facturación
+    y un período específicos, luego lo guarda y lo abre con el programa predeterminado.
     
-    Luego, genera, y guarda, un archivo TXT con la información y el formato
+    Por último, genera, y guarda, un archivo TXT con la información y el formato
     correspondiente para realizar la carga de solicitudes de débito automático a 
     FiServ (presentación).
 
-    :param recibos: Listado de operaciones a las que se emitirá recibo.
-    :type recibos: list
+    El listado se reimprime con datos y valores actualizados.
+
+    :param facturacion: Tipo de facturación (bicon o nob).
+    :type facturacion: str
+
+    :param periodo: Período a imprimir.
+    :type periodo: str
+
+    :param año: Año del período a imprimir.
+    :type año: str
+
+    :param ops_arregladas: Operaciones que se les necesitó arreglar sus cuotas a favor.
+    :type ops_arregladas: int
     """
     ############ INICIO DE VARIABLES INDEPENDIENTES ############
-    id_cobrador = 6
     fecha = caja.obtener_fecha()
     hora = datetime.now().strftime('%H:%M')
-    periodo_actual = rend.obtener_periodo()
-    periodo_anterior = rend.obtener_periodo_anterior(periodo_actual)
     dia = datetime.now().strftime('%d')
     mes = datetime.now().strftime('%m')
-    año = datetime.now().strftime('%Y')
-    año2c = datetime.now().strftime('%y')
-    año_sig_2c = str(int(año2c)+1).rjust(2, '0')
     imp_acu = float(0)
-    nco = caja.obtener_nom_cobrador(id_cobrador)
-    counter = 0
-    contador_fiserv = 0
-    val_total = 0
     nro_comercio_fiserv = str(mant.obtener_nro_comercio_fiserv())
     filler = " "
-    errores = {}
+    contador_fiserv = 0
+    val_total = 0
+
+    instruccion = f"""\
+        SELECT
+            rec.operacion,
+            ops.tarjeta,
+            ops.cuotas_favor,
+            ops.nombre_alt,
+            soc.nro_socio,
+            soc.nombre,
+            cat.valor_mant_bicon,
+            cat.valor_mant_nob
+        FROM
+            recibos rec
+            JOIN operaciones ops ON rec.operacion = ops.id
+            JOIN socios soc ON ops.socio = soc.nro_socio
+            JOIN nichos nic ON ops.nicho = nic.codigo
+            JOIN cat_nichos cat ON nic.categoria = cat.id
+        WHERE
+            ops.paga = 1
+            AND soc.activo = 1
+            AND rec.pago = 0
+            AND ops.cobrador = 6
+            AND ops.nicho IS NOT NULL
+            AND ops.tarjeta IS NOT NULL
+            AND rec.periodo = '{periodo}'
+            AND rec.año = '{año}'
+        ORDER BY
+            ops.ruta,
+            ops.socio,
+            ops.id,
+            rec.nro_recibo
+        """
+    
+    try:
+        recibos = mant.run_query(instruccion, fetch="all")
+
+    except Exception as e:
+        mant.manejar_excepcion_gral(e)
+        print()
+        return
 
     ############ FIN DE VARIABLES INDEPENDIENTES ############
 
@@ -2489,61 +2471,61 @@ def listado_recibos_deb_aut(recibos: list):
     ############ INICIO DE FUNCIONES ############
 
     # Eliminar el archivo temporal de detalle de la presentación si es que existe
-    if os.path.isfile(mant.re_path('reports/presentaciones_fiserv/temp/pres_det.txt')):
-        os.remove(mant.re_path('reports/presentaciones_fiserv/temp/pres_det.txt'))
+    pres_det_path = mant.re_path('reports/presentaciones_fiserv/temp/pres_det.txt')
+    if os.path.isfile(pres_det_path):
+        os.remove(pres_det_path)
 
     ############ FIN DE FUNCIONES ############
 
-
     ############ INICIO DE VARIABLES DEPENDIENTES ###########
 
-    if periodo_actual == 'Enero - Febrero':
-        periodo_fiserv = f"1/{año2c} "
-        vto_fiserv = f"2802{año2c}"
+    if periodo == 'Enero - Febrero':
+        periodo_fiserv = f"1/{año[:2]} "
+        vto_fiserv = f"2802{año[:2]}"
     
-    elif periodo_actual == 'Febrero - Marzo':
-        periodo_fiserv = f"1/{año2c} "
-        vto_fiserv = f"3103{año2c}"
+    elif periodo == 'Febrero - Marzo':
+        periodo_fiserv = f"1/{año[:2]} "
+        vto_fiserv = f"3103{año[:2]}"
     
-    elif periodo_actual == 'Marzo - Abril':
-        periodo_fiserv = f"2/{año2c} "
-        vto_fiserv = f"3004{año2c}"
+    elif periodo == 'Marzo - Abril':
+        periodo_fiserv = f"2/{año[:2]} "
+        vto_fiserv = f"3004{año[:2]}"
     
-    elif periodo_actual == 'Abril - Mayo':
-        periodo_fiserv = f"2/{año2c} "
-        vto_fiserv = f"3105{año2c}"
+    elif periodo == 'Abril - Mayo':
+        periodo_fiserv = f"2/{año[:2]} "
+        vto_fiserv = f"3105{año[:2]}"
     
-    elif periodo_actual == 'Mayo - Junio':
-        periodo_fiserv = f"3/{año2c} "
-        vto_fiserv = f"3006{año2c}"
-    elif periodo_actual == 'Junio - Julio':
+    elif periodo == 'Mayo - Junio':
+        periodo_fiserv = f"3/{año[:2]} "
+        vto_fiserv = f"3006{año[:2]}"
+
+    elif periodo == 'Junio - Julio':
+        periodo_fiserv = f"3/{año[:2]} "
+        vto_fiserv = f"3107{año[:2]}"
+
+    elif periodo == 'Julio - Agosto':
+        periodo_fiserv = f"4/{año[:2]} "
+        vto_fiserv = f"3108{año[:2]}"
+
+    elif periodo == 'Agosto - Septiembre':
+        periodo_fiserv = f"4/{año[:2]} "
+        vto_fiserv = f"3009{año[:2]}"
+
+    elif periodo == 'Septiembre - Octubre':
+        periodo_fiserv = f"5/{año[:2]} "
+        vto_fiserv = f"3110{año[:2]}"
     
-        periodo_fiserv = f"3/{año2c} "
-        vto_fiserv = f"3107{año2c}"
-    elif periodo_actual == 'Julio - Agosto':
+    elif periodo == 'Octubre - Noviembre':
+        periodo_fiserv = f"5/{año[:2]} "
+        vto_fiserv = f"3011{año[:2]}"
     
-        periodo_fiserv = f"4/{año2c} "
-        vto_fiserv = f"3108{año2c}"
-    elif periodo_actual == 'Agosto - Septiembre':
+    elif periodo == 'Noviembre - Diciembre':
+        periodo_fiserv = f"6/{año[:2]} "
+        vto_fiserv = f"3112{año[:2]}"
     
-        periodo_fiserv = f"4/{año2c} "
-        vto_fiserv = f"3009{año2c}"
-    elif periodo_actual == 'Septiembre - Octubre':
-    
-        periodo_fiserv = f"5/{año2c} "
-        vto_fiserv = f"3110{año2c}"
-    
-    elif periodo_actual == 'Octubre - Noviembre':
-        periodo_fiserv = f"5/{año2c} "
-        vto_fiserv = f"3011{año2c}"
-    
-    elif periodo_actual == 'Noviembre - Diciembre':
-        periodo_fiserv = f"6/{año2c} "
-        vto_fiserv = f"3112{año2c}"
-    
-    elif periodo_actual == 'Diciembre - Enero':
-        periodo_fiserv = f"6/{año2c} "
-        vto_fiserv = f"3101{año_sig_2c}"
+    elif periodo == 'Diciembre - Enero':
+        periodo_fiserv = f"6/{año[:2]} "
+        vto_fiserv = f"3101{año[:2]+1}"
 
     ########### FIN DE VARIABLES DEPENDIENTES ############
     
@@ -2577,7 +2559,7 @@ def listado_recibos_deb_aut(recibos: list):
             self.cell(0, 35, f'{fecha} - {hora} hs', 0, 0, 'R')
             # N° de cierre
             self.set_font('Arial', 'B', 10)
-            self.cell(-77, 35, f'Cobrador: {nco}', 0, 0, 'R')
+            self.cell(-77, 35, f'Cobrador: Débito automático', 0, 0, 'R')
             # Line break
             self.ln(22)
             self.cell(14, 5, 'Socio/a', 0, 0, 'L ')
@@ -2619,110 +2601,68 @@ def listado_recibos_deb_aut(recibos: list):
     pdf.alias_nb_pages()
     pdf.add_page()
 
-    for rec in recibos:
+    for recibo in recibos:
         # Variables individuales
-        id_o, soc, nic, fac, cob, tar, rut, ult, u_a, fup, mor, c_f, u_r, paga, op_cob, nom_alt, dom_alt = rec
-    
-        try:
-            cod, pan, pis, fil, num, cat, ocu, fall = rend.obtener_datos_nicho(nic)
-    
-        except TypeError:
-            continue
-    
-        nro, nom, dni, te_1, te_2, mail, dom, loc, c_p, f_n, f_a, act = rend.obtener_datos_socio(soc)
+        id_o, tar, c_f, nom_alt, nro, nom, val_mant_bic, val_mant_nob = recibo
+
         t01, t02, t03, t04 = rend.split_nro_tarjeta(tar)
-        id_c, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
+        nombre = nom_alt or nom if len(nom_alt or nom) < 36 else (nom_alt or nom)[:33] + '...'
+        val_mant = val_mant_bic if facturacion == 'bicon' else val_mant_nob
         ult_rec = str(rend.obtener_ult_rec_de_op(id_o)).rjust(7, '0')
-        val_mant = 0
-    
-        if nom_alt != None:
-            nom = f"[{nom_alt}]"
-    
-        if dom_alt != None:
-            dom = f"[{dom_alt}]"
-    
-        if fac == 'bicon':
-            val_mant = val_mant_bic
-    
-        elif fac == 'nob':
-            val_mant = val_mant_nob
-    
-        if act == 1:
-            if not ult == periodo_actual and u_a == año and c_f == 0 and u_r != f"{mes}-{año2c}":
-                counter = counter + 1
-    
-                if ult == periodo_anterior and u_a == año:
-                    pdf.set_font('Arial', '', 10)
-                    pdf.cell(14, 5, f'{nro}'.rjust(6, '0'), 0, 0, 'L ')
-                    pdf.cell(98,5, f'{nom}', 0, 0, 'L')
-                    pdf.cell(1, 5, '', 0, 0, 'L')
-                    pdf.cell(16, 5, f'{ult_rec}', 0, 0, 'L')
-                    pdf.cell(1, 5, '', 0, 0, 'L')
-                    pdf.cell(37, 5, f'{t01} {t02} {t03} {t04}', 0, 0, 'L')
-                    pdf.cell(22, 5, f'$ {val_mant:.2f}', 0, 1, 'R')
-                    imp_acu += float(val_mant)
-    
-                elif ult == "Diciembre - Enero" and u_a == f'{int(año)-1}':
-                    pdf.set_font('Arial', '', 10)
-                    pdf.cell(14, 5, f'{nro}'.rjust(6, '0'), 0, 0, 'L ')
-                    pdf.cell(98,5, f'{nom}', 0, 0, 'L')
-                    pdf.cell(1, 5, '', 0, 0, 'L')
-                    pdf.cell(16, 5, f'{ult_rec}', 0, 0, 'L')
-                    pdf.cell(1, 5, '', 0, 0, 'L')
-                    pdf.cell(37, 5, f'{t01} {t02} {t03} {t04}', 0, 0, 'L')
-                    pdf.cell(22, 5, f'$ {val_mant:.2f}', 0, 1, 'R')
-                    imp_acu += float(val_mant)
-    
-                elif ult == "Noviembre - Diciembre" and u_a == f'{int(año)-1}':
-                    pdf.set_font('Arial', '', 10)
-                    pdf.cell(14, 5, f'{nro}'.rjust(6, '0'), 0, 0, 'L ')
-                    pdf.cell(98,5, f'{nom}', 0, 0, 'L')
-                    pdf.cell(1, 5, '', 0, 0, 'L')
-                    pdf.cell(16, 5, f'{ult_rec}', 0, 0, 'L')
-                    pdf.cell(1, 5, '', 0, 0, 'L')
-                    pdf.cell(37, 5, f'{t01} {t02} {t03} {t04}', 0, 0, 'L')
-                    pdf.cell(22, 5, f'$ {val_mant:.2f}', 0, 1, 'R')
-                    imp_acu += float(val_mant)
-    
-                else:
-                    pdf.set_font('Arial', '', 10)
-                    pdf.cell(14, 5, f'{nro}'.rjust(6, '0'), 0, 0, 'L ')
-                    pdf.cell(98,5, f'{nom} *', 0, 0, 'L')
-                    pdf.cell(1, 5, '', 0, 0, 'L')
-                    pdf.cell(16, 5, f'{ult_rec}', 0, 0, 'L')
-                    pdf.cell(1, 5, '', 0, 0, 'L')
-                    pdf.cell(37, 5, f'{t01} {t02} {t03} {t04}', 0, 0, 'L')
-                    pdf.cell(22, 5, f'$ {val_mant:.2f}', 0, 1, 'R')
-                    imp_acu += float(val_mant)
-                
-                # Evitar duplicado de recibos
-                rend.evitar_duplicado(mes, año2c, id_o)
+
+        rec_impagos = rend.obtener_recibos_impagos_op(id_o)
+        q_rec_impagos = len(rec_impagos)
+        debe = 0
+
+        if c_f < 0:
+            debe += abs(c_f)
+        debe += q_rec_impagos
+
+        if q_rec_impagos:
+            if rec_impagos[-1][2] == periodo:
+                debe -= 1
+
+        marca_debe = "*" if debe > 0 else ""
+
+        pdf.set_font('Arial', '', 10)
+
+        # Poniendo en negrita las operaciones con arreglo de cuotas a favor
+        if id_o in ops_arregladas: pdf.set_font('Arial', 'B', 10)
+
+        pdf.cell(14, 5, f'{nro}'.rjust(6, '0'), 0, 0, 'L ')
+        pdf.cell(98,5, f'{nombre}{marca_debe}', 0, 0, 'L')
+        pdf.cell(1, 5, '', 0, 0, 'L')
+        pdf.cell(16, 5, f'{ult_rec}', 0, 0, 'L')
+        pdf.cell(1, 5, '', 0, 0, 'L')
+        pdf.cell(37, 5, f'{t01} {t02} {t03} {t04}', 0, 0, 'L')
+        pdf.cell(22, 5, f'$ {val_mant:.2f}', 0, 1, 'R')
+        imp_acu += float(val_mant)
 
     ########## Inscripción en el TXT de detalle de presentación para FiServ ##########
 
-                # Crea las carpetas si no existen
-                if os.path.isdir(mant.re_path('reports/presentaciones_fiserv')) == False:
-                    os.mkdir(mant.re_path('reports/presentaciones_fiserv'))
-                
-                if os.path.isdir(mant.re_path('reports/presentaciones_fiserv/temp')) == False:
-                    os.mkdir(mant.re_path('reports/presentaciones_fiserv/temp'))
-                
-                # Inscripción al detalle del TXT
-                with open(mant.re_path('reports/presentaciones_fiserv/temp/pres_det.txt'), 'a') as detalle:
-                    detalle.write(f"\n{nro_comercio_fiserv}2{str(tar)}{str(id_o).rjust(12, '0')}00199902{str(int(val_mant)).rjust(9, '0')}00{periodo_fiserv} {vto_fiserv}{60*filler}")
-                
-                # Contador de cobros
-                contador_fiserv += 1
-                
-                # Suma monto al total
-                val_total += val_mant
+        # Crea las carpetas si no existen
+        if os.path.isdir(mant.re_path('reports/presentaciones_fiserv')) == False:
+            os.mkdir(mant.re_path('reports/presentaciones_fiserv'))
+        
+        if os.path.isdir(mant.re_path('reports/presentaciones_fiserv/temp')) == False:
+            os.mkdir(mant.re_path('reports/presentaciones_fiserv/temp'))
+        
+        # Inscripción al detalle del TXT
+        with open(mant.re_path('reports/presentaciones_fiserv/temp/pres_det.txt'), 'a') as detalle:
+            detalle.write(f"\n{nro_comercio_fiserv}2{str(tar)}{str(id_o).rjust(12, '0')}00199902{str(int(val_mant)).rjust(9, '0')}00{periodo_fiserv} {vto_fiserv}{60*filler}")
+        
+        # Contador de cobros
+        contador_fiserv += 1
+        
+        # Suma monto al total
+        val_total += val_mant
     
                         ########## FIN DETALLE FISERV ##########
 
     pdf.ln(2)
     pdf.cell(91, 5, '', 0, 0, 'L')
     pdf.cell(33, 5, 'Cantidad de recibos:', 'LTB', 0, 'L')
-    pdf.cell(8, 5, f'{counter}', 'RTB', 0, 'R')
+    pdf.cell(8, 5, f'{len(recibos)}', 'RTB', 0, 'R')
     pdf.cell(2, 5, '', 0, 0, 'L')
     pdf.cell(33, 5, 'Importe acumulado:', 'LTB', 0, 'L')
     pdf.cell(23, 5, f'$ {imp_acu:.2f}', 'RTB', 0, 'R')
@@ -2740,7 +2680,7 @@ def listado_recibos_deb_aut(recibos: list):
 
     # Escritura de la cabecera de la presentacíon
     with open(mant.re_path(f'reports/presentaciones_fiserv/{output_name}'), 'w') as presentacion:
-        presentacion.write(f"{nro_comercio_fiserv}1{dia}{mes}{año2c}{str(contador_fiserv).rjust(7, '0')}0{str(int(val_total)).rjust(12, '0')}00{91*filler}")
+        presentacion.write(f"{nro_comercio_fiserv}1{dia}{mes}{año[:2]}{str(contador_fiserv).rjust(7, '0')}0{str(int(val_total)).rjust(12, '0')}00{91*filler}")
 
     # Escritura del detalle de la presentación
     try:
@@ -2762,42 +2702,29 @@ def listado_recibos_deb_aut(recibos: list):
     
     try:
         # Crea la carpeta si no existe
-        if not os.path.isdir(mant.re_path(f'reports/recibos/{nco}')):
-            os.mkdir(mant.re_path(f'reports/recibos/{nco}'))
+        deb_aut_path = mant.re_path('reports/recibos/Débito automático')
+        if not os.path.isdir(deb_aut_path):
+            os.mkdir(deb_aut_path)
 
         # Evita sobreescribir un archivo existente
         output_counter = 0
         output_name = f'listado_recibos_{año}-{mes}-{dia}.pdf'
 
-        while os.path.isfile(mant.re_path(f'reports/recibos/{output_name}')):
+        while os.path.isfile(f'{deb_aut_path}/{output_name}'):
             output_counter += 1
             output_name = f'listado_recibos_{año}-{mes}-{dia}_({output_counter}).pdf'
 
-        pdf.output(mant.re_path(f'reports/recibos/{nco}/{output_name}'), 'F')
+        pdf.output(mant.re_path(f'{deb_aut_path}/{output_name}'), 'F')
         
     ############ ABRIR REPORT ############
 
-        if errores:
-            print('\n\n\n\n')
-            print('     ATENCIÓN! Durante la emisión del listado se produjeron los siguientes errores:')
-            print()
-            pprint(errores)
-            print('\n\n\n\n')
-
-        print("Abriendo reporte. Cierre el archivo para continuar...")
-
-        ruta = mant.re_path(f'reports/recibos/{nco}/')
         arch = f'listado_recibos_{año}-{mes}-{dia}.pdf'
-        os.chdir(ruta)
+        os.chdir(deb_aut_path)
         os.system(arch)
 
         ruta = mant.MODULES_DIR
         os.chdir(ruta)
 
-    except UnboundLocalError:
-        print()
-        print("No se encontraron recibos impagos.")
-        print()
     except Exception as e:
         mant.manejar_excepcion_gral(e)
         print()
@@ -3850,688 +3777,6 @@ def reimpresion_recibo(ndr: int):
         print()
         return
         
-############################################### FIN DE REPORT ###################################################
-
-
-
-
-#################################################################################################################
-########################################### REIMPRESIÓN DE RENDICIÓN ############################################
-#################################################################################################################
-
-def reimpresion_rendicion(recibos: list, facturacion: str):#####################
-    """Genera un reporte en PDF que contiene todos los recibos recibidos como
-    parámetro, luego lo guarda y lo abre con el programa predeterminado.
-
-    Los recibos se reimprimen con datos y valores actualizados.
-
-    Para el parámetro `recibos` se debe utilizar la siguiente query:
-
-    .. code-block:: sql
-        SELECT
-            r.nro_recibo,
-            r.operacion,
-            r.periodo,
-            r.año,
-            o.nicho,
-            o.cobrador,
-            o.ruta,
-            o.cuotas_favor,
-            o.nombre_alt,
-            o.domicilio_alt,
-            s.nro_socio,
-            s.nombre,
-            s.domicilio,
-            s.localidad,
-            s.cod_postal
-        FROM
-            recibos r
-            JOIN operaciones o ON r.operacion = o.id
-            JOIN socios s ON o.socio = s.nro_socio
-        ...
-        ;
-
-    :param recibos: Listado de recibos (unidos a operacion y socio) a listar. Esquema a recibir:\
-        `list[(ndr, id_o, per, año, nic, cob, rut, c_f, nom_alt, dom_alt, nro, nom, dom, loc, c_p)]`
-    :type recibos: list
-
-    :param facturacion: Tipo de facturación (bicon o nob).
-    :type facturacion: str
-    """
-    ############ INICIO DE VARIABLES INDEPENDIENTES ############
-    counter = 0
-    errores = {}
-    periodo = ''
-
-    ############ FIN DE VARIABLES INDEPENDIENTES ############
-
-
-    ############ INICIO DE FUNCIONES ############
-
-
-    ############ FIN DE FUNCIONES ############
-
-
-    ############ INICIO DE VARIABLES DEPENDIENTES ############
-
-    ########### FIN DE VARIABLES DEPENDIENTES ############
-
-
-    ############ INICIO DE REPORT ############
-
-    # Logo NOB
-    class PDF(FPDF):
-        """Clase dedicada únicamente a los recibos de operaciones
-        que pertenecen a NOB.
-        """
-        def header(self):
-            """Inserta un escudo de NOB en la esquina superior izquierda
-            de cada uno de los recibos de la hoja.
-
-            Inserta ocho escudos sin importar si en la hoja quedan
-            recibos en blanco.
-            """
-            self.image(mant.re_path('docs/logo_nob.jpg'), 11, 4, 10)
-            self.image(mant.re_path('docs/logo_nob.jpg'), 108, 4, 10)
-            self.image(mant.re_path('docs/logo_nob.jpg'), 11, 78, 10)
-            self.image(mant.re_path('docs/logo_nob.jpg'), 108, 78, 10)
-            self.image(mant.re_path('docs/logo_nob.jpg'), 11, 152, 10)
-            self.image(mant.re_path('docs/logo_nob.jpg'), 108, 152, 10)
-            self.image(mant.re_path('docs/logo_nob.jpg'), 11, 226, 10)
-            self.image(mant.re_path('docs/logo_nob.jpg'), 108, 226, 10)
-
-    pdf = PDF() if facturacion == 'nob' else FPDF()
-    
-    pdf.set_margins(10, 0, 10)
-    pdf.set_auto_page_break(True, 0)
-    pdf.alias_nb_pages()
-    pdf.add_page()
-
-    for rec in recibos:
-        ndr, id_o, per, año, nic, cob, rut, c_f, nom_alt, dom_alt, nro, nom, dom, loc, c_p = rec
-
-        if not periodo: periodo = f"{año}_{per}".replace(' ', '')
-
-        try:
-            cod, pan, pis, fil, num, cat, _, _ = rend.obtener_datos_nicho(nic)
-
-        # Guardar en errores de operación si no tiene nicho asignado
-        except TypeError:
-            if 'Operaciones sin nicho' not in errores:
-                errores['Operaciones sin nicho'] = [str(id_o).rjust(7, '0')]
-
-            else:
-                errores['Operaciones sin nicho'].append(str(id_o).rjust(7, '0'))
-
-            continue
-
-        _, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
-        pant = rend.obtener_panteon(pan)
-        nco = caja.obtener_nom_cobrador(cob)
-        val_mant = 0
-
-        nombre = nom_alt or nom if len(nom_alt or nom) < 42 else (nom_alt or nom)[:39] + '...'
-        domicilio = dom_alt or dom if len(dom_alt or dom) < 53 else (dom_alt or dom)[:50] + '...'
-
-        if facturacion == 'bicon':
-            val_mant = val_mant_bic
-
-        elif facturacion == 'nob':
-            val_mant = val_mant_nob
-
-        # Header
-        if facturacion == 'bicon':
-            # Línea 1
-            pdf.set_font('Arial', 'I', 7)
-            pdf.cell(190, 3.1, '', 0, 1, 'L')
-            pdf.cell(71, 3, '', 0, 0, 'L')
-            pdf.cell(25, 3, 'Talón para control', 0, 0, 'L')
-            pdf.cell(61, 3, '', 0, 0, 'L')
-            pdf.cell(31, 3, 'Talón para el contribuyente', 0, 1, 'L')
-            pdf.ln(1)
-            
-            # Línea 2
-            pdf.set_font('Arial', 'B', 8)
-            pdf.cell(7, 3, '', 0, 0, 'L')
-            pdf.cell(87, 3, 'ADMINISTRACIÓN de PANTEONES SOCIALES', 0, 0, 'L')
-            pdf.cell(7, 3, '', 0, 0, 'L')
-            pdf.cell(87, 3, 'ADMINISTRACIÓN de PANTEONES SOCIALES', 0, 1, 'L')
-            
-            # Línea 3
-            pdf.cell(22, 3, '', 0, 0, 'L')
-            pdf.cell(76, 3, 'Tel.: 430 9999 / 430 8800', 0, 0, 'L')
-            pdf.cell(18, 3, '', 0, 0, 'L')
-            pdf.cell(76, 3, 'Tel.: 430 9999 / 430 8800', 0, 1, 'L')
-            
-            # Línea 4
-            pdf.cell(19, 3, '', 0, 0, 'L')
-            pdf.cell(45, 3, 'CORDOBA 2915 - ROSARIO', 0, 0, 'L')
-            pdf.cell(17, 3, 'Recibo nro.', 'LTB', 0, 'L')
-            pdf.cell(12, 3, f'{ndr}'.rjust(7, '0'), 'RTB', 0, 'R')
-            pdf.cell(13, 3, '', 0, 0, 'L')
-            pdf.cell(55, 3, 'CORDOBA 2915 - ROSARIO', 0, 0, 'L')
-            pdf.cell(17, 3, 'Recibo nro.', 'LTB', 0, 'L')
-            pdf.cell(12, 3, f'{ndr}'.rjust(7, '0'), 'RTB', 1, 'R')
-            pdf.ln(1)
-
-        elif facturacion == 'nob':
-            # Línea 1
-            pdf.set_font('Arial', 'I', 7)
-            pdf.cell(190, 3.1, '', 0, 1, 'L')
-            pdf.ln(1)
-            pdf.set_font('Arial', 'B', 8)
-            pdf.cell(12, 3, '', 0, 0, 'L')
-            pdf.cell(60, 3, "Club Atlético Newell's Old Boys", 0, 0, 'L')
-            pdf.set_font('Arial', 'I', 7)
-            pdf.cell(14, 3, 'Talón para control', 0, 0, 'L')
-            pdf.set_font('Arial', 'B', 8)
-            pdf.cell(24, 3, '', 0, 0, 'L')
-            pdf.cell(49, 3, "Club Atlético Newell's Old Boys", 0, 0, 'L')
-            pdf.set_font('Arial', 'I', 7)
-            pdf.cell(14, 3, 'Talón para el contribuyente', 0, 1, 'L')
-            
-            # Línea 2
-            pdf.set_font('Arial', 'B', 6)
-            pdf.cell(12, 3, '', 0, 0, 'L')
-            pdf.cell(16, 3, 'Panteón Social', 0, 0, 'L')
-            pdf.set_font('Arial', 'I', 6)
-            pdf.cell(48, 3, '(Cementerio "El Salvador")', 0, 0, 'L')
-            pdf.cell(15, 3, '', 0, 0, 'L')
-            pdf.set_font('Arial', 'B', 6)
-            pdf.cell(19, 3, '', 0, 0, 'L')
-            pdf.cell(16, 3, 'Panteón Social', 0, 0, 'L')
-            pdf.set_font('Arial', 'I', 6)
-            pdf.cell(47, 3, '(Cementerio "El Salvador")', 0, 0, 'L')
-            pdf.cell(15, 3, '', 0, 1, 'L')
-            
-            # Línea 3
-            pdf.set_font('Arial', 'B', 6)
-            pdf.cell(12, 3, '', 0, 0, 'L')
-            pdf.cell(60, 3, 'ADMINISTRACIÓN PANTEÓN SOCIAL', 0, 0, 'L')
-            pdf.cell(38, 3, '', 0, 0, 'L')
-            pdf.cell(49, 3, 'ADMINISTRACIÓN PANTEÓN SOCIAL', 0, 1, 'L')
-            
-            # Línea 4
-            pdf.set_font('Arial', '', 6)
-            pdf.cell(12, 3, '', 0, 0, 'L')
-            pdf.cell(52, 3, 'Córdoba 2915 - Tel. 430 9999 / 8800', 0, 0, 'L')
-            pdf.set_font('Arial', 'B', 8)
-            pdf.cell(17, 3, 'Recibo nro.', 'LTB', 0, 'L')
-            pdf.cell(12, 3, f'{ndr}'.rjust(7, '0'), 'RTB', 0, 'R')
-            pdf.set_font('Arial', '', 6)
-            pdf.cell(17, 3, '', 0, 0, 'L')
-            pdf.cell(51, 3, 'Córdoba 2915 - Tel. 430 9999 / 8800', 0, 0, 'L')
-            pdf.set_font('Arial', 'B', 8)
-            pdf.set_font('Arial', 'B', 8)
-            pdf.cell(17, 3, 'Recibo nro.', 'LTB', 0, 'L')
-            pdf.cell(12, 3, f'{ndr}'.rjust(7, '0'), 'RTB', 1, 'R')
-            pdf.ln(1)
-
-        # Línea 1
-        pdf.set_font('Arial', 'B', 9)
-        pdf.cell(13, 4, 'Socio/a: ', 'LTB', 0, 'L')
-        pdf.set_font('Arial', '', 9)
-        pdf.cell(12, 4, f'{nro}'.rjust(6, '0'), 'TB', 0, 'L')
-        pdf.cell(68, 4, f'{nombre}', 'TRB', 0, 'L')
-        pdf.cell(4, 4, '', 0, 0, 'L')
-        pdf.set_font('Arial', 'B', 9)
-        pdf.cell(13, 4, 'Socio/a: ', 'LT', 0, 'L')
-        pdf.set_font('Arial', '', 9)
-        pdf.cell(12, 4, f'{nro}'.rjust(6, '0'), 'T', 0, 'L')
-        pdf.cell(68, 4, f'{nombre}', 'TR', 1, 'L')
-
-        # Línea 2
-        pdf.set_font('Arial', 'B', 9)
-        pdf.cell(95, 1, '', 0, 0, 'L')
-        pdf.cell(2, 1, '', 0, 0, 'L')
-        pdf.cell(93, 1, '', 'LR', 1, 'L')
-        pdf.cell(19, 5, 'Cobrador/a: ', 'LT', 0, 'L')
-        pdf.set_font('Arial', '', 9)
-        pdf.cell(5, 5, f'{cob}'.rjust(2, '0'), 'T', 0, 'L')
-        pdf.cell(39, 5, f'{nco}', 'T', 0, 'L')
-        pdf.set_font('Arial', 'B', 9)
-        pdf.cell(9, 5, 'Ruta:', 'T', 0, 'L')
-        pdf.set_font('Arial', '', 9)
-        pdf.cell(21, 5, f'{rut}'.rjust(3, '0'), 'RT', 0, 'L')
-        pdf.cell(4, 5, '', 0, 0, 'L')
-        pdf.set_font('Arial', 'B', 9)
-        pdf.cell(17, 5, 'Domicilio: ', 'L', 0, 'L')
-        pdf.set_font('Arial', '', 9)
-        pdf.cell(76, 5, f'{domicilio}', 'R', 1, 'L')
-
-        # Línea 3
-        pdf.set_font('Arial', 'B', 9)
-        pdf.cell(17, 4, 'Categoría: ', 'LB', 0, 'L')
-        pdf.set_font('Arial', '', 9)
-        pdf.cell(76, 4, f'{cat}', 'RB', 0, 'L')
-        pdf.cell(4, 4, '', 0, 0, 'L')
-        pdf.set_font('Arial', 'B', 9)
-        pdf.cell(17, 4, 'Localidad:', 'LB', 0, 'L')
-        pdf.set_font('Arial', '', 9)
-        pdf.cell(76, 4, f'{loc} - {c_p}', 'BR', 1, 'L')
-        pdf.ln(1)
-
-        # Línea 4
-        pdf.set_font('Arial', 'B', 9)
-        pdf.cell(19, 5, 'Cod. Nicho:', 'LTB', 0, 'L')
-        pdf.set_font('Arial', '', 9)
-        pdf.cell(44, 5, f'{cod}'.rjust(10, '0'), 'TB', 0, 'L')
-        pdf.set_font('Arial', 'B', 9)
-        pdf.cell(7, 5, f'Op:', 'TB', 0, 'L')
-        pdf.set_font('Arial', '', 9)
-        pdf.cell(23, 5, f'{id_o}'.rjust(7, "0"), 'RTB', 0, 'L')
-        pdf.cell(4, 5, '', 0, 0, 'L')
-        pdf.set_font('Arial', 'B', 9)
-        pdf.cell(16, 5, 'Cobrador:', 'LTB', 0, 'L')
-        pdf.set_font('Arial', '', 9)
-        pdf.cell(5, 5, f'{cob}'.rjust(2, '0'), 'TB', 0, 'L')
-        pdf.cell(72, 5, f'{nco}', 'RTB', 1, 'L')
-        pdf.ln(1)
-
-        # Línea 5
-        pdf.set_font('Arial', 'B', 9)
-        pdf.cell(44, 4, 'Panteón', 'LTR', 0, 'C')
-        pdf.cell(16, 4, 'Piso', 'LTR', 0, 'C')
-        pdf.cell(16, 4, 'Fila', 'LTR', 0, 'C')
-        pdf.cell(17, 4, 'Nicho', 'LTR', 0, 'C')
-        pdf.cell(4, 4, '', 0, 0, 'C')
-        pdf.cell(29, 4, 'Categoría', 'LTR', 0, 'C')
-        pdf.cell(34, 4, 'Panteón', 'LTR', 0, 'C')
-        pdf.cell(9, 4, 'Piso', 'LTR', 0, 'C')
-        pdf.cell(9, 4, 'Fila', 'LTR', 0, 'C')
-        pdf.cell(12, 4, 'Nicho', 'LTR', 1, 'C')
-
-        # Línea 6
-        pdf.set_font('Arial', '', 9)
-        pdf.cell(44, 5, f'{pant}', 'LBR', 0, 'C')
-        pdf.cell(16, 5, f'{pis}'.rjust(2, '0'), 'LBR', 0, 'C')
-        pdf.cell(16, 5, f'{fil}'.rjust(2, '0'), 'LBR', 0, 'C')
-        pdf.cell(17, 5, f'{num}'.rjust(3, '0'), 'LBR', 0, 'C')
-        pdf.cell(4, 5, '', 0, 0, 'C')
-        pdf.cell(29, 5, f'{cat}', 'LBR', 0, 'C')
-        pdf.cell(34, 5, f'{pant}', 'LBR', 0, 'C')
-        pdf.cell(9, 5, f'{pis}'.rjust(2, '0'), 'LBR', 0, 'C')
-        pdf.cell(9, 5, f'{fil}'.rjust(2, '0'), 'LBR', 0, 'C')
-        pdf.cell(12, 5, f'{num}'.rjust(3, '0'), 'LBR', 1, 'C')
-        pdf.ln(3)
-
-        # Línea 7
-        if per == "Enero - Febrero":
-            pdf.set_font('Arial', 'B', 9)
-            pdf.cell(14, 5, 'Período: ', 'LTB', 0, 'L')
-            pdf.set_font('Arial', '', 9)
-            pdf.cell(44, 5, f'{per} - {int(año)+1}', 'RTB', 0, 'L')
-            pdf.set_font('Arial', 'B', 9)
-            pdf.cell(14, 5, 'Importe:', 'LTB', 0, 'L')
-            pdf.set_font('Arial', '', 9)
-            pdf.cell(21, 5, f'$ {val_mant:.2f}', 'RTB', 0, 'R')
-            pdf.cell(4, 5, '', 0, 0, 'C')
-            pdf.set_font('Arial', 'B', 9)
-            pdf.cell(14, 5, 'Período: ', 'LTB', 0, 'L')
-            pdf.set_font('Arial', '', 9)
-            pdf.cell(44, 5, f'{per} - {int(año)+1}', 'RTB', 0, 'L')
-            pdf.set_font('Arial', 'B', 9)
-            pdf.cell(14, 5, 'Importe:', 'LTB', 0, 'L')
-            pdf.set_font('Arial', '', 9)
-            pdf.cell(21, 5, f'$ {val_mant:.2f}', 'RTB', 1, 'R')
-            pdf.ln(2)
-
-        elif per == "Diciembre - Enero":
-            pdf.set_font('Arial', 'B', 9)
-            pdf.cell(14, 5, 'Período: ', 'LTB', 0, 'L')
-            pdf.set_font('Arial', '', 9)
-            pdf.cell(44, 5, f'{per} - {año}/{int(año[:2])+1}', 'RTB', 0, 'L')
-            pdf.set_font('Arial', 'B', 9)
-            pdf.cell(14, 5, 'Importe:', 'LTB', 0, 'L')
-            pdf.set_font('Arial', '', 9)
-            pdf.cell(21, 5, f'$ {val_mant:.2f}', 'RTB', 0, 'R')
-            pdf.cell(4, 5, '', 0, 0, 'C')
-            pdf.set_font('Arial', 'B', 9)
-            pdf.cell(14, 5, 'Período: ', 'LTB', 0, 'L')
-            pdf.set_font('Arial', '', 9)
-            pdf.cell(44, 5, f'{per} - {año}/{int(año[:2])+1}', 'RTB', 0, 'L')
-            pdf.set_font('Arial', 'B', 9)
-            pdf.cell(14, 5, 'Importe:', 'LTB', 0, 'L')
-            pdf.set_font('Arial', '', 9)
-            pdf.cell(21, 5, f'$ {val_mant:.2f}', 'RTB', 1, 'R')
-            pdf.ln(2)
-
-        else:
-            pdf.set_font('Arial', 'B', 9)
-            pdf.cell(14, 5, 'Período: ', 'LTB', 0, 'L')
-            pdf.set_font('Arial', '', 9)
-            pdf.cell(44, 5, f'{per} - {año}', 'RTB', 0, 'L')
-            pdf.set_font('Arial', 'B', 9)
-            pdf.cell(14, 5, 'Importe:', 'LTB', 0, 'L')
-            pdf.set_font('Arial', '', 9)
-            pdf.cell(21, 5, f'$ {val_mant:.2f}', 'RTB', 0, 'R')
-            pdf.cell(4, 5, '', 0, 0, 'C')
-            pdf.set_font('Arial', 'B', 9)
-            pdf.cell(14, 5, 'Período: ', 'LTB', 0, 'L')
-            pdf.set_font('Arial', '', 9)
-            pdf.cell(44, 5, f'{per} - {año}', 'RTB', 0, 'L')
-            pdf.set_font('Arial', 'B', 9)
-            pdf.cell(14, 5, 'Importe:', 'LTB', 0, 'L')
-            pdf.set_font('Arial', '', 9)
-            pdf.cell(21, 5, f'$ {val_mant:.2f}', 'RTB', 1, 'R')
-            pdf.ln(2)
-
-        # Línea 8
-        q_rec_impagos = len(rend.obtener_recibos_impagos_op(id_o))
-        debe = 0
-
-        if c_f < 0:
-            debe += abs(c_f)
-        debe += q_rec_impagos - 1
-
-        if debe:
-            pdf.cell(93, 4, f'----------- ATENCIÓN: El asociado adeuda {debe} cuotas. ----------', 1, 1, 'C')
-            # Margen
-            pdf.cell(190, 13, ' ', 0, 1, 'L')
-
-        else:
-            pdf.cell(190, 17, ' ', 0, 1, 'L')
-
-        counter += 1
-        mant.barra_progreso(counter, len(recibos), titulo=f'Morella v{mant.VERSION} - MF! Soluciones informáticas', solo_titulo=True)
-
-    os.system(f'TITLE Morella v{mant.VERSION} - MF! Soluciones informáticas')
-
-    try:
-        # Crea la carpeta si no existe.
-        if not os.path.isdir(mant.re_path(f'reports/recibos/{nco}')):
-            os.mkdir(mant.re_path(f'reports/recibos/{nco}'))
-
-        # Evita sobreescribir un archivo existente
-        output_counter = 0
-        output_name = f"reimpresion_recibos_{periodo}.pdf"
-
-        while os.path.isfile(mant.re_path(f'reports/recibos/{nco}/{output_name}')):
-            output_counter += 1
-            output_name = f"reimpresion_recibos_{periodo}_({output_counter}).pdf"
-
-        pdf.output(mant.re_path(f'reports/recibos/{nco}/{output_name}'), 'F')
-
-        ############ ABRIR REPORT ############
-
-        if errores:
-            print('\n\n\n\n')
-            print('     ATENCIÓN! Durante la emisión de los recibos se produjeron los siguientes errores:')
-            print()
-            pprint(errores)
-            print('\n\n\n\n')
-
-        print("Abriendo recibos...")
-
-        ruta = mant.re_path(f'reports/recibos/{nco}/')
-        arch = output_name.replace('(', '^(')
-        os.chdir(ruta)
-        os.system(arch)
-
-        ruta = mant.MODULES_DIR
-        os.chdir(ruta)
-
-    except UnboundLocalError:
-        print()
-        print("No se encontraron recibos.")
-        print()
-    except Exception as e:
-        mant.manejar_excepcion_gral(e)
-        print("")
-        print()
-        return
-
-############################################### FIN DE REPORT ###################################################
-
-
-
-
-#################################################################################################################
-###################################### REIMPRESIÓN DE LISTADO DE RENDICIÓN ######################################
-#################################################################################################################
-
-def reimpresion_listado_rendicion(id_cobrador: int, recibos: list, facturacion: str):
-    """Genera un reporte en PDF que contiene un listado con la información de todos
-    los recibos recibidos como parámetro, luego lo guarda y lo abre con el programa
-    predeterminado.
-
-    El listado se reimprime con datos y valores actualizados.
-
-    Para el parámetro `recibos` se debe utilizar la siguiente query:
-
-    .. code-block:: sql
-        SELECT
-            r.nro_recibo,
-            r.operacion,
-            r.periodo,
-            r.año,
-            o.nicho,
-            o.cobrador,
-            o.ruta,
-            o.cuotas_favor,
-            o.nombre_alt,
-            o.domicilio_alt,
-            s.nro_socio,
-            s.nombre,
-            s.domicilio,
-            s.localidad,
-            s.cod_postal
-        FROM
-            recibos r
-            JOIN operaciones o ON r.operacion = o.id
-            JOIN socios s ON o.socio = s.nro_socio
-        ...
-        ;
-
-    :param id_cobrador: ID de cobrador.
-    :type id_cobrador: int
-
-    :param recibos: Listado de recibos (unidos a operacion y socio) a listar. Esquema a recibir:\
-        `list[(ndr, id_o, per, año, nic, cob, rut, c_f, nom_alt, dom_alt, nro, nom, dom, loc, c_p)]`
-    :type recibos: list
-
-    :param facturacion: Tipo de facturación (bicon o nob).
-    :type facturacion: str
-    """
-    ############ INICIO DE VARIABLES INDEPENDIENTES ############
-
-    counter = 0
-    errores = {}
-    fecha = caja.obtener_fecha()
-    hora = datetime.now().strftime('%H:%M')
-    imp_acu = float(0)
-    nco = caja.obtener_nom_cobrador(id_cobrador)
-    periodo= ''
-
-    ############ FIN DE VARIABLES INDEPENDIENTES ############
-
-
-    ############ INICIO DE FUNCIONES ############
-
-    ############ FIN DE FUNCIONES ############
-
-
-    ############ INICIO DE VARIABLES DEPENDIENTES ############
-
-    ########### FIN DE VARIABLES DEPENDIENTES ############
-
-
-    ############ INICIO DE REPORT ############
-    class PDF(FPDF):
-        # Page header
-        def header(self):
-            """Escribe un encabezado para cada página del documento.
-
-            Contenido:
-            - Logo de la empresa.
-            - Título del documento (Arial Negrita 15p).
-            - Cobrador.
-            - Fecha y hora (Arial 10p).
-            - Nombres de columnas (Arial Negrita 15p):
-              - Socio/a.
-              - Apellido y nombre.
-              - Domicilio.
-              - Ruta.
-              - Importe.
-            """
-            # Logo
-            self.image(mant.re_path('docs/logo_bicon.jpg'), 14.5, 12, 15)
-            # Arial bold 15
-            self.set_font('Arial', 'B', 15)
-            # Title
-            self.cell(0, 20, 'LISTADO DE RECIBOS EMITIDOS (REIMPRESIÓN)', 1, 0, 'C')
-            # Arial 10
-            self.set_font('Arial', '', 10)
-            # Fecha
-            self.cell(0, 35, f'{fecha} - {hora} hs', 0, 0, 'R')
-            # N° de cierre
-            self.set_font('Arial', 'B', 10)
-            self.cell(-77, 35, f'Cobrador: {nco}', 0, 0, 'R')
-            # Line break
-            self.ln(22)
-            self.cell(14, 5, 'Socio/a', 0, 0, 'L ')
-            self.cell(65, 5, 'Apellido y Nombre', 0, 0, 'L')
-            pdf.cell(1, 5, '', 0, 0, 'L')
-            self.cell(79, 5, 'Domicilio', 0, 0, 'L')
-            pdf.cell(1, 5, '', 0, 0, 'L')
-            self.cell(15, 5, 'Ruta', 0, 0, 'L')
-            pdf.cell(20, 5, 'Importe', 0, 1, 'L')
-            self.cell(0, 1, '_________________________________________________________________________________________________', 0, 1, 'C')
-            self.ln(3)
-            
-        # Page footer
-        def footer(self):
-            """Escribe un pie para cada página del documento.
-
-            Contenido:
-            - Número y total de páginas.
-            - Nombre y versión de Morella.
-            - Logo de MF! Soluciones Informáticas.
-            """
-            # Position at 3 cm from bottom
-            self.set_y(-30)
-            # Arial italic 8
-            self.set_font('Arial', 'I', 8)
-            self.cell(0, 5, '* El asociado adeuda cuotas', 0, 1, 'L')
-            self.cell(0, 1, '_______________________________________________________________________________________________', 0, 1, 'C')
-            # Page number
-            self.cell(0, 10, 'Página ' + str(self.page_no()) + ' de {nb}', 0, 0, 'C')
-            # Firma
-            self.set_font('Arial', 'I', 8)
-            self.cell(-10, 10, f'Reporte generado en *MORELLA v{mant.SHORT_VERSION}* by ', 0, 0, 'R')
-            self.image(mant.re_path('docs/mf_logo.jpg'), 190, 274, 8)
-
-    # Instantiation of inherited class
-    pdf = PDF()
-
-    pdf.set_auto_page_break(True, 30)
-    pdf.alias_nb_pages()
-    pdf.add_page()
-
-    for rec in recibos:
-        _, id_o, per, año, nic, _, rut, c_f, nom_alt, dom_alt, nro, nom, dom, _, _ = rec
-
-        if not periodo: periodo = f"{año}_{per}".replace(' ', '')
-
-        try:
-            _, _, _, _, _, cat, _, _ = rend.obtener_datos_nicho(nic)
-
-        except TypeError:
-            continue
-
-        counter += 1
-
-        _, cat, val_mant_bic, val_mant_nob = rend.obtener_categoria(cat)
-
-        nombre = nom_alt or nom if len(nom_alt or nom) < 36 else (nom_alt or nom)[:33] + '...'
-        domicilio = dom_alt or dom if len(dom_alt or dom) < 36 else (dom_alt or dom)[:33] + '...'
-
-        val_mant = val_mant_nob if facturacion == 'nob' else val_mant_bic
-
-        q_rec_impagos = len(rend.obtener_recibos_impagos_op(id_o))
-        debe = 0
-
-        if c_f < 0:
-            debe += abs(c_f)
-        debe += q_rec_impagos
-
-        if q_rec_impagos:
-            if rend.obtener_recibos_impagos_op(id_o)[-1][2] == per:
-                debe -= 1
-
-        pdf.set_font('Arial', '', 10)
-
-        if debe > 0:
-            pdf.cell(14, 5, f'{nro}'.rjust(6, '0'), 0, 0, 'L ')
-            pdf.cell(65,5, f'{nombre}*', 0, 0, 'L')
-            pdf.cell(1, 5, '', 0, 0, 'L')
-            pdf.cell(79, 5, f'{domicilio}', 0, 0, 'L')
-            pdf.cell(1, 5, '', 0, 0, 'L')
-            pdf.cell(10, 5, f'{rut}'.rjust(3, '0'), 0, 0, 'L')
-            pdf.cell(20, 5, f'{val_mant:.2f}', 0, 1, 'R')
-            imp_acu = imp_acu + float(val_mant)
-        
-        else:
-            pdf.cell(14, 5, f'{nro}'.rjust(6, '0'), 0, 0, 'L ')
-            pdf.cell(65,5, f'{nombre}', 0, 0, 'L')
-            pdf.cell(1, 5, '', 0, 0, 'L')
-            pdf.cell(79, 5, f'{domicilio}', 0, 0, 'L')
-            pdf.cell(1, 5, '', 0, 0, 'L')
-            pdf.cell(10, 5, f'{rut}'.rjust(3, '0'), 0, 0, 'L')
-            pdf.cell(20, 5, f'{val_mant:.2f}', 0, 1, 'R')
-            imp_acu = imp_acu + float(val_mant)
-
-    pdf.ln(2)
-    pdf.cell(91, 5, '', 0, 0, 'L')
-    pdf.cell(33, 5, 'Cantidad de recibos:', 'LTB', 0, 'L')
-    pdf.cell(8, 5, f'{len(recibos)}', 'RTB', 0, 'R')
-    pdf.cell(2, 5, '', 0, 0, 'L')
-    pdf.cell(33, 5, 'Importe acumulado:', 'LTB', 0, 'L')
-    pdf.cell(23, 5, f'$ {imp_acu:.2f}', 'RTB', 0, 'R')
-    
-    try:
-        # Crea la carpeta si no existe
-        if not os.path.isdir(mant.re_path(f'reports/recibos/{nco}')):
-            os.mkdir(mant.re_path(f'reports/recibos/{nco}'))
-    
-        # Evita sobreescribir un archivo existente
-        output_counter = 0
-        output_name = f"reimpresion_listado_{periodo}.pdf"
-    
-        while os.path.isfile(mant.re_path(f'reports/recibos/{nco}/{output_name}')):
-            output_counter += 1
-            output_name = f'reimpresion_listado_{periodo}_({output_counter}).pdf'
-        
-        pdf.output(mant.re_path(f'reports/recibos/{nco}/{output_name}'), 'F')
-
-    ############ ABRIR REPORT ############
-
-        if errores:
-            print('\n\n\n\n')
-            print('     ATENCIÓN! Durante la emisión del listado se produjeron los siguientes errores:')
-            print()
-            pprint(errores)
-            print('\n\n\n\n')
-            
-        print("Abriendo Listado...")
-        
-        ruta = mant.re_path(f'reports/recibos/{nco}/')
-        arch = output_name.replace('(', '^(')
-        os.chdir(ruta)
-        os.system(arch)
-        
-        ruta = mant.MODULES_DIR
-        os.chdir(ruta)
-    
-    except UnboundLocalError:
-        print()
-        print("No se encontraron recibos.")
-        print()
-    except Exception as e:
-        mant.manejar_excepcion_gral(e)
-        print()
-        return
-          
 ############################################### FIN DE REPORT ###################################################
 
 

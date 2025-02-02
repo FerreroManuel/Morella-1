@@ -1,4 +1,5 @@
 import os
+import json
 import psycopg2 as sql
 import psycopg2.errors
 
@@ -619,63 +620,96 @@ def emitir_recibos():
     
         ncobrador = caja.obtener_nom_cobrador(cobrador)
         periodo = obtener_periodo()
+        año = obtener_año_periodo(periodo)
         print()
     
-        msj = input(f"¿Emitir recibos de {periodo}, de {facturacion.upper()} - {ncobrador}? (S/N) ")
+        msj = input(f"¿Emitir recibos de {periodo} {año}, de {facturacion.upper()} - {ncobrador}? (S/N) ")
         while msj != "S" and msj != "N":
     
             if msj in mant.AFIRMATIVO:
                 msj = "S"
+                init_dict = {
+                    "last_stage": "init",
+                    "segment": facturacion,
+                    "period": periodo,
+                    "year": año,
+                }
+
+                
+                err = actualizar_temp(cobrador, init_dict, init=True).get("error", {})
+                if err:
+                    misma_emision = err["period"] + err["year"] == periodo + año
+
+                    if not misma_emision:
+                        print()
+                        print("ATENCIÓN! se encontró una emisión de recibos anterior interrumpida:")
+                        print(f"\t- Facturación: {err['segment']}")
+                        print(f"\t- Período: {err['period']} {err['year']}")
+                        print()
+                        input("Presione enter para continuar...")
+                
                 print()
                 print("POR FAVOR, NO CIERRE LA APLICACIÓN NI APAGUE EL SISTEMA MIENTRAS SE REALIZAN LAS ACCIONES SOLICITADAS")
                 print()
-                
-                # Buscando y corrigiendo cuotas a favor afectadas por el error corregido con el Fix #23041301
-                print('Corrigiendo posibles errores en cuotas a favor...')
-                print()
-                _mes = datetime.now().strftime('%m')
-                _año = datetime.now().strftime('%Y')
-                prox_mes = (datetime.strptime(f'{_mes}/{_año}', '%m/%Y') + rd(months=1)).strftime('%m/%Y')
 
-                ops_arregladas = []
+                print('[ ] Corrigiendo posibles errores en cuotas a favor', end=" ", flush=True)
+                ops_arregladas = arreglar_cuotas_favor(facturacion, cobrador)
+                print("\r[✓]")
+                tmp_file = actualizar_temp(cobrador, {"last_stage": "fix_cf", "fixed_cf_ops": ops_arregladas})
 
-                for op in buscar_recibos(facturacion, cobrador):
-                    id_o, _, _, _, _, _, _, _, _, fup, _, c_f, _, _, _, _, _ = op
-                    
-                    if c_f == 1 and fup != prox_mes:
-                        mant.edit_registro('operaciones', 'cuotas_favor', 0, id_o)
-                        ops_arregladas.append(id_o)
-
-                # Arreglando posibles inconsistencias en pagos de recibos
+                print("[ ] Corrigiendo posibles incosistencias en pagos", end=" ", flush=True)
                 arreglar_inconsistencias_en_pagos()
+                print("\r[✓]")
+                tmp_file = actualizar_temp(cobrador, {"last_stage": "fix_inconsistences"})
 
-                print("Emitiendo recibos...")
-                print()
-                recibos = buscar_recibos(facturacion, cobrador)
+                print("[ ] Actualizando cuotas a favor", end=" ", flush=True)
+                cf_ops = descontar_coutas_favor(facturacion, cobrador)
+                print("\r[✓]")
+                tmp_file = actualizar_temp(cobrador, {"last_stage": "update_cf", "ops_with_cf": cf_ops })
 
+                print("[ ] Ingresando recibos a la base de datos", end=" ", flush=True)
+                recibos = generar_recibos(facturacion, cobrador)
+                print("\r[✓]")
+                tmp_file = actualizar_temp(cobrador, {"last_stage": "gen_recs", "sub_stage": None})
 
-                # NO débito automático
-                if cobrador != 6:
-                    thread1 = Thread(target=rep.recibos, args=(facturacion, recibos))
-                    thread2 = Thread(target=rep.listado_recibos, args=(cobrador, recibos, ops_arregladas))
+                recibos = recibos or err.get("inserted_recs")
+                if not recibos:
+                    print()
+                    print("No se encontraron recibos...")
+                    print()
+
+                else:
+                    print()
+                    print("Generando reportes para imprimir...")
+                    print()
+
+                    # NO débito automático
+                    if cobrador != 6:
+                        thread1 = Thread(target=rep.recibos, args=(cobrador, facturacion, periodo, año))
+                        thread2 = Thread(target=rep.listado_recibos, args=(cobrador, facturacion, periodo, año, ops_arregladas))
+
+                    # Débito automático
+                    else:
+                        thread1 = Thread(target=rep.recibos_deb_aut, args=(facturacion, periodo, año))
+                        thread2 = Thread(target=rep.listado_recibos_deb_aut, args=(facturacion, periodo, año, ops_arregladas))
+
                     thread1.start()
                     thread2.start()
                     thread1.join()
                     thread2.join()
 
-                # Débito automático
-                elif cobrador == 6:
-                    thread1 = Thread(target=rep.recibos_deb_aut, args=(recibos))
-                    thread2 = Thread(target=rep.listado_recibos_deb_aut, args=(recibos))
-                    thread1.start()
-                    thread2.start()
-                    thread1.join()
-                    thread2.join()
+                    actualizar_temp(cobrador, eliminar=True)
 
-                recibos_generados = contar_recibos_impagos_por_periodo_y_cobrador(cobrador, periodo, _año)
-                print()
-                print(f"Se generaron correctamente {recibos_generados} recibos.")
-                print()
+                    print()
+                    print(f"Se generaron correctamente {len(recibos)} recibos.")
+                    print()
+
+                if tmp_file.get('missing_card'):
+                    missing_card = ', '.join([str(id).rjust(7, '0') for id in tmp_file['missing_card']])
+                    print(f"\tATENCIÓN! Las siguientes operaciones no fueron procesadas por falta de tarjeta: {missing_card}")
+                    print()
+                    input("Presione enter para continuar...")
+                    print()
 
                 return
 
@@ -1582,6 +1616,22 @@ def obtener_periodo() -> str:
     return periodo_siguiente
 
 
+def obtener_año_periodo(periodo: str) -> str:
+    """Obtiene el año actual y lo retorna como cadena, si el
+    período recibido es Enero - Febrero, retorna el año siguiente
+
+    :param periodo: Período bimestral
+    :type periodo: str
+    """
+    
+    año = datetime.now().strftime('%Y')
+
+    if periodo == "Enero - Febrero":
+        return f"{int(año)+1}"
+
+    return año
+
+
 def obtener_periodo_anterior(periodo_actual: str) -> str:
     """Recibe una cadena con el período actual y retorna otra con el período anterior.
 
@@ -1829,6 +1879,35 @@ def buscar_recibos_impagos(id_op: int) -> list:
     return datos
 
 
+def arreglar_cuotas_favor(facturacion: str, cobrador: int) -> list:
+    """Corrige todos los errores en cuotas a favor de las operaciones pertenecientes
+    a un cobrador y facturación específicos.
+
+    :param facturacion: Tipo de facturación ("bicon" | 'nob')
+    :type facturacion: str
+
+    :param cobrador: ID del cobrador
+    :type cobrador: int
+    """
+    ult_rec = mant.obtener_ult_rec_str()
+    prox_mes = (datetime.now() + rd(months=1)).strftime("%m/%Y")
+
+    instruccion = f"""\
+        UPDATE operaciones
+        SET cuotas_favor = 0
+        WHERE facturacion = '{facturacion}'
+        AND cobrador = '{cobrador}'
+        AND paga = 1
+        AND ult_rec != '{ult_rec}'
+        AND cuotas_favor = 1
+        AND fecha_ult_pago != '{prox_mes}'
+    """
+
+    ops = mant.run_query(instruccion, fetch="all")
+
+    return [op[0] for op in ops]
+
+
 def arreglar_inconsistencias_en_pagos():
     """Establece como pago todo recibo impago que su operación, periodo y año
     coincida con un recibo pago. Esto puede suceder cuando se dan errores de
@@ -1929,6 +2008,11 @@ def reimprimir_rendicion():
     id_cobrador = menu_cobradores()
     if not id_cobrador: return
 
+    if id_cobrador == 6:
+        print("No se puede reimprimir listado de débito automático")
+        print()
+        return
+
     periodo = menu_periodos()
     if not periodo: return
 
@@ -1963,49 +2047,11 @@ def reimprimir_rendicion():
 
         if msj in mant.AFIRMATIVO:
             print()
-            instruccion = f"""\
-                SELECT
-                    r.nro_recibo,
-                    r.operacion,
-                    r.periodo,
-                    r.año,
-                    o.nicho,
-                    o.cobrador,
-                    o.ruta,
-                    o.cuotas_favor,
-                    o.nombre_alt,
-                    o.domicilio_alt,
-                    s.nro_socio,
-                    s.nombre,
-                    s.domicilio,
-                    s.localidad,
-                    s.cod_postal
-                FROM
-                    recibos r
-                    JOIN operaciones o ON r.operacion = o.id
-                    JOIN socios s ON o.socio = s.nro_socio
-                WHERE
-                    o.paga = 1
-                    AND s.activo = 1
-                    AND r.pago = 0
-                    AND o.cobrador = {id_cobrador}
-                    AND r.periodo = '{periodo[1]}'
-                    AND r.año = '{año}';
-                """
-
-            try:
-                recibos = mant.run_query(instruccion, fetch="all")
-
-            except Exception as e:
-                    mant.manejar_excepcion_gral(e)
-                    print()
-                    return
-
-            print(f"Reimprimiendo {len(recibos)} recibos actualizados. Por favor aguarde...")
+            print(f"Reimprimiendo recibos actualizados. Por favor aguarde...")
             print()
 
-            thread1 = Thread(target=rep.reimpresion_rendicion, args=(recibos, facturacion))
-            thread2 = Thread(target=rep.reimpresion_listado_rendicion, args=(id_cobrador, recibos, facturacion))
+            thread1 = Thread(target=rep.recibos, args=(id_cobrador, facturacion, periodo[1], año, True))
+            thread2 = Thread(target=rep.listado_recibos, args=(id_cobrador, facturacion, periodo[1], año, [], True))
             thread1.start()
             thread2.start()
             thread1.join()
@@ -2019,3 +2065,196 @@ def reimprimir_rendicion():
             print("Debe ingresar S para confirmar o N para cancelar.")
             print()
             msj = ''
+
+
+def descontar_coutas_favor(facturacion: str, cobrador: int) -> list:
+    """Busca todas las operaciones activas que pagan, con cuotas a favor 
+    para el período actual, de un cobrador y una facturación específica
+    y les descuenta una cuota a favor.
+
+    :param facturacion: Tipo de facturación ("bicon" o "nob")
+    :type facturacion: str
+
+    :param cobrador: ID del cobrador
+    :type cobrador: int
+
+    :returns: Cantidad de operaciones actualizadas
+    """
+    mes = datetime.now().strftime('%m')
+    año2c = datetime.now().strftime('%y')
+    ult_rec = f"{mes}-{año2c}"
+    mant.obtener_ult_rec_str()
+
+    select_query = f"""
+    SELECT o.id
+    FROM operaciones o
+    JOIN socios s
+    ON o.socio = s.nro_socio
+    WHERE o.facturacion = '{facturacion}'
+    AND o.cobrador = '{cobrador}'
+    AND o.paga = 1
+    AND o.nicho IS NOT NULL
+    AND s.activo = 1
+    AND o.cuotas_favor > 0
+    AND o.ult_rec != '{ult_rec}'
+    """
+
+    update_query = f"""
+    UPDATE operaciones
+    SET cuotas_favor = cuotas_favor - 1,
+    ult_rec = '{ult_rec}'
+    WHERE id IN ({select_query})
+    """
+
+    actualizadas = mant.run_query(update_query, fetch="all")
+
+    return [op[0] for op in actualizadas]
+
+
+def generar_recibos(facturacion: str, cobrador: int):
+    """Selecciona todos las operaciones de un cobrador y facturación espcíficos a las
+    cuales les corresponde generarse recibos y genera los recibos correspondientes.
+
+    :param facturacion: Tipo de facturación ("bicon" | 'nob')
+    :type facturacion: str
+
+    :param cobrador: ID del cobrador
+    :type cobrador: int
+    """
+    periodo = obtener_periodo()
+    año = obtener_año_periodo(periodo)
+    ult_rec = mant.obtener_ult_rec_str()
+
+    query_select_op_ids = f"""\
+        SELECT id
+        FROM operaciones o
+        JOIN socios s
+        ON o.socio = s.nro_socio
+        WHERE o.facturacion = '{facturacion}'
+        AND o.cobrador = '{cobrador}'
+        AND o.paga = 1
+        AND o.nicho IS NOT NULL
+        AND s.activo = 1
+        AND o.id NOT IN (
+            SELECT id
+            FROM operaciones
+            WHERE cuotas_favor > 0
+            AND ult_rec != '{ult_rec}'
+        )
+        AND ult_rec != '{ult_rec}'
+        """
+    
+    if cobrador == 6:
+        query_select_sin_tarjeta = query_select_op_ids + "\nAND o.tarjeta IS NULL"
+
+        ops_sin_tarjeta = mant.run_query(query_select_sin_tarjeta, fetch="all")
+        
+        if ops_sin_tarjeta:
+            missing_card_ids = [op[0] for op in ops_sin_tarjeta ]
+            actualizar_temp(cobrador, {"missing_card": missing_card_ids})
+
+        query_select_op_ids += "\nAND o.tarjeta IS NOT NULL"
+
+    ops = mant.run_query(query_select_op_ids, fetch="all")
+
+    op_ids = [op[0] for op in ops]
+
+    actualizar_temp(cobrador, {"sub_stage": "select", "selected_ops": op_ids})
+
+    sub_query_select = query_select_op_ids.replace("SELECT id", f"SELECT id, '{periodo}', '{año}'", 1)
+
+    query_insert_recibos = f"""\
+        INSERT INTO recibos (operacion, periodo, año)
+        {sub_query_select}
+    """
+
+    recs = mant.run_query(query_insert_recibos, fetch="all")
+
+    rec_ids = [rec[0] for rec in recs]
+
+    actualizar_temp(cobrador, {"sub_stage": "insert", "inserted_recs": rec_ids, "recs_qty": len(rec_ids)})
+
+    query_update_ops = f"""\
+        UPDATE operaciones
+        SET ult_rec = '{ult_rec}'
+        WHERE id IN ({query_select_op_ids})
+    """
+
+    upd_ops = mant.run_query(query_update_ops, fetch="all")
+
+    upd_op_ids = [op[0] for op in upd_ops]
+
+    actualizar_temp(cobrador, {"sub_stage": "update", "updated_ops": upd_op_ids})
+
+    return rec_ids
+
+
+def actualizar_temp(cobrador: int, data: dict = {}, eliminar: bool = False, init: bool = False) -> dict | None:
+    """Actualiza el archivo temporal que se crea durante la generación de 
+    recibos con la información recibida o lo elimina según el caso.
+
+    Si se indica que es la actualización inicial de estado y el archivo
+    ya existe, guarda una copia y retorna el archivo actual en una llave
+    de error
+
+    :param cobrador: ID del cobrador
+    :type cobrador: int
+
+    :param data: Información a guardar en el archivo (Opcional)
+    :type data: dict
+
+    :param eliminar: Bandera para eliminar el archivo (Opcional)
+    :type eliminar: bool
+
+    :param init: Indica si la actualización inicial
+    :param init: bool
+
+    :returns: La información del archivo actualizada
+    """
+    if not data and not eliminar:
+        raise ValueError("Obligatorio pasar data o eliminar")
+
+    nco = caja.obtener_nom_cobrador(cobrador)
+    rep_path = mant.re_path(f"reports")
+    ult_rec = mant.obtener_ult_rec_str()
+    filepath = f"{rep_path}/recibos/{nco}"
+    filename = f"{filepath}/{ult_rec}.tmp"
+    existe = os.path.isfile(filename)
+
+    if existe and eliminar:
+        os.remove(filename)
+        return
+
+    if not os.path.isdir(filepath):
+        os.mkdir(filepath)
+
+    if existe:
+        with open(filename, "r") as file:
+            contenido = file.read()
+
+        contenido = json.loads(contenido)
+
+        if init:
+            hoy = datetime.now().isoformat("_").split(".")[0]
+            hoy = hoy.replace(":", "-")
+            err_filepath = f"{rep_path}/temp"
+            err_filename = f"{err_filepath}/err_{nco}_{hoy}.json"
+
+            if not os.path.isdir(err_filepath):
+              os.mkdir(err_filepath)
+
+            with open(err_filename, "w") as file:
+                file.write(json.dumps(contenido))
+
+            return {"error": contenido}
+
+        contenido.update(data)
+
+        data = contenido
+
+    dumped_data = json.dumps(data)
+
+    with open(filename, "w" if existe else "x") as temp_file:
+        temp_file.write(dumped_data)
+
+    return data
