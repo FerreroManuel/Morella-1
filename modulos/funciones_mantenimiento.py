@@ -198,7 +198,7 @@ def barra_progreso(progreso: int, total: int, titulo:str=None, solo_titulo=False
             os.system(f'TITLE PROGRESO: {porcentaje:.2f}%')
     else:
         barra = ('#' * int(porcentaje) + '-' * (100 - int(porcentaje)))
-        print(f"\r [{barra}] {porcentaje:.2f}%", end='\r')
+        print(f"\r [{barra}] {porcentaje:.2f}%", end='\r', flush=True)
         if titulo:
             os.system(f'TITLE {titulo}  -  PROGRESO: {porcentaje:.2f}%')
         else:
