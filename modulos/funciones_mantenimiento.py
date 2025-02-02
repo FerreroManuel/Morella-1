@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-VERSION = '1.5.0.2409'
+VERSION = '1.6.0.2502'
 SHORT_VERSION = VERSION[:3]
 TYPE_VERSION = 'BETA'
 
