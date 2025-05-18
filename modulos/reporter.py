@@ -1513,10 +1513,10 @@ def recibos(cobrador: int, facturacion: str, periodo: str, año: str, reimpresio
             AND rec.periodo = '{periodo}'
             AND rec.año = '{año}'
         ORDER BY
+            rec.nro_recibo,
             ops.ruta,
             ops.socio,
-            ops.id,
-            rec.nro_recibo
+            ops.id
         """
 
     try:

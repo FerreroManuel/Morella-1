@@ -2142,6 +2142,10 @@ def generar_recibos(facturacion: str, cobrador: int):
             AND ult_rec != '{ult_rec}'
         )
         AND ult_rec != '{ult_rec}'
+        ORDER BY
+            o.ruta,
+            o.socio,
+            o.id
         """
     
     if cobrador == 6:
