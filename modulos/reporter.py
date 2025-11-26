@@ -1781,7 +1781,7 @@ def recibos(cobrador: int, facturacion: str, periodo: str, año: str, reimpresio
             pdf.set_font('Arial', 'B', 9)
             pdf.cell(14, 5, 'Período: ', 'LTB', 0, 'L')
             pdf.set_font('Arial', '', 9)
-            pdf.cell(44, 5, f'{per} - {año}/{int(año[:2])+1}', 'RTB', 0, 'L')
+            pdf.cell(44, 5, f'{per} - {año}/{int(año[2:])+1}', 'RTB', 0, 'L')
             pdf.set_font('Arial', 'B', 9)
             pdf.cell(14, 5, 'Importe:', 'LTB', 0, 'L')
             pdf.set_font('Arial', '', 9)
@@ -1790,7 +1790,7 @@ def recibos(cobrador: int, facturacion: str, periodo: str, año: str, reimpresio
             pdf.set_font('Arial', 'B', 9)
             pdf.cell(14, 5, 'Período: ', 'LTB', 0, 'L')
             pdf.set_font('Arial', '', 9)
-            pdf.cell(44, 5, f'{per} - {año}/{int(año[:2])+1}', 'RTB', 0, 'L')
+            pdf.cell(44, 5, f'{per} - {año}/{int(año[2:])+1}', 'RTB', 0, 'L')
             pdf.set_font('Arial', 'B', 9)
             pdf.cell(14, 5, 'Importe:', 'LTB', 0, 'L')
             pdf.set_font('Arial', '', 9)
@@ -2339,7 +2339,7 @@ def recibos_deb_aut(facturacion: str, periodo: str, año: str):
             pdf.set_font('Arial', 'B', 9)
             pdf.cell(14, 5, 'Período: ', 'LTB', 0, 'L')
             pdf.set_font('Arial', '', 9)
-            pdf.cell(54, 5, f'{periodo} - {año}/{int(año[:2])+1}', 'RTB', 0, 'L')
+            pdf.cell(54, 5, f'{periodo} - {año}/{int(año[2:])+1}', 'RTB', 0, 'L')
             pdf.set_font('Arial', '', 9)
             pdf.cell(17, 5, f'$ {val_mant:.2f}', 'RTB', 1, 'C')
             pdf.ln(2)
@@ -2480,52 +2480,52 @@ def listado_recibos_deb_aut(facturacion: str, periodo: str, año: str, ops_arreg
     ############ INICIO DE VARIABLES DEPENDIENTES ###########
 
     if periodo == 'Enero - Febrero':
-        periodo_fiserv = f"1/{año[:2]} "
-        vto_fiserv = f"2802{año[:2]}"
+        periodo_fiserv = f"1/{año[2:]} "
+        vto_fiserv = f"2802{año[2:]}"
     
     elif periodo == 'Febrero - Marzo':
-        periodo_fiserv = f"1/{año[:2]} "
-        vto_fiserv = f"3103{año[:2]}"
+        periodo_fiserv = f"1/{año[2:]} "
+        vto_fiserv = f"3103{año[2:]}"
     
     elif periodo == 'Marzo - Abril':
-        periodo_fiserv = f"2/{año[:2]} "
-        vto_fiserv = f"3004{año[:2]}"
+        periodo_fiserv = f"2/{año[2:]} "
+        vto_fiserv = f"3004{año[2:]}"
     
     elif periodo == 'Abril - Mayo':
-        periodo_fiserv = f"2/{año[:2]} "
-        vto_fiserv = f"3105{año[:2]}"
+        periodo_fiserv = f"2/{año[2:]} "
+        vto_fiserv = f"3105{año[2:]}"
     
     elif periodo == 'Mayo - Junio':
-        periodo_fiserv = f"3/{año[:2]} "
-        vto_fiserv = f"3006{año[:2]}"
+        periodo_fiserv = f"3/{año[2:]} "
+        vto_fiserv = f"3006{año[2:]}"
 
     elif periodo == 'Junio - Julio':
-        periodo_fiserv = f"3/{año[:2]} "
-        vto_fiserv = f"3107{año[:2]}"
+        periodo_fiserv = f"3/{año[2:]} "
+        vto_fiserv = f"3107{año[2:]}"
 
     elif periodo == 'Julio - Agosto':
-        periodo_fiserv = f"4/{año[:2]} "
-        vto_fiserv = f"3108{año[:2]}"
+        periodo_fiserv = f"4/{año[2:]} "
+        vto_fiserv = f"3108{año[2:]}"
 
     elif periodo == 'Agosto - Septiembre':
-        periodo_fiserv = f"4/{año[:2]} "
-        vto_fiserv = f"3009{año[:2]}"
+        periodo_fiserv = f"4/{año[2:]} "
+        vto_fiserv = f"3009{año[2:]}"
 
     elif periodo == 'Septiembre - Octubre':
-        periodo_fiserv = f"5/{año[:2]} "
-        vto_fiserv = f"3110{año[:2]}"
+        periodo_fiserv = f"5/{año[2:]} "
+        vto_fiserv = f"3110{año[2:]}"
     
     elif periodo == 'Octubre - Noviembre':
-        periodo_fiserv = f"5/{año[:2]} "
-        vto_fiserv = f"3011{año[:2]}"
+        periodo_fiserv = f"5/{año[2:]} "
+        vto_fiserv = f"3011{año[2:]}"
     
     elif periodo == 'Noviembre - Diciembre':
-        periodo_fiserv = f"6/{año[:2]} "
-        vto_fiserv = f"3112{año[:2]}"
+        periodo_fiserv = f"6/{año[2:]} "
+        vto_fiserv = f"3112{año[2:]}"
     
     elif periodo == 'Diciembre - Enero':
-        periodo_fiserv = f"6/{año[:2]} "
-        vto_fiserv = f"3101{año[:2]+1}"
+        periodo_fiserv = f"6/{año[2:]} "
+        vto_fiserv = f"3101{año[2:]+1}"
 
     ########### FIN DE VARIABLES DEPENDIENTES ############
     
@@ -2680,7 +2680,7 @@ def listado_recibos_deb_aut(facturacion: str, periodo: str, año: str, ops_arreg
 
     # Escritura de la cabecera de la presentacíon
     with open(mant.re_path(f'reports/presentaciones_fiserv/{output_name}'), 'w') as presentacion:
-        presentacion.write(f"{nro_comercio_fiserv}1{dia}{mes}{año[:2]}{str(contador_fiserv).rjust(7, '0')}0{str(int(val_total)).rjust(12, '0')}00{91*filler}")
+        presentacion.write(f"{nro_comercio_fiserv}1{dia}{mes}{año[2:]}{str(contador_fiserv).rjust(7, '0')}0{str(int(val_total)).rjust(12, '0')}00{91*filler}")
 
     # Escritura del detalle de la presentación
     try:
