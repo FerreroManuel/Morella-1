@@ -1,12 +1,12 @@
 import os
 from pathlib import Path
 
-VERSION = '1.6.2.2511'
+VERSION = '1.6.3.2512'
 SHORT_VERSION = VERSION[:3]
 TYPE_VERSION = 'BETA'
 
-# DEV_EMAIL = 'contacto@manuelferrero.com.ar'
-DEV_EMAIL = 'manuel.ferrero@hotmail.com'
+DEV_EMAIL = 'contacto@manuelferrero.com.ar'
+# DEV_EMAIL = 'manuel.ferrero@hotmail.com'
 
 MODULES_DIR = os.getcwd()
 BASE_DIR = Path(MODULES_DIR).resolve().parent
