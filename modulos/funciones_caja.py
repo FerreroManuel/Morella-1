@@ -424,7 +424,7 @@ def menu_oficinas() -> int:                                                     
     print()
     print("Seleccione una oficina")
     print()
-    print("   1. Córdoba 2915")
+    print("   1. Francia 167")
     print("   2. Gálvez")
     print("   3. Arroyo")
     print("   4. Panteón NOB")
@@ -480,8 +480,8 @@ def reg_gastos_of(idu: int):
     while oficina != 0:
         oficina = menu_oficinas()
     
-        if oficina == 1:    # Gastos oficina Córdoba 2915
-            categoria = "Gastos oficina Córdoba 2915"
+        if oficina == 1:    # Gastos oficina Francia 167
+            categoria = "Gastos oficina Francia 167"
             
             while transaccion == "":
                 print()
@@ -2534,7 +2534,7 @@ def reg_cobros_federacion(idu: int):
     print()
     
     categoria_ing = "Mantenimiento Federación"
-    descripcion_ing = "Oficina Córdoba 2915"
+    descripcion_ing = "Oficina Francia 167"
     transaccion_ing = "FED"
     ingreso = 0
     

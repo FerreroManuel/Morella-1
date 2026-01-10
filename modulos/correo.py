@@ -81,7 +81,7 @@ def envio_de_recibo(num_socio: int, id_op: int, periodo: str, nro_nicho: str, pa
     # Cuerpo del mensaje
     # Si se redacta en HTML colocar 'html' en el 2do parámetro
     # Si se redacta en texto plano colocar 'plain' en el segundo parámetro
-    msg.attach(MIMEText(f"Sr/a. <b>{nom}</b>, le acercamos su recibo de pago correspondiente a <u>{periodo}</u> por el mantenimiento del nicho <b>{str(nro_nicho).rjust(10, '0')}</b> ubicado en el panteón <b>{panteon}</b>. El mismo fue debitado de su tarjeta <i>XXXX XXXX XXXX {t04}</i>, según lo acordado.<br><br>Muchas Gracias por confiar en nosotros.<br><br>______________________________<br><br><b>Grupo Bicon S.A.</b><br>430 9999 / 430 8800<br>Córdoba 2915 - 2000<br>ROSARIO, Santa Fe<br><br><i>Este mensaje fue generado automáticamente, por favor no lo responda. Si usted cree que se trata de un error póngase en contacto con la administración para notificarlo. Muchas Gracias.</i>",'html'))
+    msg.attach(MIMEText(f"Sr/a. <b>{nom}</b>, le acercamos su recibo de pago correspondiente a <u>{periodo}</u> por el mantenimiento del nicho <b>{str(nro_nicho).rjust(10, '0')}</b> ubicado en el panteón <b>{panteon}</b>. El mismo fue debitado de su tarjeta <i>XXXX XXXX XXXX {t04}</i>, según lo acordado.<br><br>Muchas Gracias por confiar en nosotros.<br><br>______________________________<br><br><b>Grupo Bicon S.A.</b><br>430 9999 / 430 8800<br>Francia 167 Oficina 1 - 2000<br>ROSARIO, Santa Fe<br><br><i>Este mensaje fue generado automáticamente, por favor no lo responda. Si usted cree que se trata de un error póngase en contacto con la administración para notificarlo. Muchas Gracias.</i>",'html'))
 
     # Cargamos el archivo a adjuntar
     fp = open(mant.re_path(f'reports/recibos/{nom_cob}/{num_socio}-{nom}/recibo-{num_rec}.pdf'),'rb')
@@ -161,7 +161,7 @@ def recordatorio_cobrador(num_socio: int, periodo: str, nro_nicho: str, pan: int
     # Cuerpo del mensaje
     # Si se redacta en HTML colocar 'html' en el 2do parámetro
     # Si se redacta en texto plano colocar 'plain' en el segundo parámetro
-    msg.attach(MIMEText(f"Sr/a. <b>{nom}</b>, le recordamos que dentro del siguiente bimestre su cobradror/a <b>{nom_cob}</b> se estará acercando a su domicilio ubicado en <b>{dom}</b> para realizar el cobro correspondiente a <u>{periodo}</u> por el mantenimiento del nicho <b>{str(nro_nicho).rjust(10, '0')}</b> ubicado en el panteón <b>{panteon}</b>.<br><br>Muchas Gracias por confiar en nosotros.<br><br>______________________________<br><br><b>Grupo Bicon S.A.</b><br>430 9999 / 430 8800<br>Córdoba 2915 - 2000<br>ROSARIO, Santa Fe<br><br><i>Este mensaje fue generado automáticamente, por favor no lo responda. Si usted cree que se trata de un error póngase en contacto con la administración para notificarlo. Muchas Gracias.</i>",'html'))
+    msg.attach(MIMEText(f"Sr/a. <b>{nom}</b>, le recordamos que dentro del siguiente bimestre su cobradror/a <b>{nom_cob}</b> se estará acercando a su domicilio ubicado en <b>{dom}</b> para realizar el cobro correspondiente a <u>{periodo}</u> por el mantenimiento del nicho <b>{str(nro_nicho).rjust(10, '0')}</b> ubicado en el panteón <b>{panteon}</b>.<br><br>Muchas Gracias por confiar en nosotros.<br><br>______________________________<br><br><b>Grupo Bicon S.A.</b><br>430 9999 / 430 8800<br>Francia 167 Oficina 1 - 2000<br>ROSARIO, Santa Fe<br><br><i>Este mensaje fue generado automáticamente, por favor no lo responda. Si usted cree que se trata de un error póngase en contacto con la administración para notificarlo. Muchas Gracias.</i>",'html'))
 
     # Inicializamos el SMTP para hacer el envío
     server = smtplib.SMTP(smtp_server)
@@ -206,7 +206,7 @@ def aviso_de_mora(id_operacion: int):
         # Cuerpo del mensaje
         # Si se redacta en HTML colocar 'html' en el 2do parámetro
         # Si se redacta en texto plano colocar 'plain' en el segundo parámetro
-        msg.attach(MIMEText(f"Sr/a. <b>{nom}</b>, le informamos que debido a la falta de pago durante dos años consecutivos de los servicios contratados en la operación con número {str(id_operacion).rjust(7, '0')}, su cuenta ha pasado a estado de moroso.<br>Le rogamos que se acerque a nuestras oficinas ubicadas en calle Córdoba 2915 (Rosario) a fin de regularizar dicha situación y así poder continuar brindándole nuestro mejor servicio.<br><br>Se adjunta una copia de su estado de cuenta actual.<br><br>Muchas Gracias por confiar en nosotros.<br><br>______________________________<br><br><b>Grupo Bicon S.A.</b><br>430 9999 / 430 8800<br>Córdoba 2915 - 2000<br>ROSARIO, Santa Fe<br><br><i>Este mensaje fue generado automáticamente, por favor no lo responda. Si usted cree que se trata de un error póngase en contacto con la administración para notificarlo. Muchas Gracias.</i>",'html'))
+        msg.attach(MIMEText(f"Sr/a. <b>{nom}</b>, le informamos que debido a la falta de pago durante dos años consecutivos de los servicios contratados en la operación con número {str(id_operacion).rjust(7, '0')}, su cuenta ha pasado a estado de moroso.<br>Le rogamos que se acerque a nuestras oficinas ubicadas en calle Francia 167 Oficina 1 (Rosario) a fin de regularizar dicha situación y así poder continuar brindándole nuestro mejor servicio.<br><br>Se adjunta una copia de su estado de cuenta actual.<br><br>Muchas Gracias por confiar en nosotros.<br><br>______________________________<br><br><b>Grupo Bicon S.A.</b><br>430 9999 / 430 8800<br>Francia 167 Oficina 1 - 2000<br>ROSARIO, Santa Fe<br><br><i>Este mensaje fue generado automáticamente, por favor no lo responda. Si usted cree que se trata de un error póngase en contacto con la administración para notificarlo. Muchas Gracias.</i>",'html'))
 
         # Cargamos el archivo a adjuntar
         try:
@@ -264,12 +264,12 @@ def envio_de_errores():
 
     # Cuerpo del mensaje
     html = """Envío del log de errores de <b>Morella</b><br> a través del reporteador.
-        \r<br>______________________________<br><br><b>Grupo Bicon S.A.</b><br>430 9999 / 430 8800<br>Córdoba 2915 - 2000
+        \r<br>______________________________<br><br><b>Grupo Bicon S.A.</b><br>430 9999 / 430 8800<br>Francia 167 Oficina 1 - 2000
         \r<br>ROSARIO, Santa Fe<br><br><i>Este mensaje fue generado automáticamente, por favor no lo responda. Si usted
         \rcree que se trata de un error póngase en contacto con la administración para notificarlo. Muchas Gracias.</i>"""
 
     plain = """Envío del log de errores de Morella a través del reporteador.
-        \r______________________________\n\n<b>Grupo Bicon S.A.\n\n430 9999 / 430 8800\nCórdoba 2915 - 2000
+        \r______________________________\n\n<b>Grupo Bicon S.A.\n\n430 9999 / 430 8800\nFrancia 167 Oficina 1 - 2000
         \rROSARIO, Santa Fe\n\n\nEste mensaje fue generado automáticamente, por favor no lo responda. Si usted \
         cree que se trata de un error póngase en contacto con la administración para notificarlo. Muchas Gracias."""
 

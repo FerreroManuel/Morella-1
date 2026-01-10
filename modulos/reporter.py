@@ -1605,12 +1605,12 @@ def recibos(cobrador: int, facturacion: str, periodo: str, año: str, reimpresio
             pdf.cell(76, 3, 'Tel.: 430 9999 / 430 8800', 0, 1, 'L')
             
             # Línea 4
-            pdf.cell(19, 3, '', 0, 0, 'L')
-            pdf.cell(45, 3, 'CORDOBA 2915 - ROSARIO', 0, 0, 'L')
+            pdf.cell(10, 3, '', 0, 0, 'L')
+            pdf.cell(54, 3, 'FRANCIA 167 OFICINA 1 - ROSARIO', 0, 0, 'L')
             pdf.cell(17, 3, 'Recibo nro.', 'LTB', 0, 'L')
             pdf.cell(12, 3, f'{ndr}'.rjust(7, '0'), 'RTB', 0, 'R')
             pdf.cell(13, 3, '', 0, 0, 'L')
-            pdf.cell(55, 3, 'CORDOBA 2915 - ROSARIO', 0, 0, 'L')
+            pdf.cell(55, 3, 'FRANCIA 167 OFICINA 1 - ROSARIO', 0, 0, 'L')
             pdf.cell(17, 3, 'Recibo nro.', 'LTB', 0, 'L')
             pdf.cell(12, 3, f'{ndr}'.rjust(7, '0'), 'RTB', 1, 'R')
             pdf.ln(1)
@@ -1655,13 +1655,13 @@ def recibos(cobrador: int, facturacion: str, periodo: str, año: str, reimpresio
             # Línea 4
             pdf.set_font('Arial', '', 6)
             pdf.cell(12, 3, '', 0, 0, 'L')
-            pdf.cell(52, 3, 'Córdoba 2915 - Tel. 430 9999 / 8800', 0, 0, 'L')
+            pdf.cell(52, 3, 'Francia 167 Of. 1 - Tel. 430 9999 / 8800', 0, 0, 'L')
             pdf.set_font('Arial', 'B', 8)
             pdf.cell(17, 3, 'Recibo nro.', 'LTB', 0, 'L')
             pdf.cell(12, 3, f'{ndr}'.rjust(7, '0'), 'RTB', 0, 'R')
             pdf.set_font('Arial', '', 6)
             pdf.cell(17, 3, '', 0, 0, 'L')
-            pdf.cell(51, 3, 'Córdoba 2915 - Tel. 430 9999 / 8800', 0, 0, 'L')
+            pdf.cell(51, 3, 'Francia 167 Of. 1 - Tel. 430 9999 / 8800', 0, 0, 'L')
             pdf.set_font('Arial', 'B', 8)
             pdf.set_font('Arial', 'B', 8)
             pdf.cell(17, 3, 'Recibo nro.', 'LTB', 0, 'L')
@@ -2213,7 +2213,7 @@ def recibos_deb_aut(facturacion: str, periodo: str, año: str):
             # Línea 4
             pdf.set_font('Arial', '', 6)
             pdf.cell(12, 3, '', 0, 0, 'L')
-            pdf.cell(44, 3, 'Córdoba 2915 - Tel. 430 9999 / 8800', 0, 0, 'L')
+            pdf.cell(44, 3, 'Francia 167 Of. 1 - Tel. 430 9999 / 8800', 0, 0, 'L')
             pdf.set_font('Arial', 'B', 8)
             pdf.cell(17, 3, 'Recibo nro.', 'LTB', 0, 'L')
             pdf.cell(12, 3, f'{ndr}'.rjust(7, '0'), 'RTB', 1, 'R')
@@ -2229,7 +2229,7 @@ def recibos_deb_aut(facturacion: str, periodo: str, año: str):
             pdf.cell(85, 5, 'Tel.: 430 9999 / 430 8800', 0, 1, 'C')
             
             # Línea 3
-            pdf.cell(85, 5, 'CORDOBA 2915 - ROSARIO', 0, 1, 'C')
+            pdf.cell(85, 5, 'FRANCIA 167 OFICINA 1 - ROSARIO', 0, 1, 'C')
             
             # Línea 4
             pdf.set_font('Arial', 'B', 10)
@@ -2857,12 +2857,12 @@ def recibos_documentos() -> list:
                     pdf.cell(18, 3, '', 0, 0, 'L')
                     pdf.cell(76, 3, 'Tel.: 430 9999 / 430 8800', 0, 1, 'L')
                     # Línea 4
-                    pdf.cell(19, 3, '', 0, 0, 'L')
-                    pdf.cell(45, 3, 'CORDOBA 2915 - ROSARIO', 0, 0, 'L')
+                    pdf.cell(10, 3, '', 0, 0, 'L')
+                    pdf.cell(54, 3, 'FRANCIA 167 OFICINA 1 - ROSARIO', 0, 0, 'L')
                     pdf.cell(17, 3, 'Recibo nro.', 'LTB', 0, 'L')
                     pdf.cell(12, 3, f'{ndr}'.rjust(7, '0'), 'RTB', 0, 'R')
                     pdf.cell(20, 3, '', 0, 0, 'L')
-                    pdf.cell(48, 3, 'CORDOBA 2915 - ROSARIO', 0, 0, 'L')
+                    pdf.cell(48, 3, 'FRANCIA 167 OFICINA 1 - ROSARIO', 0, 0, 'L')
                     pdf.cell(17, 3, 'Recibo nro.', 'LTB', 0, 'L')
                     pdf.cell(12, 3, f'{ndr}'.rjust(7, '0'), 'RTB', 1, 'R')
                     pdf.ln(1)
@@ -2891,12 +2891,12 @@ def recibos_documentos() -> list:
                     #     pdf.cell(76, 3, 'Tel.: 430 9999 / 430 8800', 0, 1, 'L')
                     
                     #     # Línea 4
-                    #     pdf.cell(19, 3, '', 0, 0, 'L')
-                    #     pdf.cell(45, 3, 'CORDOBA 2915 - ROSARIO', 0, 0, 'L')
+                    #     pdf.cell(10, 3, '', 0, 0, 'L')
+                    #     pdf.cell(54, 3, 'FRANCIA 167 OFICINA 1 - ROSARIO', 0, 0, 'L')
                     #     pdf.cell(17, 3, 'Recibo nro.', 'LTB', 0, 'L')
                     #     pdf.cell(12, 3, f'{ndr}'.rjust(7, '0'), 'RTB', 0, 'R')
                     #     pdf.cell(20, 3, '', 0, 0, 'L')
-                    #     pdf.cell(48, 3, 'CORDOBA 2915 - ROSARIO', 0, 0, 'L')
+                    #     pdf.cell(48, 3, 'FRANCIA 167 OFICINA 1 - ROSARIO', 0, 0, 'L')
                     #     pdf.cell(17, 3, 'Recibo nro.', 'LTB', 0, 'L')
                     #     pdf.cell(12, 3, f'{ndr}'.rjust(7, '0'), 'RTB', 1, 'R')
                     #     pdf.ln(1)
@@ -2946,13 +2946,13 @@ def recibos_documentos() -> list:
                     #     # Línea 4
                     #     pdf.set_font('Arial', '', 6)
                     #     pdf.cell(12, 3, '', 0, 0, 'L')
-                    #     pdf.cell(52, 3, 'Córdoba 2915 - Tel. 430 9999 / 8800', 0, 0, 'L')
+                    #     pdf.cell(52, 3, 'Francia 167 Of. 1 - Tel. 430 9999 / 8800', 0, 0, 'L')
                     #     pdf.set_font('Arial', 'B', 8)
                     #     pdf.cell(17, 3, 'Recibo nro.', 'LTB', 0, 'L')
                     #     pdf.cell(12, 3, f'{ndr}'.rjust(7, '0'), 'RTB', 0, 'R')
                     #     pdf.set_font('Arial', '', 6)
                     #     pdf.cell(17, 3, '', 0, 0, 'L')
-                    #     pdf.cell(51, 3, 'Córdoba 2915 - Tel. 430 9999 / 8800', 0, 0, 'L')
+                    #     pdf.cell(51, 3, 'Francia 167 Of. 1 - Tel. 430 9999 / 8800', 0, 0, 'L')
                     #     pdf.set_font('Arial', 'B', 8)
                     #     pdf.set_font('Arial', 'B', 8)
                     #     pdf.cell(17, 3, 'Recibo nro.', 'LTB', 0, 'L')
@@ -3512,12 +3512,12 @@ def reimpresion_recibo(ndr: int):
         pdf.cell(76, 3, 'Tel.: 430 9999 / 430 8800', 0, 1, 'L')
     
         # Línea 4
-        pdf.cell(19, 3, '', 0, 0, 'L')
-        pdf.cell(45, 3, 'CORDOBA 2915 - ROSARIO', 0, 0, 'L')
+        pdf.cell(10, 3, '', 0, 0, 'L')
+        pdf.cell(54, 3, 'FRANCIA 167 OFICINA 1 - ROSARIO', 0, 0, 'L')
         pdf.cell(17, 3, 'Recibo nro.', 'LTB', 0, 'L')
         pdf.cell(12, 3, f'{ndr}'.rjust(7, '0'), 'RTB', 0, 'R')
         pdf.cell(13, 3, '', 0, 0, 'L')
-        pdf.cell(55, 3, 'CORDOBA 2915 - ROSARIO', 0, 0, 'L')
+        pdf.cell(55, 3, 'FRANCIA 167 OFICINA 1 - ROSARIO', 0, 0, 'L')
         pdf.cell(17, 3, 'Recibo nro.', 'LTB', 0, 'L')
         pdf.cell(12, 3, f'{ndr}'.rjust(7, '0'), 'RTB', 1, 'R')
         pdf.ln(1)
@@ -3566,13 +3566,13 @@ def reimpresion_recibo(ndr: int):
         # Línea 4
         pdf.set_font('Arial', '', 6)
         pdf.cell(12, 3, '', 0, 0, 'L')
-        pdf.cell(52, 3, 'Córdoba 2915 - Tel. 430 9999 / 8800', 0, 0, 'L')
+        pdf.cell(52, 3, 'Francia 167 Of. 1 - Tel. 430 9999 / 8800', 0, 0, 'L')
         pdf.set_font('Arial', 'B', 8)
         pdf.cell(17, 3, 'Recibo nro.', 'LTB', 0, 'L')
         pdf.cell(12, 3, f'{ndr}'.rjust(7, '0'), 'RTB', 0, 'R')
         pdf.set_font('Arial', '', 6)
         pdf.cell(17, 3, '', 0, 0, 'L')
-        pdf.cell(51, 3, 'Córdoba 2915 - Tel. 430 9999 / 8800', 0, 0, 'L')
+        pdf.cell(51, 3, 'Francia 167 Of. 1 - Tel. 430 9999 / 8800', 0, 0, 'L')
         pdf.set_font('Arial', 'B', 8)
         pdf.set_font('Arial', 'B', 8)
         pdf.cell(17, 3, 'Recibo nro.', 'LTB', 0, 'L')
@@ -3822,7 +3822,7 @@ def recibo_adelanto(ndr: int, cobrador: int, periodo_h: str, año_h: str, valor_
         pdf.cell(85, 5, 'Tel.: 430 9999 / 430 8800', 0, 1, 'C')
 
         # Línea 3
-        pdf.cell(85, 5, 'CORDOBA 2915 - ROSARIO', 0, 1, 'C')
+        pdf.cell(85, 5, 'FRANCIA 167 OFICINA 1 - ROSARIO', 0, 1, 'C')
 
         # Línea 4
         pdf.set_font('Arial', 'B', 10)
@@ -3860,7 +3860,7 @@ def recibo_adelanto(ndr: int, cobrador: int, periodo_h: str, año_h: str, valor_
         # Línea 4
         pdf.set_font('Arial', '', 6)
         pdf.cell(12, 3, '', 0, 0, 'L')
-        pdf.cell(44, 3, 'Córdoba 2915 - Tel. 430 9999 / 8800', 0, 0, 'L')
+        pdf.cell(44, 3, 'Francia 167 Of. 1 - Tel. 430 9999 / 8800', 0, 0, 'L')
         pdf.set_font('Arial', 'B', 8)
         pdf.cell(17, 3, 'Recibo nro.', 'LTB', 0, 'L')
         pdf.cell(12, 3, f'{ndr}'.rjust(7, '0'), 'RTB', 1, 'R')
